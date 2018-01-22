@@ -437,7 +437,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 }
                 etDisPntsInt = Integer.parseInt(etDisPntsInput);
                 etWaterQuantWithDPInt = etDisPntsInt * etWaterQuantInt;
-
+                Log.e("@@@ USER INPUTS ", "DP:: " + etDisPntsInt + "\n DURATION::" + etDurationInt + "\n VOLUME*DP:: " + etWaterQuantWithDPInt);
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     //This method will automatically followed by loading new time points method
