@@ -52,7 +52,7 @@ import static android.app.Activity.RESULT_OK;
  * Created by Android on 12/6/2017.
  */
 
-public class FragAddAddress extends Fragment implements OnMapReadyCallback, View.OnClickListener, TextView.OnEditorActionListener {
+public class FragAddAddress extends Fragment implements OnMapReadyCallback, View.OnClickListener {
 
     private static final int PLACE_AC_REQUEST_CODE = 1;
     private MainActivity mContext;
@@ -482,14 +482,5 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
         if (mapFragment != null) {
             mContext.getFragmentManager().beginTransaction().remove(mapFragment).commit();
         }
-    }
-
-
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-            Toast.makeText(mContext, "Search", Toast.LENGTH_SHORT).show();
-        }
-        return false;
     }
 }
