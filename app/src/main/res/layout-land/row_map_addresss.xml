@@ -4,7 +4,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/ll_bg"
+        android:id="@+id/llRowBgAdrsDvcMap"
         android:layout_width="@dimen/_120sdp"
         android:layout_height="@dimen/_40sdp"
         android:background="@drawable/device_bg"

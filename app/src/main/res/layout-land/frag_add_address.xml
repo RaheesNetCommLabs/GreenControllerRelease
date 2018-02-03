@@ -51,7 +51,7 @@
                         android:gravity="center_vertical"
                         android:hint="Flat/ Building/ House no."
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -81,7 +81,7 @@
                         android:gravity="center_vertical"
                         android:hint="Tower/ Street"
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -122,6 +122,7 @@
                         android:gravity="center_vertical"
                         android:hint="Area/ Locality/ Landmark"
                         android:imeOptions="flagNoExtractUi"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:paddingRight="@dimen/_15sdp"
                         android:singleLine="true"
@@ -192,7 +193,7 @@
                         android:gravity="center_vertical"
                         android:hint="City"
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -222,7 +223,7 @@
                         android:gravity="center_vertical"
                         android:hint="State"
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -323,7 +324,9 @@
                     android:background="@drawable/rect_border_light_line"
                     android:hint="Enter other address name"
                     android:imeOptions="flagNoExtractUi"
+                    android:inputType="textCapSentences"
                     android:paddingLeft="@dimen/_10sdp"
+                    android:maxLength="25"
                     android:visibility="gone" />
 
             </LinearLayout>

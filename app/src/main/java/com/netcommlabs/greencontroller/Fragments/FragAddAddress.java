@@ -8,12 +8,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,7 +36,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.model.MdlAddressNdLocation;
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
     private LinearLayout llScrnHeader;
     private EditText et_flat_num, et_street_area, et_city, et_locality_landmark, et_pincode, et_state, etOtherAddName, etSearchPlaceAuto;
     private String et_other_addrs_name_input;
-    private String radio_address_name = "";
+    private String radioAddressName = "";
     private Place place;
     private MapFragment mapFragment;
     //private View mapView;
@@ -80,13 +79,15 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
     private List<Address> listAddress;
     private String addressOnClickMap = "", placeWellKnownName = "", pin_code = "", city = "", state = "", country = "";
     static final String KEY_ADDRESS_TRANSFER = "addressTrans";
-    private MdlAddressNdLocation mdlLocationAddress;
+    private ModalAddressModule modalAddressModule;
     private Bundle addressBundle;
     //private Double mLatitude, mLongitude;
     private String placeWKNamePAC = "";
     private String etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput;
     private LatLng placeLatLong;
     private String savedCity = "";
+    private Object objPlaceLatLong;
+    private DatabaseHandler databaseHandler;
 
 
     @Override
@@ -127,33 +128,35 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
     }
 
     private void initBase() {
+        databaseHandler=DatabaseHandler.getInstance(mContext);
         if (!NetworkUtils.isConnected(mContext)) {
             Toast.makeText(mContext, "Check your Network Connection", Toast.LENGTH_LONG).show();
         }
+        //databaseHandler = new DatabaseHandler(mContext);
         addressBundle = getArguments();
         if (addressBundle != null) {
-            mdlLocationAddress = (MdlAddressNdLocation) getArguments().getSerializable(KEY_ADDRESS_TRANSFER);
-            et_flat_num.setText(mdlLocationAddress.getFlat_num());
-            et_street_area.setText(mdlLocationAddress.getStreetName());
-            et_locality_landmark.setText(mdlLocationAddress.getLocality_landmark());
-            et_pincode.setText(mdlLocationAddress.getPinCode());
-            savedCity = mdlLocationAddress.getCity();
+            modalAddressModule = (ModalAddressModule) getArguments().getSerializable(KEY_ADDRESS_TRANSFER);
+            et_flat_num.setText(modalAddressModule.getFlat_num());
+            et_street_area.setText(modalAddressModule.getStreetName());
+            et_locality_landmark.setText(modalAddressModule.getLocality_landmark());
+            et_pincode.setText(modalAddressModule.getPinCode());
+            savedCity = modalAddressModule.getCity();
             et_city.setText(savedCity);
-            et_state.setText(mdlLocationAddress.getState());
+            et_state.setText(modalAddressModule.getState());
 
-            radio_address_name = mdlLocationAddress.getAddress_name();
-            if (radio_address_name.equals("Home")) {
+            radioAddressName = modalAddressModule.getAddressRadioName();
+            if (radioAddressName.equals("Home")) {
                 raBtnHome.setChecked(true);
-            } else if (radio_address_name.equals("Office")) {
+            } else if (radioAddressName.equals("Office")) {
                 raBtnOffice.setChecked(true);
             } else {
                 raBtnOther.setChecked(true);
                 etOtherAddName.setVisibility(View.VISIBLE);
-                etOtherAddName.setText(radio_address_name);
+                etOtherAddName.setText(radioAddressName);
             }
-            placeLatLong = (LatLng)mdlLocationAddress.getObjPlaceLatLong();
-            placeWellKnownName = mdlLocationAddress.getPlaceWellKnownName();
-            placeAddress = mdlLocationAddress.getPlaceAddress();
+            placeLatLong = (LatLng) modalAddressModule.getPlaceObjLatLong();
+            placeWellKnownName = modalAddressModule.getPlaceWellKnownName();
+            placeAddress = modalAddressModule.getPlaceAddress();
         }
 
         geocoder = new Geocoder(mContext);
@@ -236,12 +239,12 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
                 if (checkedId == R.id.raBtnHome) {
                     etOtherAddName.setVisibility(View.GONE);
                     //setLLAddAddressHeightNumeric();
-                    radio_address_name = "Home";
+                    radioAddressName = "Home";
                     //Toast.makeText(mContext, "Home clicked", Toast.LENGTH_SHORT).show();
                 } else if (checkedId == R.id.raBtnOffice) {
                     etOtherAddName.setVisibility(View.GONE);
                     //setLLAddAddressHeightNumeric();
-                    radio_address_name = "Office";
+                    radioAddressName = "Office";
                     //Toast.makeText(mContext, "Office clicked", Toast.LENGTH_SHORT).show();
                 } else {
                     etOtherAddName.setVisibility(View.VISIBLE);
@@ -319,7 +322,7 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
                 Toast.makeText(mContext, "Check your network connection", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Toast.makeText(mContext, "Something went wrong, please try later", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -418,16 +421,21 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
                 mContext.llSearchMapOKTop.setVisibility(View.GONE);
 
                 etSearchPlaceAuto.setText("");
-                Object objPlaceLatLong = ((Object) placeLatLong);
-                mdlLocationAddress = new MdlAddressNdLocation(etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radio_address_name, objPlaceLatLong, placeWellKnownName, placeAddress);
+                objPlaceLatLong = placeLatLong;
+                modalAddressModule = new ModalAddressModule(etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radioAddressName, objPlaceLatLong, placeWellKnownName, placeAddress);
 
-                getTargetFragment().onActivityResult(
-                        getTargetRequestCode(),
-                        RESULT_OK,
-                        new Intent().putExtra("mdlAddressLocation", mdlLocationAddress)
-                );
+                Fragment fragment = getTargetFragment();
+                if (fragment == null) {
+                    databaseHandler.insertAddressModule(modalAddressModule);
+                    Toast.makeText(mContext, "New Address Added Successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(),
+                            RESULT_OK,
+                            new Intent().putExtra("mdlAddressLocation", modalAddressModule)
+                    );
+                }
                 mContext.onBackPressed();
-
                 break;
             case R.id.btnAddressCancel:
                 mContext.onBackPressed();
@@ -443,22 +451,30 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
                 etPincodeInput = et_pincode.getText().toString().trim();
                 etCityInput = et_city.getText().toString().trim();
                 etStateInput = et_state.getText().toString().trim();
-                if (etFlatInput.isEmpty() || etStreetInput.isEmpty() || etLocalityLandmarkInput.isEmpty() || etPincodeInput.isEmpty() ||etCityInput.isEmpty() ||etStateInput.isEmpty()) {
+                if (etFlatInput.isEmpty() || etStreetInput.isEmpty() || etLocalityLandmarkInput.isEmpty() || etPincodeInput.isEmpty() || etCityInput.isEmpty() || etStateInput.isEmpty()) {
                     Toast.makeText(mContext, "All Input fields are mandatory", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (etOtherAddName.getVisibility() == View.VISIBLE) {
-                    radio_address_name = etOtherAddName.getText().toString();
-                    if (radio_address_name.isEmpty()) {
+                    radioAddressName = etOtherAddName.getText().toString();
+                    if (radioAddressName.isEmpty()) {
                         Toast.makeText(mContext, "Please provide Address Name", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
-                if (radio_address_name.isEmpty()) {
+                if (radioAddressName.isEmpty()) {
                     Toast.makeText(mContext, "Please provide Address Name", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                //mdlLocationAddress = new MdlAddressNdLocation(etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radio_address_name);
+                //Maintaining Address Name uniqueness
+                if (databaseHandler.getAllAddressIDRadioNameSelectStatus().size() > 0) {
+                    for (int i = 0; i < databaseHandler.getAllAddressIDRadioNameSelectStatus().size(); i++) {
+                        if (databaseHandler.getAllAddressIDRadioNameSelectStatus().get(i).getAddressRadioName().equalsIgnoreCase(radioAddressName)) {
+                            Toast.makeText(mContext, "\"" + radioAddressName + "\" already exists with app, Choose different Address Name", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }
                 if (etCityInput.equals(savedCity)) {
                     latlongShowOnGoogleMap();
                 } else {
@@ -469,7 +485,7 @@ public class FragAddAddress extends Fragment implements OnMapReadyCallback, View
                 /*getTargetFragment().onActivityResult(
                         getTargetRequestCode(),
                         RESULT_OK,
-                        new Intent().putExtra("mdlAddressLocation", mdlLocationAddress)
+                        new Intent().putExtra("mdlAddressLocation", modalAddressModule)
                 );
                 mContext.onBackPressed();*/
         }

@@ -6,56 +6,60 @@
     android:orientation="horizontal"
     tools:context="com.netcommlabs.greencontroller.Fragments.FragDeviceMAP">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="@dimen/_122sdp"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/_4sdp"
-        android:orientation="vertical">
+        android:layout_marginTop="@dimen/_4sdp">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical" />
+            android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="@dimen/_120sdp"
-            android:layout_height="@dimen/_40sdp">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-            <LinearLayout
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/circle_notification">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="+"
-                    android:textSize="@dimen/_12sdp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/llMapNewAddress"
+            <RelativeLayout
                 android:layout_width="@dimen/_120sdp"
                 android:layout_height="@dimen/_40sdp"
-                android:layout_marginTop="@dimen/_3sdp"
-                android:background="@drawable/device_bg"
-                android:gravity="center">
+                android:layout_marginBottom="@dimen/_4sdp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/_10sdp"
-                    android:text="New Address"
-                    android:textColor="@color/text_color_white"
-                    android:textSize="@dimen/_13sdp" />
-            </LinearLayout>
-        </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/circle_notification">
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textSize="@dimen/_12sdp" />
+                </LinearLayout>
 
-    </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/llAddNewAddress"
+                    android:layout_width="@dimen/_120sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:background="@drawable/device_bg"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/_10sdp"
+                        android:text="New Address"
+                        android:textColor="@color/text_color_white"
+                        android:textSize="@dimen/_13sdp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -119,7 +123,8 @@
                     android:id="@+id/rlBubbleLeftTop"
                     android:layout_width="@dimen/_130sdp"
                     android:layout_height="@dimen/_50sdp"
-                    android:gravity="start">
+                    android:gravity="start"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:id="@+id/llBubbleLeftTopBG"
@@ -168,7 +173,8 @@
                 <RelativeLayout
                     android:id="@+id/rlBubbleRightTop"
                     android:layout_width="@dimen/_130sdp"
-                    android:layout_height="@dimen/_50sdp">
+                    android:layout_height="@dimen/_50sdp"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:id="@+id/ll_3st"
@@ -218,7 +224,8 @@
             <RelativeLayout
                 android:id="@+id/rlBubbleMiddle"
                 android:layout_width="@dimen/_130sdp"
-                android:layout_height="@dimen/_50sdp">
+                android:layout_height="@dimen/_50sdp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -272,7 +279,8 @@
                 <RelativeLayout
                     android:id="@+id/rlBubbleLeftBottom"
                     android:layout_width="@dimen/_130sdp"
-                    android:layout_height="@dimen/_50sdp">
+                    android:layout_height="@dimen/_50sdp"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:id="@+id/ll_4st"
@@ -318,7 +326,8 @@
                 <RelativeLayout
                     android:id="@+id/rlBubbleRightBottom"
                     android:layout_width="@dimen/_130sdp"
-                    android:layout_height="@dimen/_50sdp">
+                    android:layout_height="@dimen/_50sdp"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:id="@+id/ll_5st"
@@ -358,14 +367,15 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ll_footer"
+            android:id="@+id/llFooterIM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/_5sdp"
             android:layout_marginEnd="@dimen/_10sdp"
             android:layout_marginStart="@dimen/_10sdp"
             android:gravity="center"
-            android:padding="@dimen/_4sdp">
+            android:padding="@dimen/_4sdp"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/ivPrev"

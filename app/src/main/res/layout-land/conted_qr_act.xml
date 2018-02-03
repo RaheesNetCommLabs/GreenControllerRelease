@@ -8,26 +8,26 @@
     android:layout_marginRight="@dimen/_5sdp"
     tools:context="com.netcommlabs.greencontroller.activities.ConnectedQRAct">
 
-   <!-- <LinearLayout
-        android:id="@+id/llScrnHeader"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+    <!-- <LinearLayout
+         android:id="@+id/llScrnHeader"
+         android:layout_width="match_parent"
+         android:layout_height="?android:attr/actionBarSize"
+         android:gravity="center_vertical"
+         android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/back_arrow_circle" />
+         <ImageView
+             android:layout_width="@dimen/_20sdp"
+             android:layout_height="wrap_content"
+             android:src="@drawable/back_arrow_circle" />
 
-        <TextView
-            android:id="@+id/tvTitleConctnt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_5sdp"
-            android:text="Device Connected"
-            android:textSize="@dimen/header_title_size" />
-    </LinearLayout>-->
+         <TextView
+             android:id="@+id/tvTitleConctnt"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginLeft="@dimen/_5sdp"
+             android:text="Device Connected"
+             android:textSize="@dimen/header_title_size" />
+     </LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/llDeviceAddress"
@@ -37,7 +37,6 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/llDeviceEditConncted"
             android:layout_width="0dp"
             android:layout_height="@dimen/_75sdp"
             android:layout_weight="1"
@@ -58,37 +57,38 @@
                 android:layout_marginLeft="@dimen/_5sdp"
                 android:text="Device 1"
                 android:textSize="@dimen/_13sdp"
-                 />
+                android:visibility="gone" />
 
             <EditText
-                android:visibility="gone"
-                android:layout_marginLeft="@dimen/_4sdp"
                 android:id="@+id/etEditDvcName"
                 android:layout_width="@dimen/_120sdp"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginLeft="@dimen/_4sdp"
+                android:background="@drawable/rect_border_light_line"
                 android:hint="Enter device name"
-                android:paddingLeft="@dimen/_7sdp"
-                android:textSize="@dimen/_12sdp"
                 android:imeOptions="flagNoExtractUi"
-                android:background="@drawable/rect_border_light_line" />
+                android:inputType="textCapSentences"
+                android:maxLength="20"
+                android:paddingLeft="@dimen/_7sdp"
+                android:textSize="@dimen/_12sdp"/>
+
 
             <ImageView
                 android:id="@+id/ivEditDvcName"
                 android:layout_width="@dimen/_24sdp"
                 android:layout_height="@dimen/_24sdp"
                 android:layout_marginLeft="@dimen/_5sdp"
-                android:paddingLeft="@dimen/_5sdp"
                 android:background="@drawable/edit"
-                />
+                android:paddingLeft="@dimen/_5sdp"
+                android:visibility="gone" />
 
             <ImageView
-                android:visibility="gone"
                 android:id="@+id/ivSaveDvcName"
                 android:layout_width="@dimen/_24sdp"
                 android:layout_height="@dimen/_24sdp"
                 android:layout_marginLeft="@dimen/_5sdp"
-                android:paddingLeft="@dimen/_5sdp"
-                android:background="@drawable/save_pen" />
+                android:background="@drawable/save_pen"
+                android:paddingLeft="@dimen/_5sdp" />
 
         </LinearLayout>
 
@@ -167,13 +167,12 @@
                 android:layout_marginRight="@dimen/_5sdp"
                 android:layout_marginTop="@dimen/_3sdp"
                 android:background="@drawable/rect_border_light_line"
+                android:focusable="false"
                 android:gravity="center_vertical"
                 android:hint="Enter QR manually"
+                android:imeOptions="flagNoExtractUi"
                 android:padding="@dimen/_10sdp"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:textSize="@dimen/hint_size"
-                android:imeOptions="flagNoExtractUi"/>
+                android:textSize="@dimen/hint_size" />
 
         </LinearLayout>
 

@@ -23,7 +23,7 @@ import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.model.ModalBLEDevice;
+import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.Constant;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
@@ -39,6 +39,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
     private List<Navigation_Drawer_Data> listNavDrawerRowDat;
     MainActivity mContext;
     DrawerLayout nav_drawer_layout;
+    private DatabaseHandler databaseHandler;
 
     public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout) {
         this.mContext = mContext;
@@ -71,14 +72,14 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
                             break;
                         case "My Devices":
-                            DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
-                            List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
-                            if (listBLEDvcFromDB != null && listBLEDvcFromDB.size() > 0) {
+                            databaseHandler = DatabaseHandler.getInstance(mContext);
+                            List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+                            if (listAllDevices.size() > 0) {
                                 //Adding Fragment(FragDeviceMAP)
-                                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
                             } else {
                                 //Adding Fragment(FragDontHvDevice)
-                                MyFragmentTransactions.replaceFragment(mContext, new FragDontHvDevice(), Constant.DO_NOT_HAVE_DEVICE, mContext.frm_lyt_container_int, false);
+                                MyFragmentTransactions.replaceFragment(mContext, new FragDontHvDevice(), Constant.DO_NOT_HAVE_DEVICE, mContext.frm_lyt_container_int, true);
                             }
                             break;
                         case "Add New Device":

@@ -8,9 +8,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.R;
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,39 +20,30 @@ import java.util.List;
  */
 
 public class DeviceAddressAdapter extends RecyclerView.Adapter<DeviceAddressAdapter.MyViewHolder> {
-    List<View> listViews;
-    Context mContext;
-    List<String> listLocAddressType;
-    //List<DeviceAddressModel> listLocAddressType;
 
-    public DeviceAddressAdapter(Context mContext, List<String> listLocAddressType) {
+    Context mContext;
+    private FragDeviceMAP fragDeviceMAP;
+    private DatabaseHandler databaseHandler;
+    private List<ModalAddressModule> listAdrsIDRdoNameSlctStatus;
+    private ModalAddressModule modalAddressModule;
+    private int addressID;
+
+    public DeviceAddressAdapter(Context mContext, FragDeviceMAP fragDeviceMAP) {
         this.mContext = mContext;
-        this.listLocAddressType = listLocAddressType;
-        listViews = new ArrayList<>();
+        this.fragDeviceMAP = fragDeviceMAP;
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        listAdrsIDRdoNameSlctStatus = databaseHandler.getAllAddressIDRadioNameSelectStatus();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvAddress;
-        LinearLayout ll_bg;
+        LinearLayout llRowBgAdrsDvcMap;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            tvAddress = (TextView) itemView.findViewById(R.id.tvAddress);
-            ll_bg = (LinearLayout) itemView.findViewById(R.id.ll_bg);
-            listViews.add(ll_bg);
-            listViews.get(0).setBackgroundResource(R.drawable.device_bg_select);
-
-            ll_bg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int clickedPosi = getAdapterPosition();
-                    for (int i = 0; i < listViews.size(); i++) {
-                        listViews.get(i).setBackgroundResource(R.drawable.device_bg);
-                    }
-                    listViews.get(clickedPosi).setBackgroundResource(R.drawable.device_bg_select);
-                }
-            });
+            tvAddress = itemView.findViewById(R.id.tvAddress);
+            llRowBgAdrsDvcMap = itemView.findViewById(R.id.llRowBgAdrsDvcMap);
         }
     }
 
@@ -61,14 +54,43 @@ public class DeviceAddressAdapter extends RecyclerView.Adapter<DeviceAddressAdap
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        String address = listLocAddressType.get(position);
-        holder.tvAddress.setText(address);
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+        modalAddressModule = listAdrsIDRdoNameSlctStatus.get(position);
+        String addressName = modalAddressModule.getAddressRadioName();
+        int addressSelectStatus = modalAddressModule.getAddressSelectStatus();
 
+        holder.tvAddress.setText(addressName);
+        if (addressSelectStatus == 1) {
+            holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg_select);
+        } else {
+            holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg);
+        }
+
+        holder.llRowBgAdrsDvcMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < listAdrsIDRdoNameSlctStatus.size(); i++) {
+                    modalAddressModule = listAdrsIDRdoNameSlctStatus.get(i);
+                    addressID = modalAddressModule.getAddressID();
+                    databaseHandler.updateDeviceSelectStatus(addressID, 0);
+                    modalAddressModule.setAddressSelectStatus(0);
+                    holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg);
+                }
+                modalAddressModule = listAdrsIDRdoNameSlctStatus.get(position);
+                if (modalAddressModule.getAddressSelectStatus() == 0) {
+                    addressID = modalAddressModule.getAddressID();
+                    databaseHandler.updateDeviceSelectStatus(addressID, 1);
+                    modalAddressModule.setAddressSelectStatus(1);
+                    holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg_select);
+                }
+                notifyDataSetChanged();
+                fragDeviceMAP.setUIForAddressNdDeviceMap(addressID);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return listLocAddressType.size();
+        return listAdrsIDRdoNameSlctStatus.size();
     }
 }

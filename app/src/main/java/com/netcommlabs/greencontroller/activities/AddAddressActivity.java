@@ -186,7 +186,7 @@ public class AddAddressActivity extends AppCompatActivity {
 
                 }*/
 
-                /*MdlAddressNdLocation mdlLocationAddress = new MdlAddressNdLocation(et_flat_num_input, et_localty_land_input, et_street_area_input, et_pincode_input, et_city_input, et_state_input, radio_address_name);
+                /*ModalAddressModule mdlLocationAddress = new ModalAddressModule(et_flat_num_input, et_localty_land_input, et_street_area_input, et_pincode_input, et_city_input, et_state_input, radio_address_name);
                 intent.putExtra("Data", mdlLocationAddress);
                 setResult(RESULT_CODE_ADDRESS, intent);
                 mContext.finish();*/

@@ -143,6 +143,7 @@ public class FragDeviceDetails extends Fragment implements InterfaceValveAdapter
     }
 
     private void initBase() {
+        databaseHandler=DatabaseHandler.getInstance(mContext);
         //Getting sent intent
         Bundle bundle = getArguments();
         dvcName = bundle.getString(EXTRA_DVC_NAME);
@@ -163,7 +164,6 @@ public class FragDeviceDetails extends Fragment implements InterfaceValveAdapter
         tvDeviceName.setText(dvcName);
 
         //Adding valve name,MAC, and valve data to DB
-        databaseHandler = new DatabaseHandler(mContext);
         List<ModalValveBirth> listGotModalBLEValvesNdData = databaseHandler.getAllValvesNdData();
 
         if (listGotModalBLEValvesNdData.size() == 0) {
