@@ -63,6 +63,7 @@ import java.util.List;
 import static com.netcommlabs.greencontroller.utilities.Constant.AVAILABLE_DEVICE;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_MAP;
+import static com.netcommlabs.greencontroller.utilities.Constant.SAVED_ADDRESS;
 import static com.netcommlabs.greencontroller.utilities.SharedPrefsConstants.ADDRESS;
 
 public class MainActivity extends AppCompatActivity implements LocationDecetor {
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     private Fragment currentFragment;
     private String tagCurrFrag;
     private LinearLayout llHamburgerIconOnly;
+    public TextView tv_add_address;
 
 
     @Override
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }
         }
-
+        tv_add_address=findViewById(R.id.tv_add_address);
         frm_lyt_container_int = R.id.frm_lyt_container;
         rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
         llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
@@ -162,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         nav_revi_slider = findViewById(R.id.nav_revi_slider);
         btnMapDone = findViewById(R.id.btnAddressDone);
         btnMapBack = findViewById(R.id.btnAddressCancel);
-
+        tv_add_address.setVisibility(View.GONE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         nav_revi_slider.setLayoutManager(layoutManager);
 
@@ -460,6 +462,9 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             tvClearEditData.setVisibility(View.GONE);
         }
 
+       if(tv_add_address.getVisibility()==View.VISIBLE){
+            tv_add_address.setVisibility(View.GONE);
+        }
         switch (tag) {
             case AVAILABLE_DEVICE:
                 BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
@@ -480,6 +485,9 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                     tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
                 }
                 //}
+                break;
+            case SAVED_ADDRESS:
+                tv_add_address.setVisibility(View.VISIBLE);
                 break;
             default:
                 tvDesc_txt.setText("");

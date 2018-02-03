@@ -17,6 +17,7 @@ import com.netcommlabs.greencontroller.Fragments.FragFeedback;
 import com.netcommlabs.greencontroller.Fragments.FragMeterDevice;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
+import com.netcommlabs.greencontroller.Fragments.FragOtp;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
 import com.netcommlabs.greencontroller.Fragments.FragSavedAddress;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
@@ -39,6 +40,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
     private List<Navigation_Drawer_Data> listNavDrawerRowDat;
     MainActivity mContext;
     DrawerLayout nav_drawer_layout;
+   private TextView tv_add_address;
 
     public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout) {
         this.mContext = mContext;
@@ -57,7 +59,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
             ivNavIcon = (ImageView) itemView.findViewById(R.id.ivNavIcon);
             tvNavName = (TextView) itemView.findViewById(R.id.tvNavName);
             llAvailDvcRow = itemView.findViewById(R.id.llAvailDvcRow);
-
+            tv_add_address=mContext.findViewById(R.id.tv_add_address);
             llAvailDvcRow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -97,7 +99,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             //Replacing Fragment(FragAddAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragStatistics(), Constant.DEVICE_STATS, mContext.frm_lyt_container_int, false);
                             break;
-                        case "Saved Address":
+                        case "Address Book":
                             //Replacing Fragment(FragAddAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragSavedAddress(), Constant.SAVED_ADDRESS, mContext.frm_lyt_container_int, false);
                             break;
@@ -108,6 +110,10 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                         case "FAQ & Help":
                             //Replacing Fragment(FragAddAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), Constant.FAQ, mContext.frm_lyt_container_int, false);
+                            break;
+                        case "Verify Otp":
+                            //Replacing Fragment(FragAddAddress)
+                            MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
                             break;
 
                     }

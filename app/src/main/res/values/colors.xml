@@ -3,11 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-
+    <color name="lighter_gray">#ddd</color>
     <color name="theme_color">#0b7871</color>
     <color name="black_overlay">#66000000</color>
     <color name="text_color_pale">#FEF9CD</color>
     <color name="text_color_white">#FFFFFF</color>
     <color name="text_color_green">#348e45</color>
-
+    <color name="text_color_gray">#808080</color>
+    <color name="black">#000</color>
 </resources>
