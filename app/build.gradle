@@ -45,5 +45,4 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.5.0'
     testCompile 'junit:junit:4.12'
     compile 'com.google.android.gms:play-services-places:11.6.0'
-   
 }

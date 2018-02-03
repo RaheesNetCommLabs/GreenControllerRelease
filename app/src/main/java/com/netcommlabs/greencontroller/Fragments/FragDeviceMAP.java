@@ -35,13 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.netcommlabs.greencontroller.utilities.SharedPrefsConstants.ADDRESS;
-
 /**
  * Created by Android on 12/6/2017.
  */
-
 public class FragDeviceMAP extends Fragment implements View.OnClickListener, View.OnLongClickListener {
-
     private MainActivity mContext;
     private View view;
     private RecyclerView recyclerView;
@@ -153,7 +150,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         ll_5st.setOnLongClickListener(this);*/
     }
 
-    void setRecyclerViewAdapter() {
+    void setRecyclerViewAdapter(){
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -197,15 +194,12 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 Toast.makeText(mContext, "Next", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.ivMapNewDevice:
-
                 MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
-
                 //Toast.makeText(mContext, "In progress...", Toast.LENGTH_SHORT).show();
                /* Intent intent2 = new Intent(mContext, AvailableDevices.class);
                 startActivity(intent2);*/
         }
     }
-
     @Override
     public boolean onLongClick(View v) {
         int id = view.getId();
