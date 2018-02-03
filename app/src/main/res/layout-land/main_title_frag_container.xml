@@ -62,6 +62,20 @@
                 android:gravity="center"
                 android:text="CLEAR" />
 
+
+            <TextView
+                android:id="@+id/tv_add_address"
+                android:layout_width="@dimen/_125sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+               android:paddingRight="@dimen/_5sdp"
+                android:paddingLeft="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_5sdp"
+                android:background="@drawable/round_back_shadow_small"
+                android:gravity="center"
+                android:text=" Add New Address " />
         </RelativeLayout>
 
         <LinearLayout

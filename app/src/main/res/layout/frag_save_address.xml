@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <TextView
+    <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="SAVED ADDRESSES"
-        android:gravity="center"
-        android:textSize="@dimen/_20sdp"/>
+        android:id="@+id/list_gridview"
+        android:adjustViewBounds="true"
+        android:columnWidth="200dp"
+        android:horizontalSpacing="-10dp"
+        android:numColumns="2"></GridView>
 
-</RelativeLayout>
+
+</LinearLayout>

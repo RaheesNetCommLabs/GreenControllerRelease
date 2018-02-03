@@ -4,14 +4,11 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.activities.MainActivity;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by Android on 12/6/2017.
@@ -20,6 +17,7 @@ import org.w3c.dom.Text;
 public class MyFragmentTransactions {
 
     static TextView tvClearEditDataLocal;
+    static  TextView tvAddNewAddress;
 
     public static void replaceFragment(Context context, Fragment fragment, String tag, int layout, Boolean isAddFrag) {
         MainActivity mContext = (MainActivity) context;
@@ -46,6 +44,10 @@ public class MyFragmentTransactions {
             tvClearEditDataLocal.setVisibility(View.GONE);
         }
 
+        tvAddNewAddress=mContext.tv_add_address;
+        if(tvAddNewAddress.getVisibility()==View.VISIBLE){
+            tvAddNewAddress.setVisibility(View.GONE);
+        }
         myFragmentManager.executePendingTransactions();
         Log.e("$$$ FRAG COUNT", "" + myFragmentManager.getBackStackEntryCount() + ", TAG: " + tag);
 

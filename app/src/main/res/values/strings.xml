@@ -5,6 +5,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_dont_have_dvc">DontHaveDvc</string>
+    <string name="otp_string">Waiting to automatically  detect a SMS sent to +91 9871151360</string>
     <string-array name="long_press_option">
         <item>Delete</item>
     </string-array>
