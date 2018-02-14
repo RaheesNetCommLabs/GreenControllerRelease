@@ -26,17 +26,26 @@ public class ModalAddressModule implements Serializable {
     private String city;
     private String state;
     private String addressRadioName;
-    private Object placeObjLatLong;
+    private double latitudeLocation, longitudeLocation;
+    //private Object placeObjLatLong;
     private String placeWellKnownName;
     private String placeAddress;
 
-    public Object getPlaceObjLatLong() {
+    /*public Object getPlaceObjLatLong() {
         return placeObjLatLong;
+    }*/
+
+    public double getLatitudeLocation() {
+        return latitudeLocation;
     }
 
-    public void setPlaceObjLatLong(Object placeObjLatLong) {
-        this.placeObjLatLong = placeObjLatLong;
+    public double getLongitudeLocation() {
+        return longitudeLocation;
     }
+
+   /* public void setPlaceObjLatLong(Object placeObjLatLong) {
+        this.placeObjLatLong = placeObjLatLong;
+    }*/
 
     public String getPlaceWellKnownName() {
         return placeWellKnownName;
@@ -54,13 +63,17 @@ public class ModalAddressModule implements Serializable {
         this.placeAddress = placeAddress;
     }
 
-    public ModalAddressModule(String flat_num,
+    public ModalAddressModule() {
+    }
+
+    public ModalAddressModule(int addressID, String flat_num,
                               String streetName,
                               String locality_landmark,
                               String pinCode,
                               String city,
                               String state,
                               String addressRadioName) {
+        this.addressID = addressID;
         this.flat_num = flat_num;
         this.streetName = streetName;
         this.locality_landmark = locality_landmark;
@@ -70,14 +83,15 @@ public class ModalAddressModule implements Serializable {
         this.addressRadioName = addressRadioName;
     }
 
-    public ModalAddressModule(String flat_num,
+    public ModalAddressModule(int addressID, String flat_num,
                               String streetName,
                               String locality_landmark,
                               String pinCode,
                               String city,
                               String state,
-                              String addressRadioName, Object placeObjLatLong, String placeWellKnownName, String placeAddress) {
+                              String addressRadioName, double latitudeLocation, double longitudeLocation, String placeWellKnownName, String placeAddress) {
 
+        this.addressID = addressID;
         this.flat_num = flat_num;
         this.streetName = streetName;
         this.locality_landmark = locality_landmark;
@@ -85,7 +99,9 @@ public class ModalAddressModule implements Serializable {
         this.city = city;
         this.state = state;
         this.addressRadioName = addressRadioName;
-        this.placeObjLatLong = placeObjLatLong;
+        this.latitudeLocation = latitudeLocation;
+        this.longitudeLocation = longitudeLocation;
+        //this.placeObjLatLong = placeObjLatLong;
         this.placeWellKnownName = placeWellKnownName;
         this.placeAddress = placeAddress;
 

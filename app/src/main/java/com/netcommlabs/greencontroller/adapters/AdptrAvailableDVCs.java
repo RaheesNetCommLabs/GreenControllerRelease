@@ -1,6 +1,5 @@
 package com.netcommlabs.greencontroller.adapters;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -12,61 +11,36 @@ import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
 import com.netcommlabs.greencontroller.R;
+import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 
 import java.util.List;
 
 public class AdptrAvailableDVCs extends RecyclerView.Adapter<AdptrAvailableDVCs.MyViewHolder> {
 
-    Context mContext;
-    List<BluetoothDevice> listAvailbleDvcs;
-    BluetoothAdapter mBluetoothAdapter;
-    FragAvailableDevices fragAvailableDevices;
+    private Context mContext;
+    private List<BluetoothDevice> listAvailbleDvcs;
+    private List<String> listDeviceMAC;
+    private FragAvailableDevices fragAvailableDevices;
 
 
-    public AdptrAvailableDVCs(Context mContext, FragAvailableDevices fragAvailableDevices, List<BluetoothDevice> listAvailbleDvcs, BluetoothAdapter mBluetoothAdapter) {
+    public AdptrAvailableDVCs(Context mContext, FragAvailableDevices fragAvailableDevices, List<BluetoothDevice> listAvailbleDvcs) {
         this.mContext = mContext;
         this.listAvailbleDvcs = listAvailbleDvcs;
-        this.mBluetoothAdapter = mBluetoothAdapter;
-        this.fragAvailableDevices=fragAvailableDevices;
+        this.fragAvailableDevices = fragAvailableDevices;
+
+        listDeviceMAC = DatabaseHandler.getInstance(mContext).getAllDeviceMAC();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout llAvailDvcRow;
         TextView tvDvcName, tvDvcMacAdd;
 
-        public MyViewHolder(View itemView) {
+        MyViewHolder(View itemView) {
             super(itemView);
-
             tvDvcName = itemView.findViewById(R.id.tvDvcName);
             tvDvcMacAdd = itemView.findViewById(R.id.tvDvcMacAdd);
             llAvailDvcRow = itemView.findViewById(R.id.llAvailDvcRow);
-
-            llAvailDvcRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                    int clickedPosi = getAdapterPosition();
-                    String dvcName = listAvailbleDvcs.get(clickedPosi).getName();
-                    String dvcAddress = listAvailbleDvcs.get(clickedPosi).getAddress();
-                    fragAvailableDevices.onRecyclerItemClickedNameAdress(dvcName,dvcAddress);
-                   /* Toast.makeText(mContext, "Clicked " + dvcName + "\n" + dvcAddress, Toast.LENGTH_LONG).show();
-
-                    *//*Intent intentAddWtrngProfile = new Intent(mContext, ConnectedQRAct.class);
-                    mContext.startActivity(intentAddWtrngProfile);
-                    mContext.finish();*//*
-
-                    //Intent intentAddWtrngProfile = new Intent(mContext, AddEditSessionPlan.class);
-                    Intent intentAddWtrngProfile = new Intent(mContext, AddEditSessionPlan.class);
-                    intentAddWtrngProfile.putExtra(AddEditSessionPlan.EXTRA_NAME, dvcName);
-                    intentAddWtrngProfile.putExtra(AddEditSessionPlan.EXTRA_ID, dvcAddress);
-                    mContext.startActivity(intentAddWtrngProfile);
-                    //mContext.finish();*/
-
-
-                }
-            });
         }
     }
 
@@ -77,15 +51,36 @@ public class AdptrAvailableDVCs extends RecyclerView.Adapter<AdptrAvailableDVCs.
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
         String dvcName = listAvailbleDvcs.get(position).getName();
         String dvcAddress = listAvailbleDvcs.get(position).getAddress();
+
+        holder.llAvailDvcRow.setBackgroundResource(R.drawable.rounded_shadow_background);
+        //Device already registered with app, should appear different
+        if (listDeviceMAC.size() > 0) {
+            for (int i = 0; i < listDeviceMAC.size(); i++) {
+                if (listDeviceMAC.get(i).equalsIgnoreCase(dvcAddress)) {
+                    holder.llAvailDvcRow.setBackgroundResource(R.drawable.added_dvc_bg);
+                    break;
+                }
+            }
+        }
         if (dvcName != null) {
             holder.tvDvcName.setText(dvcName);
         } else {
             holder.tvDvcName.setText("Unknown Device");
         }
         holder.tvDvcMacAdd.setText(dvcAddress);
+
+        holder.llAvailDvcRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int clickedPosi = holder.getAdapterPosition();
+                String dvcName = listAvailbleDvcs.get(clickedPosi).getName();
+                String dvcAddress = listAvailbleDvcs.get(clickedPosi).getAddress();
+                fragAvailableDevices.availableDvcListClicked(dvcName, dvcAddress);
+            }
+        });
     }
 
     @Override

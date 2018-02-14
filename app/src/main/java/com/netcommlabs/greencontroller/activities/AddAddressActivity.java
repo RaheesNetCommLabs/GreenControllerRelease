@@ -54,12 +54,12 @@ public class AddAddressActivity extends AppCompatActivity {
         mContext = this;
 
 //        llScrnHeader = (LinearLayout) findViewById(R.id.llScrnHeader);
-        et_flat_num = findViewById(R.id.et_flat_num);
-        et_street_area = findViewById(R.id.et_street_area);
-        et_city = findViewById(R.id.et_city);
-        et_locality_landmark = findViewById(R.id.et_locality_landmark);
-        et_pincode = findViewById(R.id.et_pincode);
-        et_state = findViewById(R.id.et_state);
+        et_flat_num = findViewById(R.id.tvFlatNum);
+        et_street_area = findViewById(R.id.tvStreetArea);
+        et_city = findViewById(R.id.tvCity);
+        et_locality_landmark = findViewById(R.id.tvLocalityLandmark);
+        et_pincode = findViewById(R.id.tvPincode);
+        et_state = findViewById(R.id.tvState);
 
         raGrAddressType = (RadioGroup) findViewById(R.id.raGrAddressType);
         etOtherAddName = (EditText) findViewById(R.id.etOtherAddName);

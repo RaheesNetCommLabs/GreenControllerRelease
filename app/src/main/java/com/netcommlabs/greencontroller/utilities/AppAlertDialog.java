@@ -74,6 +74,8 @@ public class AppAlertDialog {
         alBui.create().show();
     }
 
+
+
     public static void dialogConnectingBLE() {
         final ProgressDialog pdConnectingBLE = new ProgressDialog(appAlertDialog.mContext);
         pdConnectingBLE.setMessage("Connecting...");

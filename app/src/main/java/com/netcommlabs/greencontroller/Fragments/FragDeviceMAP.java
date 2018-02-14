@@ -180,7 +180,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     public void setUIForAddressNdDeviceMap(int addressID) {
-        modalAddressModule = databaseHandler.getAddressFormData(addressID);
+        listModalAddressModule = DatabaseHandler.getInstance(mContext).getAddressListFormData(addressID);
+        modalAddressModule = listModalAddressModule.get(0);
+
         listModalDeviceModule = databaseHandler.getDeviceDataForIMap(addressID);
         addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
         tvAddressTop.setText(addressComplete);
@@ -227,11 +229,11 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         int id = view.getId();
         switch (id) {
             case R.id.llAddNewAddress:
-                FragAddAddress fragAddAddress = new FragAddAddress();
+                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
                 //First child---then parent
-                //fragAddAddress.setTargetFragment(FragDeviceMAP.this, 101);
-                //Adding Fragment(FragAddAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                //fragAddEditAddress.setTargetFragment(FragDeviceMAP.this, 101);
+                //Adding Fragment(FragAddEditAddress)
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 break;
             case R.id.rlBubbleLeftTop:
                 FragDeviceDetails fragDeviceDetails = new FragDeviceDetails();

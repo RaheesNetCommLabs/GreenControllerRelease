@@ -31,13 +31,13 @@ public class Constant {
 
     public static final String FAQ = "FAQ";
     public static final String FEEDBACK = "Feedback";
-    public static final String SAVED_ADDRESS = "Address Book";
+    public static final String ADDRESS_BOOK = "Address Book";
     public static final String DEVICE_STATS = "Device Statistics";
     public static final String RECOMM = "Recommendation";
     public static final String METER_DEVICE = "Meter Device";
     public static final String AVAILABLE_DEVICE = "Find & Connect";
     public static final String MY_PROFILE = "My Profile";
-    public static final String ADDRESS_SUMMARY = "Address Summery";
+    public static final String ADDRESS_DETAIL = "Address Detail";
     public static final String VERIFY_OTP = "Verify_OTP";
 
 

@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -17,9 +18,9 @@ import com.netcommlabs.greencontroller.activities.MainActivity;
 public class MyFragmentTransactions {
 
     static TextView tvClearEditDataLocal;
-    static  TextView tvAddNewAddress;
+    static LinearLayout llAddNewAddress;
 
-    public static void replaceFragment(Context context, Fragment fragment, String tag, int layout, Boolean isAddFrag) {
+    public static void replaceFragment(Context context, Fragment fragment, String tag, int layout, Boolean isMaintainStackEntry) {
         MainActivity mContext = (MainActivity) context;
 
         FragmentManager myFragmentManager = mContext.getSupportFragmentManager();
@@ -28,7 +29,7 @@ public class MyFragmentTransactions {
         ft.addToBackStack(tag);
 
         int backStackCount = myFragmentManager.getBackStackEntryCount();
-        if (!isAddFrag) {
+        if (!isMaintainStackEntry) {
             if (backStackCount > 1) {
                 for (int i = backStackCount; i > 1; i--) {
                     myFragmentManager.popBackStack();
@@ -44,9 +45,9 @@ public class MyFragmentTransactions {
             tvClearEditDataLocal.setVisibility(View.GONE);
         }
 
-        tvAddNewAddress=mContext.tv_add_address;
-        if(tvAddNewAddress.getVisibility()==View.VISIBLE){
-            tvAddNewAddress.setVisibility(View.GONE);
+        llAddNewAddress = mContext.llAddNewAddress;
+        if (llAddNewAddress.getVisibility() == View.VISIBLE) {
+            llAddNewAddress.setVisibility(View.GONE);
         }
         myFragmentManager.executePendingTransactions();
         Log.e("$$$ FRAG COUNT", "" + myFragmentManager.getBackStackEntryCount() + ", TAG: " + tag);

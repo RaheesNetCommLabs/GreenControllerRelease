@@ -142,16 +142,16 @@ public class FragConnectedQR extends Fragment {
                     Toast.makeText(mContext, "Please save device name", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                FragAddAddress fragAddAddress = new FragAddAddress();
+                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
                 if (modalAddressModule != null) {
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(FragAddAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
-                    fragAddAddress.setArguments(bundle);
+                    bundle.putSerializable(FragAddEditAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
+                    fragAddEditAddress.setArguments(bundle);
                 }
                 //First child---then parent
-                fragAddAddress.setTargetFragment(FragConnectedQR.this, 101);
-                //Adding Fragment(FragAddAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
+                //Adding Fragment(FragAddEditAddress)
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
 
@@ -224,6 +224,7 @@ public class FragConnectedQR extends Fragment {
                 MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
                 dvcNameEdited = "";
                 qrCodeEdited = "";
+                Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
             }
 
         });

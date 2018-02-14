@@ -6,7 +6,7 @@
     android:layout_marginBottom="@dimen/_5sdp"
     android:layout_marginLeft="@dimen/_5sdp"
     android:layout_marginRight="@dimen/_5sdp"
-    tools:context="com.netcommlabs.greencontroller.Fragments.FragAddAddress">
+    tools:context="com.netcommlabs.greencontroller.Fragments.FragAddEditAddress">
 
     <!--Add Address design implementation-->
     <ScrollView
@@ -42,7 +42,7 @@
                         android:src="@drawable/flat_number" />
 
                     <EditText
-                        android:id="@+id/et_flat_num"
+                        android:id="@+id/tvFlatNum"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -52,6 +52,7 @@
                         android:hint="Flat/ Building/ House no."
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
+                        android:maxLength="25"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -72,7 +73,7 @@
                         android:src="@drawable/street" />
 
                     <EditText
-                        android:id="@+id/et_street_area"
+                        android:id="@+id/tvStreetArea"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -82,6 +83,7 @@
                         android:hint="Tower/ Street"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
+                        android:maxLength="25"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -113,7 +115,7 @@
                         android:src="@drawable/locality" />
 
                     <EditText
-                        android:id="@+id/et_locality_landmark"
+                        android:id="@+id/tvLocalityLandmark"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -123,6 +125,7 @@
                         android:hint="Area/ Locality/ Landmark"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
+                        android:maxLength="50"
                         android:paddingLeft="@dimen/_5sdp"
                         android:paddingRight="@dimen/_15sdp"
                         android:singleLine="true"
@@ -145,7 +148,7 @@
                         android:src="@drawable/pincode" />
 
                     <EditText
-                        android:id="@+id/et_pincode"
+                        android:id="@+id/tvPincode"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -155,6 +158,7 @@
                         android:hint="Pin code"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="number"
+                        android:maxLength="10"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -184,7 +188,7 @@
                         android:src="@drawable/city" />
 
                     <EditText
-                        android:id="@+id/et_city"
+                        android:id="@+id/tvCity"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -194,6 +198,7 @@
                         android:hint="City"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
+                        android:maxLength="25"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -214,7 +219,7 @@
                         android:src="@drawable/state" />
 
                     <EditText
-                        android:id="@+id/et_state"
+                        android:id="@+id/tvState"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -224,6 +229,7 @@
                         android:hint="State"
                         android:imeOptions="flagNoExtractUi"
                         android:inputType="textCapSentences"
+                        android:maxLength="25"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -325,8 +331,8 @@
                     android:hint="Enter other address name"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="textCapSentences"
-                    android:paddingLeft="@dimen/_10sdp"
                     android:maxLength="25"
+                    android:paddingLeft="@dimen/_10sdp"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -338,12 +344,14 @@
 
                 <TextView
                     android:id="@+id/tvNextEvent"
-                    android:layout_width="@dimen/_130sdp"
-                    android:layout_height="@dimen/_45sdp"
+                    android:layout_width="@dimen/_120sdp"
+                    android:layout_height="@dimen/_42sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:background="@drawable/round_back_shadow_small"
                     android:gravity="center"
+                    android:layout_marginBottom="@dimen/_10sdp"
                     android:text="NEXT"
-                    android:textSize="@dimen/_15sdp" />
+                    android:textSize="@dimen/_14sdp" />
 
             </LinearLayout>
 

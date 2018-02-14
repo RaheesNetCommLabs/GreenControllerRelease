@@ -136,7 +136,7 @@
                     android:layout_width="@dimen/_60sdp"
                     android:layout_height="@dimen/_60sdp"
                     android:layout_centerHorizontal="true"
-                    android:background="@drawable/home_icon" />
+                    android:background="@drawable/home_icon_imap" />
 
                 <RelativeLayout
                     android:id="@+id/rlBubbleLeftTop"

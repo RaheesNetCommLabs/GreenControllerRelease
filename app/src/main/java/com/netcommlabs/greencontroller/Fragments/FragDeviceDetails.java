@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.InterfaceValveAdapter;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.ValvesListAdapter;
@@ -37,7 +36,7 @@ import java.util.List;
  * Created by Android on 12/6/2017.
  */
 
-public class FragDeviceDetails extends Fragment implements InterfaceValveAdapter {
+public class FragDeviceDetails extends Fragment{
 
     private MainActivity mContext;
     private View view;
@@ -998,11 +997,6 @@ public class FragDeviceDetails extends Fragment implements InterfaceValveAdapter
         this.clickedValveName = clickedValveName;
         //this.position = position;
         checkValveDataUpdtUIFrmDB();
-    }
-
-    @Override
-    public void onRecyclerItemClickedNameAdress(String name, String address) {
-
     }
 
     private void initSTOPbtnEffectes() {

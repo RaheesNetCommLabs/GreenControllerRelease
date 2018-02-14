@@ -89,7 +89,7 @@
                 <ImageView
                     android:layout_width="@dimen/_50sdp"
                     android:layout_height="@dimen/_50sdp"
-                    android:src="@drawable/home_icon" />
+                    android:src="@drawable/home_icon_imap" />
             </LinearLayout>
 
             <LinearLayout

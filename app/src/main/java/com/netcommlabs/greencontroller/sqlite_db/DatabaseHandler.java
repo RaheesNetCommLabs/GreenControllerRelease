@@ -58,7 +58,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String CLM_ADDRESS_CITY = "city";
     private static final String CLM_ADDRESS_STATE = "state";
     private static final String CLM_ADDRESS_SELECT_STATUS = "select_status";
-    private static final String CLM_ADDRESS_PLACE_OBJ_LAT_LONG = "place_obj_lat_long";
+    private static final String CLM_ADDRESS_PLACE_LATITUDE = "place_lat";
+    private static final String CLM_ADDRESS_PLACE_LONGITUDE = "place_longi";
     private static final String CLM_ADDRESS_PLACE_WELL_KNOWN_NAME = "placeWellKnownName";
     private static final String CLM_ADDRESS_PLACE_ADDRESS = "place_Address";
     private static final String CLM_ADDRESS_DELETE_DT = "delete_dt";
@@ -120,9 +121,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        //createActiveUser();
-        //context.deleteDatabase(DATABASE_NAME);
-        //getWritableDatabase();
+        gson = new Gson();
     }
 
     // Creating Tables
@@ -131,7 +130,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // + " FOREIGN KEY (" + CLM_ADDRESS_USER_ID + ") REFERENCES " + TABLE_ACTIVE_USER + " (" + CLM_USER_ID + "),"  PRIMARY KEY AUTOINCREMENT
         String CREATE_TABLE_ACTIVE_USER = "CREATE TABLE " + TABLE_ACTIVE_USER + " (" + CLM_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_USER_CREATED_AT + " TEXT )";
 
-        String CREATE_TABLE_ADDRESS_MODULE = "CREATE TABLE " + TABLE_ADDRESS_MODULE + " (" + CLM_ADDRESS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_SELECT_STATUS + " INTEGER," + CLM_ADDRESS_PLACE_OBJ_LAT_LONG + " BLOB," + CLM_ADDRESS_PLACE_WELL_KNOWN_NAME + " TEXT," + CLM_ADDRESS_PLACE_ADDRESS + " TEXT," + CLM_ADDRESS_STATUS + " INTEGER," + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
+        String CREATE_TABLE_ADDRESS_MODULE = "CREATE TABLE " + TABLE_ADDRESS_MODULE + " (" + CLM_ADDRESS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_SELECT_STATUS + " INTEGER," + CLM_ADDRESS_PLACE_LATITUDE + " REAL," + CLM_ADDRESS_PLACE_LONGITUDE + " REAL," + CLM_ADDRESS_PLACE_WELL_KNOWN_NAME + " TEXT," + CLM_ADDRESS_PLACE_ADDRESS + " TEXT," + CLM_ADDRESS_STATUS + " INTEGER," + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
 
         /*String CREATE_TABLE_ADDRESS_MODULE_LOG = "CREATE TABLE " + TABLE_ADDRESS_MODULE_LOG + " ("
                 + CLM_ADDRESS_USER_ID + " INTEGER," + CLM_ADDRESS_ID + " INTEGER," + CLM_ADDRESS_ID_LOG + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_LOCATION_TAG + " TEXT," + CLM_ADDRESS_STATUS + " INTEGER," + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
@@ -204,7 +203,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public long insertAddressModule(ModalAddressModule modalAddressModule) {
-        updateDeviceSelectStatus(0,0);
+        //addressID 0 means update for all address
+        updateDeviceSelectStatus(0, 0);
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -216,10 +216,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(CLM_ADDRESS_STATE, modalAddressModule.getState());
         values.put(CLM_RADIO_ADDRESS_NAME, modalAddressModule.getAddressRadioName());
         values.put(CLM_ADDRESS_SELECT_STATUS, 1);
-        //Converting Object into String than byteArray or BLOB
-        gson = new Gson();
-        byteArrayLatLong = gson.toJson(modalAddressModule.getPlaceObjLatLong()).getBytes();
-        values.put(CLM_ADDRESS_PLACE_OBJ_LAT_LONG, byteArrayLatLong);
+        values.put(CLM_ADDRESS_PLACE_LATITUDE, modalAddressModule.getLatitudeLocation());
+        values.put(CLM_ADDRESS_PLACE_LONGITUDE, modalAddressModule.getLongitudeLocation());
         values.put(CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, modalAddressModule.getPlaceWellKnownName());
         values.put(CLM_ADDRESS_PLACE_ADDRESS, modalAddressModule.getPlaceAddress());
         values.put(CLM_ADDRESS_STATUS, 1);
@@ -230,6 +228,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         long insertedRowUniqueID = db.insert(TABLE_ADDRESS_MODULE, null, values);
         db.close();
         return insertedRowUniqueID;
+    }
+
+    public long updateAddressModule(ModalAddressModule modalAddressModule) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(CLM_ADDRESS_FLAT_HOUSE_BUILDING, modalAddressModule.getFlat_num());
+        values.put(CLM_ADDRESS_TOWER_STREET, modalAddressModule.getStreetName());
+        values.put(CLM_ADDRESS_AREA_LAND_LOCALITY, modalAddressModule.getLocality_landmark());
+        values.put(CLM_ADDRESS_PIN_CODE, modalAddressModule.getPinCode());
+        values.put(CLM_ADDRESS_CITY, modalAddressModule.getCity());
+        values.put(CLM_ADDRESS_STATE, modalAddressModule.getState());
+        values.put(CLM_RADIO_ADDRESS_NAME, modalAddressModule.getAddressRadioName());
+        values.put(CLM_ADDRESS_PLACE_LATITUDE, modalAddressModule.getLatitudeLocation());
+        values.put(CLM_ADDRESS_PLACE_LONGITUDE, modalAddressModule.getLongitudeLocation());
+        values.put(CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, modalAddressModule.getPlaceWellKnownName());
+        values.put(CLM_ADDRESS_PLACE_ADDRESS, modalAddressModule.getPlaceAddress());
+        values.put(CLM_ADDRESS_UPDATED_AT, getDateTime());
+
+        long updatedRowUniqueID = db.update(TABLE_ADDRESS_MODULE, values, CLM_ADDRESS_ID + " = ? ",
+                new String[]{String.valueOf(modalAddressModule.getAddressID())});
+        db.close();
+        return updatedRowUniqueID;
     }
 
     public void insertDeviceModule(long insertedAddressUniqueID, String dvcNameEdited, String dvc_mac_address, String qrCodeEdited, int valveNum) {
@@ -272,23 +293,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return listDeviceUniqueName;
     }
 
-    public List<String> getAllDeviceMAC() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList<String> listDeviceMAC = new ArrayList<>();
-        String selectQuery = "SELECT " + CLM_DVC_MAC + " FROM " + TABLE_DVC_MODULE;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        // looping through all cursor rows and adding to list
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                listDeviceMAC.add(cursor.getString(cursor.getColumnIndex(CLM_DVC_MAC)));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        db.close();
-        // return all device MAC
-        return listDeviceMAC;
-    }
-
     public List<ModalAddressModule> getAllAddressIDRadioNameSelectStatus() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<ModalAddressModule> listAddressIDRadioNameSelectStatus = new ArrayList<>();
@@ -306,6 +310,116 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return listAddressIDRadioNameSelectStatus;
     }
 
+    public ModalAddressModule getAddressWithLocation(int addressID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ModalAddressModule modalAddressModule = new ModalAddressModule();
+        //Get all Address with location
+        Cursor cursor = db.query(TABLE_ADDRESS_MODULE, new String[]{CLM_ADDRESS_ID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME, CLM_ADDRESS_PLACE_LATITUDE, CLM_ADDRESS_PLACE_LONGITUDE, CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, CLM_ADDRESS_PLACE_ADDRESS}, CLM_ADDRESS_ID + " = ? ",
+                new String[]{String.valueOf(addressID)}, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            modalAddressModule = new ModalAddressModule(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getDouble(8), cursor.getDouble(9), cursor.getString(10), cursor.getString(11));
+        }
+        cursor.close();
+        db.close();
+        return modalAddressModule;
+    }
+
+    public List<ModalAddressModule> getAddressListFormData(int addressID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<ModalAddressModule> listModalAddressModule = new ArrayList<>();
+        Cursor cursor;
+        //Get all Address form data
+        if (addressID == 0) {
+            cursor = db.query(TABLE_ADDRESS_MODULE, new String[]{CLM_ADDRESS_ID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, null,
+                    null, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_ADDRESS_MODULE, new String[]{CLM_ADDRESS_ID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_ID + " = ? ",
+                    new String[]{String.valueOf(addressID)}, null, null, null, null);
+        }
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                modalAddressModule = new ModalAddressModule(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
+                listModalAddressModule.add(modalAddressModule);
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return listModalAddressModule;
+    }
+
+    public List<ModalDeviceModule> getDeviceDataForIMap(int addressID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor;
+        List<ModalDeviceModule> listModalDeviceModule = new ArrayList();
+        if (addressID == 0) {
+            cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, null,
+                    null, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, CLM_DVC_ADDRESS_ID + " = ? ",
+                    new String[]{String.valueOf(addressID)}, null, null, null, null);
+        }
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                modalDeviceModule = new ModalDeviceModule(cursor.getString(0), cursor.getString(1), cursor.getInt(2));
+                listModalDeviceModule.add(modalDeviceModule);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return listModalDeviceModule;
+    }
+
+    public List<String> getAllDeviceMAC() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> listDeviceMAC = new ArrayList<>();
+
+        Cursor cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_MAC}, null,
+                null, null, null, null, null);
+        // looping through all cursor rows and adding to list
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                listDeviceMAC.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        // return all device MAC
+        return listDeviceMAC;
+    }
+
+    public ModalDeviceModule getDeviceNdValveNumAtAddress(int addressID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor;
+        int deviceNum = 0, valveNum = 0;
+        cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_ID, CLM_DVC_VALVE_NUM}, CLM_DVC_ADDRESS_ID + " = ? ",
+                new String[]{String.valueOf(addressID)}, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                deviceNum = deviceNum + 1;
+                valveNum = valveNum + cursor.getInt(1);
+            } while (cursor.moveToNext());
+        }
+        modalDeviceModule = new ModalDeviceModule(deviceNum, valveNum);
+
+        cursor.close();
+        db.close();
+        return modalDeviceModule;
+    }
+
+    public void updateDeviceSelectStatus(int addressID, int deviceSelectStatus) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CLM_ADDRESS_SELECT_STATUS, deviceSelectStatus);
+        if (addressID == 0) {
+            db.update(TABLE_ADDRESS_MODULE, values, null, null);
+        } else {
+            db.update(TABLE_ADDRESS_MODULE, values, CLM_ADDRESS_ID + " = ? ",
+                    new String[]{String.valueOf(addressID)});
+        }
+    }
 
     // Adding new BLE Valve
     public void setValveDataNdPropertiesBirth(ModalValveBirth modalBLEValve) {
@@ -405,43 +519,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return listWithOnlyValves;
     }
 
-  /*  // Getting single BLE device
-    ModalDeviceModule getBLEDvcWithId(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_BLE_DEVICE, new String[]{KEY_ID,
-                        KEY_DVC_NAME, KEY_DVC_MAC}, KEY_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-       *//* byte[] blob = cursor.getBlob(3);
-        String blobAsString = new String(blob);
-        listValvesFromDB = gson.fromJson(blobAsString, new TypeToken<List<String>>() {
-        }.getType());*//*
-        ModalDeviceModule modalBleDevice = new ModalDeviceModule(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2), cursor.getString(3), Integer.parseInt(cursor.getString(4)));
-        // return contact
-        return modalBleDevice;
-    }*/
-
-
-    /*// Getting single BLE device
-    ModalDeviceModule getBLEValveDataWithMAC(String mac) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_BLE_DEVICE, new String[]{KEY_ID,
-                        KEY_DVC_NAME, KEY_DVC_MAC}, KEY_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-       *//* byte[] blob = cursor.getBlob(3);
-        String blobAsString = new String(blob);
-        listValvesFromDB = gson.fromJson(blobAsString, new TypeToken<List<String>>() {
-        }.getType());*//*
-        ModalDeviceModule modalBleDevice = new ModalDeviceModule(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2), Integer.parseInt(cursor.getString(3)));
-        // return contact
-        return modalBleDevice;
-    }*/
-
     // Updating single Valve Data
     public int updateValveDataAndState(String macAdd, String clkdVlvName, List<DataTransferModel> byteDataList, String valveState) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -502,6 +579,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
+    public int deleteAddress(int addressID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int deleteConfirm = db.delete(TABLE_ADDRESS_MODULE, CLM_ADDRESS_ID + " = ?",
+                new String[]{String.valueOf(addressID)});
+        db.close();
+        return deleteConfirm;
+    }
+
     // Deleting single BLE DVC
     public void deleteBLEDvcWithId(ModalDeviceModule modalDeviceModule) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -529,28 +614,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return countReady;
     }
 
-    /*public List<ModalAddressModule> getAllAddressOnly() {
-        List<ModalAddressModule> listModalAddressModules = new ArrayList<>();
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_BLE_DEVICE, new String[]{KEY_DVC_LOC_ADDRESS}, null, null, null, null, null);
-        if (cursor == null || cursor.getCount() <= 0) {
-            return listModalAddressModules;
-        }
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                byte[] blob = cursor.getBlob(cursor.getColumnIndex(KEY_DVC_LOC_ADDRESS));
-                String blobAsString = new String(blob);
-                ModalAddressModule mdlLocationAddress = gson.fromJson(blobAsString, new TypeToken<ModalAddressModule>() {
-                }.getType());
-                listModalAddressModules.add(mdlLocationAddress);
-            } while (cursor.moveToNext());
-        }
-        // return Address List
-        return listModalAddressModules;
-    }*/
-
-
     public ModalValveBirth getValveDataAndProperties(String dvcMacAdd, String clickedValveName) {
         SQLiteDatabase db = this.getReadableDatabase();
         ModalValveBirth modalBLEValve = null;
@@ -573,14 +636,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return modalBLEValve;
     }
 
-    /*public int deleteSesnPlnWithMacValveName(String dvcMacAdd, String clickedValveName) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        int intDelete=db.delete(TABLE_BLE_VALVE, KEY_DVC_MAC + " = ? AND " + KEY_VALVE_NAME + " = ? ",
-                new String[]{dvcMacAdd, clickedValveName});
-        db.close();
-        return intDelete;
-    }*/
-
     private String getDateTime() {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "dd-MMM-yyyy HH:mm:ss", Locale.getDefault());
@@ -588,117 +643,4 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return dateFormat.format(date);
     }
 
-    public ModalAddressModule getAddressFormData(int addressID) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ADDRESS_MODULE, new String[]{CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_ID + " = ? ",
-                new String[]{String.valueOf(addressID)}, null, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            modalAddressModule = new ModalAddressModule(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6));
-        }
-        cursor.close();
-        db.close();
-        return modalAddressModule;
-    }
-
-    public List<ModalDeviceModule> getDeviceDataForIMap(int addressID) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor;
-        List<ModalDeviceModule> listModalDeviceModule = new ArrayList();
-        if (addressID == 0) {
-            cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, null,
-                    null, null, null, null, null);
-        } else {
-            cursor = db.query(TABLE_DVC_MODULE, new String[]{CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, CLM_DVC_ADDRESS_ID + " = ? ",
-                    new String[]{String.valueOf(addressID)}, null, null, null, null);
-        }
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                modalDeviceModule = new ModalDeviceModule(cursor.getString(0), cursor.getString(1), cursor.getInt(2));
-                listModalDeviceModule.add(modalDeviceModule);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        db.close();
-        return listModalDeviceModule;
-    }
-
-    public void updateDeviceSelectStatus(int addressID, int deviceSelectStatus) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(CLM_ADDRESS_SELECT_STATUS, deviceSelectStatus);
-        if (addressID==0){
-            db.update(TABLE_ADDRESS_MODULE, values,null,null);
-        }else {
-            db.update(TABLE_ADDRESS_MODULE, values, CLM_ADDRESS_ID + " = ? ",
-                    new String[]{String.valueOf(addressID)});
-        }
-    }
 }
-
-/*public class DatabaseHandler extends SQLiteOpenHelper {
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
-    // Database Name
-    private static final String DATABASE_NAME = "dbGreenController";
-    // Table for Session plan info
-    private static final String TABLE_SESN_PLAN_TP = "tblSesnPlan";
-    private static final String COLUMN_LIST_SESN_PLAN_TP = "listSesnPlanTP";
-    List<DataTransferModel> listDataTransferModels;
-    Gson gson;
-    byte[] byteArrayOfListDTM;
-    SQLiteDatabase db;
-    public DatabaseHandler(Context mContext) {
-        super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
-        //this.listDataTransferModels = listDataTransferModels;
-        gson = new Gson();
-    }
-    // Creating Tables
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE_SESN_PLAN_TP = "CREATE TABLE " + TABLE_SESN_PLAN_TP + "("
-                + COLUMN_LIST_SESN_PLAN_TP + " TEXT" + ")";
-        db.execSQL(CREATE_TABLE_SESN_PLAN_TP);
-    }
-    // Upgrading database
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESN_PLAN_TP);
-        // Create tables again
-        onCreate(db);
-    }
-    public void openDatabase() {
-        db = this.getWritableDatabase();
-    }
-    public void closeDatabase() {
-        if (db.isOpen()) {
-            db.close();
-        }
-    }
-    public void insertDataIntoDB(List<DataTransferModel> listDataTransferModels) {
-        byteArrayOfListDTM = gson.toJson(listDataTransferModels).getBytes();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_LIST_SESN_PLAN_TP, byteArrayOfListDTM);
-        // Inserting Row
-        db.insert(TABLE_SESN_PLAN_TP, null, values);
-    }
-    public List<DataTransferModel> getListDataTM() {
-        String selectQuery = "SELECT  * FROM " + TABLE_SESN_PLAN_TP;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            byte[] blob = cursor.getBlob(cursor.getColumnIndex(COLUMN_LIST_SESN_PLAN_TP));
-            String blobAsString = new String(blob);
-            listDataTransferModels = gson.fromJson(blobAsString, new TypeToken<List<DataTransferModel>>() {
-            }.getType());
-            cursor.close();
-            return listDataTransferModels;
-        }
-        return null;
-    }
-    public void deleteAllRecordFromTable() {
-        db.execSQL("delete from " + TABLE_SESN_PLAN_TP);
-    }
-}*/

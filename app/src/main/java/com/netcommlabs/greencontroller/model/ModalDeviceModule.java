@@ -10,12 +10,15 @@ public class ModalDeviceModule {
     int id;
     String dvcName;
     String dvcMacAddress;
-    int valveNum;
     ModalAddressModule modalAddressModule;
+    private int deviceNum, valveNum;
 
-    // Empty constructor
     public ModalDeviceModule() {
+    }
 
+    public ModalDeviceModule(int deviceNum, int valveNum) {
+        this.deviceNum = deviceNum;
+        this.valveNum = valveNum;
     }
 
     public ModalDeviceModule(String dvcName, String dvcMacAddress, int valveNum) {
@@ -77,6 +80,10 @@ public class ModalDeviceModule {
 
     public void setMdlLocationAddress(ModalAddressModule mdlLocationAddress) {
         this.modalAddressModule = mdlLocationAddress;
+    }
+
+    public int getDeviceNum() {
+        return deviceNum;
     }
 
     public int getValvesNum() {

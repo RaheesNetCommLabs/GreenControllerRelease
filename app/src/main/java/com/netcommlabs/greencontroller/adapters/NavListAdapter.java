@@ -19,7 +19,7 @@ import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
 import com.netcommlabs.greencontroller.Fragments.FragOtp;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
-import com.netcommlabs.greencontroller.Fragments.FragSavedAddress;
+import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
@@ -41,7 +41,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
     MainActivity mContext;
     DrawerLayout nav_drawer_layout;
     private DatabaseHandler databaseHandler;
-    private TextView tv_add_address;
+    private LinearLayout llAddNewAddress;
 
     public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout) {
         this.mContext = mContext;
@@ -60,7 +60,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
             ivNavIcon = (ImageView) itemView.findViewById(R.id.ivNavIcon);
             tvNavName = (TextView) itemView.findViewById(R.id.tvNavName);
             llAvailDvcRow = itemView.findViewById(R.id.llAvailDvcRow);
-            tv_add_address = mContext.findViewById(R.id.tv_add_address);
+            //llAddNewAddress = mContext.llAddNewAddress;
             llAvailDvcRow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -70,7 +70,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
 
                     switch (clickedNavItem) {
                         case "My Profile":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
                             break;
                         case "My Devices":
@@ -85,35 +85,35 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             }
                             break;
                         case "Add New Device":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, false);
                             break;
                         case "Meter Device":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragMeterDevice(), Constant.METER_DEVICE, mContext.frm_lyt_container_int, false);
                             break;
                         case "Recommendations":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragRecomm(), Constant.RECOMM, mContext.frm_lyt_container_int, false);
                             break;
                         case "Statistics":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragStatistics(), Constant.DEVICE_STATS, mContext.frm_lyt_container_int, false);
                             break;
                         case "Address Book":
-                            //Replacing Fragment(FragAddAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragSavedAddress(), Constant.SAVED_ADDRESS, mContext.frm_lyt_container_int, false);
+                            //Replacing Fragment(FragAddEditAddress)
+                            MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, false);
                             break;
                         case "Feedback":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragFeedback(), Constant.FEEDBACK, mContext.frm_lyt_container_int, false);
                             break;
                         case "FAQ & Help":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), Constant.FAQ, mContext.frm_lyt_container_int, false);
                             break;
                         case "Verify Otp":
-                            //Replacing Fragment(FragAddAddress)
+                            //Replacing Fragment(FragAddEditAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
                             break;
 

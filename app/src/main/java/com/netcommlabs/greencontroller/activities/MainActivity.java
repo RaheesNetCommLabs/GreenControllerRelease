@@ -37,7 +37,7 @@ import android.widget.Toast;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.netcommlabs.greencontroller.Fragments.FragAddAddress;
+import com.netcommlabs.greencontroller.Fragments.FragAddEditAddress;
 import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.FragDashboardPebbleHome;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
@@ -66,8 +66,7 @@ import static com.netcommlabs.greencontroller.utilities.Constant.AVAILABLE_DEVIC
 import static com.netcommlabs.greencontroller.utilities.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_MAP;
-import static com.netcommlabs.greencontroller.utilities.Constant.SAVED_ADDRESS;
-import static com.netcommlabs.greencontroller.utilities.SharedPrefsConstants.ADDRESS;
+import static com.netcommlabs.greencontroller.utilities.Constant.ADDRESS_BOOK;
 
 public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
@@ -96,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     private String tagCurrFrag;
     private LinearLayout llHamburgerIconOnly;
     private DatabaseHandler databaseHandler;
-    public TextView tv_add_address;
+    //public TextView tvAddNewAddress;
+    public LinearLayout llAddNewAddress;
 
 
     @Override
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }
         }
-        tv_add_address = findViewById(R.id.tv_add_address);
+        llAddNewAddress = findViewById(R.id.llAddNewAddress);
         frm_lyt_container_int = R.id.frm_lyt_container;
         rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
         llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         nav_revi_slider = findViewById(R.id.nav_revi_slider);
         btnMapDone = findViewById(R.id.btnAddressDone);
         btnMapBack = findViewById(R.id.btnAddressCancel);
-        tv_add_address.setVisibility(View.GONE);
+        //tvAddNewAddress.setVisibility(View.GONE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         nav_revi_slider.setLayoutManager(layoutManager);
 
@@ -196,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             ));
         }
         nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout));
+        //MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
+
         //Adding first Fragment(FragDashboardPebbleHome)
         MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }
@@ -440,12 +442,12 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
                 currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
                 //Managing Add Address Fragment and then return
-                if (currentFragment instanceof FragAddAddress && llSearchMapOKTop.getVisibility() == View.VISIBLE) {
+                if (currentFragment instanceof FragAddEditAddress && llSearchMapOKTop.getVisibility() == View.VISIBLE) {
                     rlHamburgerNdFamily.setVisibility(View.VISIBLE);
                     llSearchMapOKTop.setVisibility(View.GONE);
                     etSearchMapTop.setText("");
-                    ((FragAddAddress) currentFragment).AddAddressLayoutScrlV.setVisibility(View.VISIBLE);
-                    ((FragAddAddress) currentFragment).llSearchMAPok.setVisibility(View.GONE);
+                    ((FragAddEditAddress) currentFragment).AddAddressLayoutScrlV.setVisibility(View.VISIBLE);
+                    ((FragAddEditAddress) currentFragment).llSearchMAPok.setVisibility(View.GONE);
                     return;
                 }
                 if (currentFragment != null) {
@@ -480,8 +482,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             tvClearEditData.setVisibility(View.GONE);
         }
 
-        if (tv_add_address.getVisibility() == View.VISIBLE) {
-            tv_add_address.setVisibility(View.GONE);
+        if (llAddNewAddress.getVisibility() == View.VISIBLE) {
+            llAddNewAddress.setVisibility(View.GONE);
         }
         switch (tag) {
             case AVAILABLE_DEVICE:
@@ -511,8 +513,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                     fcqr.ivSaveDvcName.setVisibility(View.GONE);
                 }
                 break;
-            case SAVED_ADDRESS:
-                tv_add_address.setVisibility(View.VISIBLE);
+            case ADDRESS_BOOK:
+                llAddNewAddress.setVisibility(View.VISIBLE);
                 break;
             default:
                 tvDesc_txt.setText("");
