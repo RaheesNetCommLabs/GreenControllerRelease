@@ -3,17 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="FEEDBACK"
-        android:gravity="center"
-        android:textSize="@dimen/_20sdp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_10sdp"
-        android:background="@drawable/container_dropshadow">
+        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
