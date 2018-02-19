@@ -7,12 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-<<<<<<< HEAD
-        android:textSize="@dimen/_20sdp"/>
-
-
-=======
+        android:textSize="@dimen/_20sdp"
         android:text="FEEDBACK"
-        android:textSize="@dimen/_20sdp" />
->>>>>>> d13132fa322c99ecac00fb3cd9d9bb83c28d4339
+         />
 </RelativeLayout>

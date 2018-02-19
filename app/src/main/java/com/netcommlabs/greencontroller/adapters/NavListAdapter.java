@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragDontHvDevice;
@@ -18,8 +19,8 @@ import com.netcommlabs.greencontroller.Fragments.FragFAQHelp;
 import com.netcommlabs.greencontroller.Fragments.FragFeedback;
 import com.netcommlabs.greencontroller.Fragments.FragMeterDevice;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
+import com.netcommlabs.greencontroller.Fragments.FragOtp;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
-import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
@@ -120,7 +121,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             mContext. startActivity(new Intent(mContext, LoginAct.class));
                             mContext.finish();
                         case "Verify Otp":
-                            //Replacing Fragment(FragAddEditAddress)
+                            //Replacing Fragment(FragOtp)
                             MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
                             break;
 
