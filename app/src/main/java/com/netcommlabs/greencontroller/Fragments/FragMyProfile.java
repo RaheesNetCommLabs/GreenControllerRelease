@@ -29,8 +29,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
+import com.netcommlabs.greencontroller.model.PreferenceModel;
+import com.netcommlabs.greencontroller.services.ProjectWebRequest;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+
+import org.json.JSONObject;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,8 +46,8 @@ import java.util.regex.Pattern;
  * Created by Android on 12/7/2017.
  */
 
-public class FragMyProfile extends Fragment implements View.OnClickListener {
-
+public class FragMyProfile extends Fragment implements View.OnClickListener, ResponseListener {
+    private ProjectWebRequest request;
     private MainActivity mContext;
     private View view;
     private ImageView imgEditPhoneNo;
@@ -80,7 +87,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
     private int GALLERY_IMG_REQUEST = 1001;
     private int CAMERA_IMG_REQUEST = 1002;
     private Bitmap bitmap;
-
+    PreferenceModel preference;
 
     @Override
 
@@ -97,6 +104,8 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
     }
 
     private void initView() {
+
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
         imgEditPhoneNo = view.findViewById(R.id.img_edit_phone_no);
         image_user = view.findViewById(R.id.image_user);
         tv_edit = view.findViewById(R.id.tv_edit);
@@ -116,7 +125,9 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
         tv_submit = view.findViewById(R.id.tv_submit);
         tv_cancel = view.findViewById(R.id.tv_cancel);
 
-
+        et_name.setText(preference.getName());
+        et_mailid.setText(preference.getEmail());
+        tv_phone_no.setText(preference.getMobile());
       /*layout match password*/
         match_password_layout = view.findViewById(R.id.match_password_layout);
         et_match_pass = view.findViewById(R.id.et_match_pass);
@@ -143,6 +154,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
         et_name.setEnabled(false);
         et_mailid.setEnabled(false);
 
+
         imgEditPhoneNo.setOnClickListener(this);
         ll_edit_phone_no.setOnClickListener(this);
         tv_submit.setOnClickListener(this);
@@ -158,7 +170,6 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
     }
 
 
-
     public static boolean isValidPassword(final String password) {
 
         Pattern pattern;
@@ -170,7 +181,6 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
         return matcher.matches();
 
     }
-
 
 
     @Override
@@ -220,7 +230,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
 
             case R.id.tv_submit:
                 //phone_layout.setVisibility(View.GONE);
-                //   MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, true);
+                //   MyFragmentTransactions.replaceFragment(mContext, new ActvityOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, true);
                 //    otp_layoutId.setVisibility(View.VISIBLE);
 
                 et_phoneNo.setCursorVisible(true);
@@ -238,17 +248,9 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
 
 
                 et_match_pass.setCursorVisible(true);
+
                 if (et_match_pass.getText().toString().trim().length() > 0) {
-                    match_password_layout.setVisibility(View.GONE);
-                    // tv_phone_no.setText(et_phoneNo.getText().toString());
-                    tv_save.setVisibility(View.VISIBLE);
-                    tv_edit.setVisibility(View.GONE);
-                    et_name.setEnabled(true);
-                    et_mailid.setEnabled(true);
-                    ll_edit_phone_no.setVisibility(View.VISIBLE);
-                    imgEditPhoneNo.setVisibility(View.VISIBLE);
-                    ll_change_pass.setVisibility(View.VISIBLE);
-                    ll_edit_profile_img.setVisibility(View.VISIBLE);
+                    hitApiForMatchPassword();
                 } else {
                     Toast.makeText(getActivity(), "Please enter your password.", Toast.LENGTH_SHORT).show();
                     match_password_layout.setVisibility(View.VISIBLE);
@@ -279,14 +281,13 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
                     if (et_confirm_pass.getText().toString().trim().length() > 0) {
 
                         if (et_confirm_pass.getText().toString().equals(et_new_pass.getText().toString())) {
-                            if(et_new_pass.getText().toString().length()<6 ){
+                            if (et_new_pass.getText().toString().length() < 6) {
 
                                 Toast.makeText(mContext, "password should be minimum 6 digit ", Toast.LENGTH_SHORT).show();
-                            }else{
+                            } else {
+                                hitApiChangePassword();
+                                // System.out.println("Valid");
 
-                               // System.out.println("Valid");
-                                change_password_dialog.setVisibility(View.GONE);
-                                tv_pass.setText(et_new_pass.getText().toString());
                             }
 
                         } else {
@@ -311,12 +312,66 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
                 change_password_dialog.setVisibility(View.GONE);
                 break;
             case R.id.ll_edit_profile_img:
-              
+
                 checkPermissions();
-            
+
                 break;
         }
 
+    }
+
+    private void hitApiChangePassword() {
+        try {
+            request = new ProjectWebRequest(mContext, getParamForChangePass(), UrlConstants.CHANGE_PASSWORD, this, UrlConstants.CHANGE_PASSWORD_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamForChangePass() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("password", et_new_pass.getText().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void hitApiForMatchPassword() {
+        try {
+            request = new ProjectWebRequest(mContext, getParamForMatchPass(), UrlConstants.MATCH_PASSWORD, this, UrlConstants.MATCH_PASSWORD_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamForMatchPass() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("password", et_match_pass.getText().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void clearRef() {
+        if (request != null) {
+            request = null;
+        }
     }
 
     private void checkPermissions() {
@@ -366,14 +421,12 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
     }
 
 
-
-
     //**************************************** Image Capturing Process ****************************************************************
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String picturePath = "";
-        if (requestCode == GALLERY_IMG_REQUEST ) {
+        if (requestCode == GALLERY_IMG_REQUEST) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
             Cursor cursor = mContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -382,9 +435,9 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
             picturePath = cursor.getString(columnIndex);
             cursor.close();
             bitmap = BitmapFactory.decodeFile(picturePath);
-          //  setPath(picturePath);
+            //  setPath(picturePath);
             image_user.setImageBitmap(bitmap);
-        } else if (requestCode == CAMERA_IMG_REQUEST ) {
+        } else if (requestCode == CAMERA_IMG_REQUEST) {
             bitmap = (Bitmap) data.getExtras().get("data");
 
             image_user.setImageBitmap(bitmap);
@@ -393,6 +446,42 @@ public class FragMyProfile extends Fragment implements View.OnClickListener {
     }
 
 
+    @Override
+    public void onSuccess(JSONObject obj, int Tag) {
+        if (Tag == UrlConstants.MATCH_PASSWORD_TAG) {
+            if (obj.optString("status").equals("success")) {
+                match_password_layout.setVisibility(View.GONE);
+                // tv_phone_no.setText(et_phoneNo.getText().toString());
+                tv_save.setVisibility(View.VISIBLE);
+                tv_edit.setVisibility(View.GONE);
+                et_name.setEnabled(true);
+                et_mailid.setEnabled(true);
+                ll_edit_phone_no.setVisibility(View.VISIBLE);
+                imgEditPhoneNo.setVisibility(View.VISIBLE);
+                ll_change_pass.setVisibility(View.VISIBLE);
+                ll_edit_profile_img.setVisibility(View.VISIBLE);
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+        }else if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
+            if(obj.optString("status").equals("success")){
+                change_password_dialog.setVisibility(View.GONE);
+                tv_pass.setText(et_new_pass.getText().toString());
+                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+            }
 
+        }
 
+    }
+
+    @Override
+    public void onFailure(String error, int Tag, String erroMsg) {
+
+    }
+
+    @Override
+    public void doRetryNow() {
+
+    }
 }

@@ -87,6 +87,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:gravity="center"
+                android:id="@+id/ll_varifyOtp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -152,6 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/_30sdp"
                     android:gravity="center"
+                    android:id="@+id/ll_veryfyOtp"
                     android:orientation="horizontal">
 
                     <ImageView

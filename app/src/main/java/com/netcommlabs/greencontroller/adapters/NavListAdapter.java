@@ -1,5 +1,6 @@
 package com.netcommlabs.greencontroller.adapters;
 
+import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,22 +12,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragDontHvDevice;
 import com.netcommlabs.greencontroller.Fragments.FragFAQHelp;
 import com.netcommlabs.greencontroller.Fragments.FragFeedback;
 import com.netcommlabs.greencontroller.Fragments.FragMeterDevice;
-import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
-import com.netcommlabs.greencontroller.Fragments.FragOtp;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
 import com.netcommlabs.greencontroller.Fragments.FragSavedAddress;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
+import com.netcommlabs.greencontroller.activities.LoginAct;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.ModalBLEDevice;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 
 import java.util.List;
@@ -111,9 +113,11 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             //Replacing Fragment(FragAddAddress)
                             MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), Constant.FAQ, mContext.frm_lyt_container_int, false);
                             break;
-                        case "Verify Otp":
+                        case "Log out":
                             //Replacing Fragment(FragAddAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
+                            MySharedPreference.getInstance(mContext).clearAll();
+                            mContext. startActivity(new Intent(mContext, LoginAct.class));
+                            mContext.finish();
                             break;
 
                     }

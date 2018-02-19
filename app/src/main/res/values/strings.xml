@@ -9,4 +9,6 @@
     <string-array name="long_press_option">
         <item>Delete</item>
     </string-array>
+    <string name="str_term_policy">I agree to the <b>Terms of Use</b> and <b> Privacy Policy</b></string>
 </resources>
+

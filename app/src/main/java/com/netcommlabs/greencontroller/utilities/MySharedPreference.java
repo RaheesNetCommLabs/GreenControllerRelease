@@ -3,6 +3,8 @@ package com.netcommlabs.greencontroller.utilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.netcommlabs.greencontroller.model.PreferenceModel;
+
 /**
  * Created by kumar on 10/30/2017.
  */
@@ -16,7 +18,11 @@ public class MySharedPreference {
     private String keySetMacAd = "macAddkey";
 
     private String keyConnectedTime = "connTime";
-
+    private final String Name = "name";
+    private final String User_img = "user_img";
+    private final String UID = "user_id";
+    private final String EMAIL = "email";
+    private final String MOBILE = "mobile";
 
     public static MySharedPreference getInstance(Context mContext) {
         if (object == null) {
@@ -72,4 +78,42 @@ public class MySharedPreference {
         editor.putString(keyConnectedTime, lastConctdTime);
         editor.commit();
     }
+
+
+    public void setUserDetail(PreferenceModel data) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(Name, data.getName());
+
+        editor.putString(UID, data.getUser_id());
+        editor.putString(EMAIL, data.getEmail());
+        editor.putString(MOBILE, data.getMobile());
+        editor.commit();
+    }
+
+
+    public PreferenceModel getsharedPreferenceData() {
+        PreferenceModel data = new PreferenceModel();
+        data.setEmail(sharedpreferences.getString(EMAIL, null));
+        data.setName(sharedpreferences.getString(Name, null));
+        data.setMobile(sharedpreferences.getString(MOBILE, null));
+        data.setUser_id(sharedpreferences.getString(UID, null));
+
+        return data;
+    }
+
+    public String getUser_img() {
+        return sharedpreferences.getString(User_img, null);
+    }
+
+    public void setUser_img(String data) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(User_img, data);
+        editor.commit();
+    }
+
+
+    public void clearAll() {
+        sharedpreferences.edit().clear().commit();
+    }
+
 }

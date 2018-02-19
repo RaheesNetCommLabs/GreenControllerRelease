@@ -34,11 +34,10 @@
                 android:layout_height="@dimen/_55sdp"
                 android:background="@drawable/rect_shadow_all_bg"
                 android:hint="Enter phone or email"
+                android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="@dimen/_15sdp"
-                android:textSize="@dimen/_13sdp"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:imeOptions="flagNoExtractUi"/>
+                android:singleLine="true"
+                android:textSize="@dimen/_13sdp" />
 
             <EditText
                 android:id="@+id/etPassword"
@@ -46,20 +45,20 @@
                 android:layout_height="@dimen/_55sdp"
                 android:background="@drawable/rect_shadow_all_bg"
                 android:hint="Enter password"
+                android:inputType="textPassword"
+                android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="@dimen/_15sdp"
-                android:textSize="@dimen/_13sdp"
-                android:focusable="false"
-                android:cursorVisible="false"
-                android:imeOptions="flagNoExtractUi"/>
+                android:singleLine="true"
+                android:textSize="@dimen/_13sdp" />
 
             <TextView
                 android:id="@+id/tvForgtPassEvent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
+                android:paddingBottom="@dimen/_7sdp"
                 android:paddingRight="@dimen/_10sdp"
                 android:paddingTop="@dimen/_2sdp"
-                android:paddingBottom="@dimen/_7sdp"
                 android:text="Forgot password?"
                 android:textSize="@dimen/_13sdp" />
 
@@ -120,8 +119,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginBottom="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
