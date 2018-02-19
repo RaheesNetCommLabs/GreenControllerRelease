@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -37,7 +38,8 @@ import android.widget.Toast;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.netcommlabs.greencontroller.Fragments.FragAddAddress;
+import com.netcommlabs.greencontroller.Fragments.FragAddEditAddress;
+import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.FragDashboardPebbleHome;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
@@ -45,7 +47,7 @@ import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.Interfaces.LocationDecetor;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.adapters.NavListAdapter;
-import com.netcommlabs.greencontroller.model.ModalBLEDevice;
+import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
@@ -62,10 +64,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.netcommlabs.greencontroller.utilities.Constant.AVAILABLE_DEVICE;
+import static com.netcommlabs.greencontroller.utilities.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_MAP;
-import static com.netcommlabs.greencontroller.utilities.Constant.SAVED_ADDRESS;
-import static com.netcommlabs.greencontroller.utilities.SharedPrefsConstants.ADDRESS;
+import static com.netcommlabs.greencontroller.utilities.Constant.ADDRESS_BOOK;
 
 public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
@@ -86,30 +88,47 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     private String usersAddress = null;
     public TextView tvToolbar_title, tvDesc_txt, tvClearEditData;
     private boolean exit = false;
-    private Fragment myFragment;
+    //private Fragment myFragment;
     private String dvcMacAddress;
     public EditText etSearchMapTop;
     public Button btnMapDone, btnMapBack;
     private Fragment currentFragment;
     private String tagCurrFrag;
     private LinearLayout llHamburgerIconOnly;
-    public TextView tv_add_address;
+    private DatabaseHandler databaseHandler;
+    //public TextView tvAddNewAddress;
+    public LinearLayout llAddNewAddress;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupUI(findViewById(R.id.llMainContainerOfApp));
-
-
+        findLocalViews();
         initBase();
         initListeners();
     }
 
-    public void setupUI(View view) {
+    private void findLocalViews() {
+        frm_lyt_container_int = R.id.frm_lyt_container;
+        rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
+        llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
+        etSearchMapTop = findViewById(R.id.etSearchMapTop);
+        llSearchMapOKTop = findViewById(R.id.llSearchMapOKTop);
+        tvToolbar_title = findViewById(R.id.toolbar_title);
+        tvClearEditData = findViewById(R.id.tvClearEditData);
+        tvDesc_txt = findViewById(R.id.desc_txt);
+        nav_drawer_layout = findViewById(R.id.nav_drawer_layout);
+        nav_revi_slider = findViewById(R.id.nav_revi_slider);
+        btnMapDone = findViewById(R.id.btnAddressDone);
+        btnMapBack = findViewById(R.id.btnAddressCancel);
 
+        setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
+    }
+
+    public void setupUIForSoftkeyboardHide(View view) {
         // Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
             view.setOnTouchListener(new View.OnTouchListener() {
@@ -124,22 +143,33 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         if (view instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
                 View innerView = ((ViewGroup) view).getChildAt(i);
-                setupUI(innerView);
+                setupUIForSoftkeyboardHide(innerView);
             }
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void initBase() {
         mContext = this;
         Stetho.initializeWithDefaults(mContext);
+/*<<<<<<< HEAD
         DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
         List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
         if (listBLEDvcFromDB != null && listBLEDvcFromDB.size() > 0) {
             dvcMacAddress = listBLEDvcFromDB.get(0).getDvcMacAddrs();
             myFragment = new Fragment();
             BLEAppLevel.getInstance(mContext, myFragment, dvcMacAddress);
-        }
+=======*/
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        databaseHandler.createActiveUser();
 
+        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+        if (listAllDevices.size() > 0) {
+            dvcMacAddress = listAllDevices.get(0).getDvcMacAddress();
+            //myFragment = new Fragment();
+            BLEAppLevel.getInstance(mContext, null, dvcMacAddress);
+//>>>>>>> d13132fa322c99ecac00fb3cd9d9bb83c28d4339
+        }
         //Checking Marshmallow
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermission();
@@ -152,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }
         }
-        tv_add_address=findViewById(R.id.tv_add_address);
+        llAddNewAddress = findViewById(R.id.llAddNewAddress);
         frm_lyt_container_int = R.id.frm_lyt_container;
         rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
         llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
@@ -165,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         nav_revi_slider = findViewById(R.id.nav_revi_slider);
         btnMapDone = findViewById(R.id.btnAddressDone);
         btnMapBack = findViewById(R.id.btnAddressCancel);
-        tv_add_address.setVisibility(View.GONE);
+        //tvAddNewAddress.setVisibility(View.GONE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         nav_revi_slider.setLayoutManager(layoutManager);
 
@@ -178,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             ));
         }
         nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout));
+        //MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
 
         //Adding first Fragment(FragDashboardPebbleHome)
         MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
@@ -246,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(mContext,
                 Manifest.permission.ACCESS_FINE_LOCATION) + ContextCompat
@@ -269,6 +301,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -297,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void startBTWork() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -423,12 +457,12 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
                 currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
                 //Managing Add Address Fragment and then return
-                if (currentFragment instanceof FragAddAddress && llSearchMapOKTop.getVisibility() == View.VISIBLE) {
+                if (currentFragment instanceof FragAddEditAddress && llSearchMapOKTop.getVisibility() == View.VISIBLE) {
                     rlHamburgerNdFamily.setVisibility(View.VISIBLE);
                     llSearchMapOKTop.setVisibility(View.GONE);
                     etSearchMapTop.setText("");
-                    ((FragAddAddress) currentFragment).AddAddressLayoutScrlV.setVisibility(View.VISIBLE);
-                    ((FragAddAddress) currentFragment).llSearchMAPok.setVisibility(View.GONE);
+                    ((FragAddEditAddress) currentFragment).AddAddressLayoutScrlV.setVisibility(View.VISIBLE);
+                    ((FragAddEditAddress) currentFragment).llSearchMAPok.setVisibility(View.GONE);
                     return;
                 }
                 if (currentFragment != null) {
@@ -463,8 +497,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             tvClearEditData.setVisibility(View.GONE);
         }
 
-       if(tv_add_address.getVisibility()==View.VISIBLE){
-            tv_add_address.setVisibility(View.GONE);
+        if (llAddNewAddress.getVisibility() == View.VISIBLE) {
+            llAddNewAddress.setVisibility(View.GONE);
         }
         switch (tag) {
             case AVAILABLE_DEVICE:
@@ -474,21 +508,28 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 }
                 break;
             case DEVICE_MAP:
-                if (!MySharedPreference.getInstance(this).getStringData(ADDRESS).equalsIgnoreCase(""))
-                    tvDesc_txt.setText(MySharedPreference.getInstance(this).getStringData(ADDRESS));
+                /*if (!MySharedPreference.getInstance(this).getStringData(ADDRESS).equalsIgnoreCase(""))
+                    tvDesc_txt.setText(MySharedPreference.getInstance(this).getStringData(ADDRESS));*/
                 break;
             case DEVICE_DETAILS:
-                // if (!MySharedPreference.getInstance(this).getStringData(lAST_CONNECTED).equalsIgnoreCase("")) {
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     tvDesc_txt.setText("This device is Connected");
                 } else {
                     tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
                 }
-                //}
                 break;
-            case SAVED_ADDRESS:
-                tv_add_address.setVisibility(View.VISIBLE);
+            case CONNECTED_QR:
+                if (currentFragment instanceof FragConnectedQR) {
+                    FragConnectedQR fcqr = ((FragConnectedQR) currentFragment);
+                    fcqr.tvDvcName.setVisibility(View.VISIBLE);
+                    fcqr.ivEditDvcName.setVisibility(View.VISIBLE);
+                    fcqr.etEditDvcName.setVisibility(View.GONE);
+                    fcqr.ivSaveDvcName.setVisibility(View.GONE);
+                }
+                break;
+            case ADDRESS_BOOK:
+                llAddNewAddress.setVisibility(View.VISIBLE);
                 break;
             default:
                 tvDesc_txt.setText("");

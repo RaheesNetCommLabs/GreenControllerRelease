@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="FEEDBACK"
         android:gravity="center"
+<<<<<<< HEAD
         android:textSize="@dimen/_20sdp"/>
 
 
+=======
+        android:text="FEEDBACK"
+        android:textSize="@dimen/_20sdp" />
+>>>>>>> d13132fa322c99ecac00fb3cd9d9bb83c28d4339
 </RelativeLayout>

@@ -41,7 +41,7 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
         this.dvcMacAdd = dvcMacAdd;
         this.fragDeviceDetails = fragDeviceDetails;
         this.listMdlValveNameStateNdSelect = listMdlValveNameStateNdSelect;
-        databaseHandler = new DatabaseHandler(mContext);
+        databaseHandler = DatabaseHandler.getInstance(mContext);
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -102,7 +102,7 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
                 //Converting all views FALSE
                 for (int i = 0; i < listMdlValveNameStateNdSelect.size(); i++) {
                     listMdlValveNameStateNdSelect.get(i).setValveSelected("FALSE");
-                    databaseHandler.updateValveSelect(dvcMacAdd, listMdlValveNameStateNdSelect.get(i).getValveName(), "FALSE");
+                    databaseHandler.updateValveSelectStatus(dvcMacAdd, listMdlValveNameStateNdSelect.get(i).getValveName(), "FALSE");
                     //FragDeviceDetails.listModalValveProperties.get(i).setValveSelected(false);
                     //modalVlNameSelectFrEch.setValveSelected(false);
                     holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow);
@@ -112,7 +112,7 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
                 String isValveSelected = mdlValveNameStateNdSelect.getValveSelected();
                 if (isValveSelected.equals("FALSE")) {
                     listMdlValveNameStateNdSelect.get(position).setValveSelected("TRUE");
-                    databaseHandler.updateValveSelect(dvcMacAdd, mdlValveNameStateNdSelect.getValveName(), "TRUE");
+                    databaseHandler.updateValveSelectStatus(dvcMacAdd, mdlValveNameStateNdSelect.getValveName(), "TRUE");
                 }
                 holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow_select);
                 notifyDataSetChanged();

@@ -1,15 +1,13 @@
 package com.netcommlabs.greencontroller.Fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,17 +22,14 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.DeviceAddressAdapter;
-import com.netcommlabs.greencontroller.model.MdlAddressNdLocation;
-import com.netcommlabs.greencontroller.model.ModalBLEDevice;
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.Constant;
-import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.netcommlabs.greencontroller.utilities.SharedPrefsConstants.ADDRESS;
 /**
  * Created by Android on 12/6/2017.
  */
@@ -43,8 +38,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private View view;
     private RecyclerView recyclerView;
     private DeviceAddressAdapter mAdapter;
-    private LinearLayout llMapNewAddress;
-    public LinearLayout llBubbleLeftTopBG;
+    private LinearLayout llAddNewAddress;
+    public LinearLayout llBubbleLeftTopBG, llFooterIM;
     /* private LinearLayout ll_3st;
      private LinearLayout ll_4st;
      private LinearLayout ll_5st;*/
@@ -54,14 +49,20 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private String dvcMac;
     private ImageView ivPrev;
     private ImageView ivNext;
-    private DatabaseHandler databaseHandler;
     private int valveNum;
     private TextView tvDeviceName, tvValveCount, tvShowAddressTop, toolbar_tile;
-    private MdlAddressNdLocation mdlAddressNdLocation;
+    private ModalAddressModule modalAddressModule;
     private String addressComplete;
     private List<String> listAddressName;
     private BLEAppLevel bleAppLevel;
     private TextView tvAddressTop;
+    private DatabaseHandler databaseHandler;
+    private int addressID;
+    private int addressSelectStatus;
+    private List<ModalDeviceModule> listModalDeviceModule;
+    private List<ModalAddressModule> listModalAddressModule;
+    private int selectAddressNameListAt;
+    //private Fragment myFragment;
 
     @Override
     public void onAttach(Context context) {
@@ -81,8 +82,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     private void findViews(View view) {
-        recyclerView = view.findViewById(R.id.recycler_view);
-        llMapNewAddress = view.findViewById(R.id.llMapNewAddress);
+        tvAddressTop = mContext.tvDesc_txt;
+        recyclerView = view.findViewById(R.id.recyclerView);
+        llAddNewAddress = view.findViewById(R.id.llAddNewAddress);
         ivMapNewDevice = view.findViewById(R.id.ivMapNewDevice);
         llBubbleLeftTopBG = view.findViewById(R.id.llBubbleLeftTopBG);
         rlBubbleLeftTop = view.findViewById(R.id.rlBubbleLeftTop);
@@ -90,6 +92,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         rlBubbleMiddle = view.findViewById(R.id.rlBubbleMiddle);
         rlBubbleLeftBottom = view.findViewById(R.id.rlBubbleLeftBottom);
         rlBubbleRightBottom = view.findViewById(R.id.rlBubbleRightBottom);
+        llFooterIM = view.findViewById(R.id.llFooterIM);
         ivPrev = view.findViewById(R.id.ivPrev);
         ivNext = view.findViewById(R.id.ivNext);
         tvDeviceName = view.findViewById(R.id.tvDeviceName);
@@ -97,44 +100,57 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     private void initBase() {
-        listAddressName = new ArrayList<>();
-        listAddressName.add("Home");
-
         bleAppLevel = BLEAppLevel.getInstanceOnly();
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        listModalAddressModule = databaseHandler.getAllAddressIDRadioNameSelectStatus();
+        if (listModalAddressModule.size() > 0) {
+            for (int i = 0; i < listModalAddressModule.size(); i++) {
+                if (listModalAddressModule.get(i).getAddressSelectStatus() == 1) {
+                    addressID = listModalAddressModule.get(i).getAddressID();
+                    selectAddressNameListAt = i;
+                    break;
+                }
+            }
+        }
+        //listAddressName=databaseHandler.getAllAddressIDRadioNameSelectStatus();
+        //listAddressName.add("Home");
+
+       /* bleAppLevel = BLEAppLevel.getInstanceOnly();
         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
             //Change background on BLE connected
             llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
         }
         //Getting Address and mapped Devices from DB
-        databaseHandler = new DatabaseHandler(mContext);
-        List<ModalBLEDevice> listModalAddressAndDevices = databaseHandler.getAllAddressNdDeviceMapping();
-       /* if (listModalAddressAndDevices != null && listModalAddressAndDevices.size() > 0) {
+        //databaseHandler = new DatabaseHandler(mContext);
+        List<ModalDeviceModule> listModalAddressAndDevices = databaseHandler.getAllAddressNdDeviceMapping();
+        if (listModalAddressAndDevices != null && listModalAddressAndDevices.size() > 0) {
             for (int i=0;i<listModalAddressAndDevices.size();i++){
-                listAddressName.add(listModalAddressAndDevices.get(i).getMdlLocationAddress().getAddress_name());
+                listAddressName.add(listModalAddressAndDevices.get(i).getMdlLocationAddress().getAddressRadioName());
             }
-        }*/
+        }
         //rlBubbleLeftTop.setVisibility(View.VISIBLE);
-        /*dvcName ="Pebble";
+        *//*dvcName ="Pebble";
         dvcMac ="98:4F:EE:10:87:66";
-        valveNum = 8;*/
+        valveNum = 8;*//*
         dvcName = listModalAddressAndDevices.get(0).getName();
         tvDeviceName.setText(dvcName);
-        dvcMac = listModalAddressAndDevices.get(0).getDvcMacAddrs();
-        mdlAddressNdLocation = listModalAddressAndDevices.get(0).getMdlLocationAddress();
+        dvcMac = listModalAddressAndDevices.get(0).getDvcMacAddress();
+        modalAddressModule = listModalAddressAndDevices.get(0).getMdlLocationAddress();
 
-        addressComplete = mdlAddressNdLocation.getFlat_num() + ", " + mdlAddressNdLocation.getStreetName() + ", " + mdlAddressNdLocation.getLocality_landmark() + ", " + mdlAddressNdLocation.getPinCode() + ", " + mdlAddressNdLocation.getCity() + ", " + mdlAddressNdLocation.getState();
+        addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
         tvAddressTop = mContext.tvDesc_txt;
         tvAddressTop.setText(addressComplete);
         MySharedPreference.getInstance(getActivity()).setStringData(ADDRESS, addressComplete);
 
         valveNum = listModalAddressAndDevices.get(0).getValvesNum();
-        tvValveCount.setText(valveNum + "");
+        tvValveCount.setText(valveNum + "");*/
 
         setRecyclerViewAdapter();
+        setUIForAddressNdDeviceMap(addressID);
     }
 
     private void initListeners() {
-        llMapNewAddress.setOnClickListener(this);
+        llAddNewAddress.setOnClickListener(this);
         rlBubbleLeftTop.setOnClickListener(this);
         rlBubbleLeftTop.setOnLongClickListener(this);
         rlBubbleMiddle.setOnClickListener(this);
@@ -150,24 +166,74 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         ll_5st.setOnLongClickListener(this);*/
     }
 
-    void setRecyclerViewAdapter(){
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new DeviceAddressAdapter(mContext, listAddressName);
+    void setRecyclerViewAdapter() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        mAdapter = new DeviceAddressAdapter(mContext, FragDeviceMAP.this);
         recyclerView.setAdapter(mAdapter);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(selectAddressNameListAt + 1);
+            }
+        }, 200);
+    }
+
+    public void setUIForAddressNdDeviceMap(int addressID) {
+        listModalAddressModule = DatabaseHandler.getInstance(mContext).getAddressListFormData(addressID);
+        modalAddressModule = listModalAddressModule.get(0);
+
+        listModalDeviceModule = databaseHandler.getDeviceDataForIMap(addressID);
+        addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
+        tvAddressTop.setText(addressComplete);
+
+        if (listModalDeviceModule.size() == 1) {
+            dvcName = listModalDeviceModule.get(0).getName();
+            dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
+            valveNum = listModalDeviceModule.get(0).getValvesNum();
+
+            //myFragment = new Fragment();
+            BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+            rlBubbleLeftTop.setVisibility(View.VISIBLE);
+            rlBubbleRightTop.setVisibility(View.GONE);
+            rlBubbleMiddle.setVisibility(View.GONE);
+            rlBubbleLeftBottom.setVisibility(View.GONE);
+            rlBubbleRightBottom.setVisibility(View.GONE);
+            llFooterIM.setVisibility(View.GONE);
+
+            tvDeviceName.setText(dvcName);
+            tvValveCount.setText(valveNum + "");
+
+            if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                //Change background on BLE connected
+                llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
+            }
+        } else if (listModalDeviceModule.size() > 1 && listModalDeviceModule.size() < 6) {
+            Toast.makeText(mContext, "more than one devices, but less than 6", Toast.LENGTH_SHORT).show();
+        } else {
+            rlBubbleLeftTop.setVisibility(View.VISIBLE);
+            rlBubbleRightTop.setVisibility(View.VISIBLE);
+            rlBubbleMiddle.setVisibility(View.VISIBLE);
+            rlBubbleLeftBottom.setVisibility(View.VISIBLE);
+            rlBubbleRightBottom.setVisibility(View.VISIBLE);
+            llFooterIM.setVisibility(View.VISIBLE);
+            tvDeviceName.setText("Farm House Balcony");
+            tvValveCount.setText(1 + "");
+            llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
+        }
     }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
         switch (id) {
-            case R.id.llMapNewAddress:
-                FragAddAddress fragAddAddress = new FragAddAddress();
+            case R.id.llAddNewAddress:
+                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
                 //First child---then parent
-                fragAddAddress.setTargetFragment(FragDeviceMAP.this, 101);
-                //Adding Fragment(FragAddAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                //fragAddEditAddress.setTargetFragment(FragDeviceMAP.this, 101);
+                //Adding Fragment(FragAddEditAddress)
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 break;
             case R.id.rlBubbleLeftTop:
                 FragDeviceDetails fragDeviceDetails = new FragDeviceDetails();
@@ -200,6 +266,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 startActivity(intent2);*/
         }
     }
+
     @Override
     public boolean onLongClick(View v) {
         int id = view.getId();
@@ -238,17 +305,16 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         dialog.show();
     }
 
-    @Override
+   /* @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
             if (data.getSerializableExtra("mdlAddressLocation") != null) {
-                mdlAddressNdLocation = (MdlAddressNdLocation) data.getSerializableExtra("mdlAddressLocation");
-                Toast.makeText(mContext, "Saved address is " + mdlAddressNdLocation.getAddress_name(), Toast.LENGTH_SHORT).show();
-
+                modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
+                Toast.makeText(mContext, "Saved address is " + modalAddressModule.getAddressRadioName(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(mContext, "No data from address", Toast.LENGTH_SHORT).show();
 
             }
         }
-    }
+    }*/
 }

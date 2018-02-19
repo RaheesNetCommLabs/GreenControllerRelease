@@ -20,12 +20,9 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.model.MdlAddressNdLocation;
-import com.netcommlabs.greencontroller.model.ModalBLEDevice;
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.Constant;
-
-import java.util.List;
 
 /**
  * Created by Android on 12/6/2017.
@@ -35,22 +32,18 @@ public class FragConnectedQR extends Fragment {
 
     private MainActivity mContext;
     private View view;
-    private TextView tvAddNewDvc;
-    private static final int REQUEST_CODE_ADDRESS = 24;
-    private static final int REQUEST_CODE_QR = 2;
-    private LinearLayout llScrnHeader, llDeviceEditConncted, llAddDeviceAddressConctd;
-    private TextView tvScanQREvent, tvNextConctdEvent, tvDvcName, tvTitleConctnt;
+    private LinearLayout llAddDeviceAddressConctd;
+    public TextView tvScanQREvent, tvNextConctdEvent, tvDvcName, tvTitleConctnt;
     private DatabaseHandler databaseHandler;
-    private ImageView ivEditDvcName, ivSaveDvcName;
-    private EditText etEditDvcName, etQRManually;
-
+    public ImageView ivEditDvcName, ivSaveDvcName;
+    public EditText etEditDvcName, etQRManually;
     public static final String EXTRA_NAME = "name";
     public static final String EXTRA_ID = "id";
-
     private String device_name;
     private String dvc_mac_address;
     int valveNum;
-    private MdlAddressNdLocation mdlLocationAddress;
+    private ModalAddressModule modalAddressModule;
+    private static String dvcNameEdited = "", qrCodeEdited = "";
 
     @Override
     public void onAttach(Context context) {
@@ -62,49 +55,41 @@ public class FragConnectedQR extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.conted_qr_act, null);
 
-        initBase(view);
+        initViews(view);
+        initBase();
         initListeners();
 
         return view;
     }
 
-    private void initBase(View view) {
-        Bundle bundle = this.getArguments();
-        device_name = bundle.getString(EXTRA_NAME);
-        dvc_mac_address = bundle.getString(EXTRA_ID);
-
-//        llScrnHeader = view.findViewById(R.id.llScrnHeader);
-        llDeviceEditConncted = view.findViewById(R.id.llDeviceEditConncted);
-        llAddDeviceAddressConctd = view.findViewById(R.id.llAddDeviceAddressConctd);
-
-/*
-        tvTitleConctnt = view.findViewById(R.id.tvTitleConctnt);
-*/
-        tvTitleConctnt = mContext.tvToolbar_title;
+    private void initViews(View view) {
         tvDvcName = view.findViewById(R.id.tvDvcName);
         ivEditDvcName = view.findViewById(R.id.ivEditDvcName);
         ivSaveDvcName = view.findViewById(R.id.ivSaveDvcName);
         etEditDvcName = view.findViewById(R.id.etEditDvcName);
+        llAddDeviceAddressConctd = view.findViewById(R.id.llAddDeviceAddressConctd);
         etQRManually = view.findViewById(R.id.etQRManually);
-
-        tvTitleConctnt.setText(device_name + " Connected");
-        tvDvcName.setText(device_name);
         tvScanQREvent = view.findViewById(R.id.tvScanQREvent);
         tvNextConctdEvent = view.findViewById(R.id.tvNextConctdEvent);
+    }
 
-        databaseHandler = new DatabaseHandler(mContext);
+    private void initBase() {
+        Bundle bundle = this.getArguments();
+        device_name = bundle.getString(EXTRA_NAME);
+        dvc_mac_address = bundle.getString(EXTRA_ID);
+        tvTitleConctnt = mContext.tvToolbar_title;
+        tvTitleConctnt.setText(device_name + " Connected");
+        if (!dvcNameEdited.isEmpty()) {
+            tvDvcName.setText(dvcNameEdited);
+        }
+        if (!qrCodeEdited.isEmpty()) {
+            etQRManually.setText(qrCodeEdited);
+        }
+        etEditDvcName.setText(device_name);
+        databaseHandler = DatabaseHandler.getInstance(mContext);
     }
 
     private void initListeners() {
-     /*   llScrnHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intentAddWtrngProfile = new Intent(mContext, AvailableDevices.class);
-                mContext.startActivity(intentAddWtrngProfile);
-                mContext.finish();
-            }
-        });*/
-
         ivEditDvcName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,46 +99,59 @@ public class FragConnectedQR extends Fragment {
                 etEditDvcName.setVisibility(View.VISIBLE);
                 ivSaveDvcName.setVisibility(View.VISIBLE);
                 etEditDvcName.setText(dvcNameStrng);
+                etEditDvcName.setSelection(dvcNameStrng.length());
             }
         });
 
         ivSaveDvcName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String dvcNameStrngEdited = etEditDvcName.getText().toString();
-                if (dvcNameStrngEdited.isEmpty()) {
+                dvcNameEdited = etEditDvcName.getText().toString();
+                if (device_name.equals(dvcNameEdited)) {
+                    Toast.makeText(mContext, "Please update device default name", Toast.LENGTH_SHORT).show();
+                    etEditDvcName.requestFocus();
+                    etEditDvcName.setSelection(dvcNameEdited.length());
+                    return;
+                }
+                if (dvcNameEdited.isEmpty()) {
                     Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (databaseHandler.getAllDeviceName().size() > 0) {
+                    for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
+                        if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(dvcNameEdited)) {
+                            Toast.makeText(mContext, "This device name already exists with app", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                }
+
                 tvDvcName.setVisibility(View.VISIBLE);
                 ivEditDvcName.setVisibility(View.VISIBLE);
                 etEditDvcName.setVisibility(View.GONE);
                 ivSaveDvcName.setVisibility(View.GONE);
-                tvDvcName.setText(dvcNameStrngEdited);
+                tvDvcName.setText(dvcNameEdited);
                 Toast.makeText(mContext, "Device name edited", Toast.LENGTH_SHORT).show();
             }
         });
 
-       /* llDeviceEditConncted.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mContext, "Device connected", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
         llAddDeviceAddressConctd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragAddAddress fragAddAddress = new FragAddAddress();
-                if (mdlLocationAddress != null) {
+                if (etEditDvcName.getVisibility() == View.VISIBLE) {
+                    Toast.makeText(mContext, "Please save device name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
+                if (modalAddressModule != null) {
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(FragAddAddress.KEY_ADDRESS_TRANSFER, mdlLocationAddress);
-                    fragAddAddress.setArguments(bundle);
+                    bundle.putSerializable(FragAddEditAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
+                    fragAddEditAddress.setArguments(bundle);
                 }
                 //First child---then parent
-                fragAddAddress.setTargetFragment(FragConnectedQR.this, 101);
-                //Adding Fragment(FragAddAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
+                //Adding Fragment(FragAddEditAddress)
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
 
@@ -176,33 +174,57 @@ public class FragConnectedQR extends Fragment {
         tvNextConctdEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String etQRManuallyInput = etQRManually.getText().toString();
-
-                if (mdlLocationAddress == null) {
+                dvcNameEdited = etEditDvcName.getText().toString();
+                if (device_name.equals(dvcNameEdited)) {
+                    Toast.makeText(mContext, "Please update device default name", Toast.LENGTH_SHORT).show();
+                    etEditDvcName.requestFocus();
+                    etEditDvcName.setSelection(dvcNameEdited.length());
+                    return;
+                }
+                if (dvcNameEdited.isEmpty()) {
+                    Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (etEditDvcName.getVisibility() == View.VISIBLE) {
+                    Toast.makeText(mContext, "Please save device name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (modalAddressModule == null) {
                     Toast.makeText(mContext, "Please provide Device Installation Address", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (etQRManuallyInput.isEmpty()) {
+                qrCodeEdited = etQRManually.getText().toString();
+                if (qrCodeEdited.isEmpty()) {
                     Toast.makeText(mContext, "Please provide QR information", Toast.LENGTH_SHORT).show();
+                    etQRManually.setCursorVisible(true);
+                    etQRManually.requestFocus();
                     return;
-                }else if (!etQRManuallyInput.isEmpty() && etQRManuallyInput.equalsIgnoreCase("QR8")) {
+                } else if (!qrCodeEdited.isEmpty() && qrCodeEdited.equalsIgnoreCase("QR8")) {
                     valveNum = 8;
                 } else {
                     Toast.makeText(mContext, "Please enter a valid input", Toast.LENGTH_SHORT).show();
+                    etQRManually.setCursorVisible(true);
+                    etQRManually.requestFocus();
                     return;
                 }
-                databaseHandler = new DatabaseHandler(mContext);
-                List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
-                for (int i = 0; i < listBLEDvcFromDB.size(); i++) {
-                    if (listBLEDvcFromDB.get(i).getDvcMacAddrs().equalsIgnoreCase(dvc_mac_address)) {
-                        Toast.makeText(mContext, "This device is already added with app", Toast.LENGTH_SHORT).show();
-                        return;
+                //Avoid adding same device again with app
+                if (databaseHandler.getAllDeviceMAC().size() > 0) {
+                    for (int i = 0; i < databaseHandler.getAllDeviceMAC().size(); i++) {
+                        if (databaseHandler.getAllDeviceMAC().get(i).equalsIgnoreCase(dvc_mac_address)) {
+                            Toast.makeText(mContext, "This device already exists with app", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                     }
                 }
-                ModalBLEDevice modalBleDevice = new ModalBLEDevice(device_name, dvc_mac_address, mdlLocationAddress, valveNum);
-                databaseHandler.addBLEDevice(modalBleDevice);
+                long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
+                databaseHandler.insertDeviceModule(insertedAddressUniqueID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+                //ModalDeviceModule modalBleDevice = new ModalDeviceModule(dvcNameEdited, dvc_mac_address, modalAddressModule, valveNum);
+                //databaseHandler.addBLEDevice(modalBleDevice);
                 //Adding Fragment(FragAvailableDevices)
                 MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                dvcNameEdited = "";
+                qrCodeEdited = "";
+                Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
             }
 
         });
@@ -212,7 +234,7 @@ public class FragConnectedQR extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
             if (data.getSerializableExtra("mdlAddressLocation") != null) {
-                mdlLocationAddress = (MdlAddressNdLocation) data.getSerializableExtra("mdlAddressLocation");
+                modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
                 Toast.makeText(mContext, "Address Saved", Toast.LENGTH_SHORT).show();
 
             } else {

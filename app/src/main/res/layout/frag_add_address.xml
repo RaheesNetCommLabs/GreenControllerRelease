@@ -42,7 +42,7 @@
                         android:src="@drawable/flat_number" />
 
                     <EditText
-                        android:id="@+id/et_flat_num"
+                        android:id="@+id/tvFlatNum"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -72,7 +72,7 @@
                         android:src="@drawable/street" />
 
                     <EditText
-                        android:id="@+id/et_street_area"
+                        android:id="@+id/tvStreetArea"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -113,7 +113,7 @@
                         android:src="@drawable/locality" />
 
                     <EditText
-                        android:id="@+id/et_locality_landmark"
+                        android:id="@+id/tvLocalityLandmark"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -144,7 +144,7 @@
                         android:src="@drawable/pincode" />
 
                     <EditText
-                        android:id="@+id/et_pincode"
+                        android:id="@+id/tvPincode"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -183,7 +183,7 @@
                         android:src="@drawable/city" />
 
                     <EditText
-                        android:id="@+id/et_city"
+                        android:id="@+id/tvCity"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -213,7 +213,7 @@
                         android:src="@drawable/state" />
 
                     <EditText
-                        android:id="@+id/et_state"
+                        android:id="@+id/tvState"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
@@ -323,6 +323,7 @@
                     android:background="@drawable/rect_border_light_line"
                     android:hint="Enter other address name"
                     android:imeOptions="flagNoExtractUi"
+                    android:inputType="textCapSentences"
                     android:paddingLeft="@dimen/_10sdp"
                     android:visibility="gone" />
 

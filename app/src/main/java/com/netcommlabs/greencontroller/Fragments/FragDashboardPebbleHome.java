@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.model.ModalBLEDevice;
+import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.Constant;
 
@@ -34,6 +34,7 @@ public class FragDashboardPebbleHome extends Fragment {
     private Fragment myFragment;
     private String dvcMacAddress;
     ProgressDialog progressDialog;
+    private DatabaseHandler databaseHandler;
 
     @Override
     public void onAttach(Context context) {
@@ -53,8 +54,9 @@ public class FragDashboardPebbleHome extends Fragment {
 
 
     private void initBase(View view) {
+        databaseHandler = DatabaseHandler.getInstance(mContext);
         /*DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
-        List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
+        List<ModalDeviceModule> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
         if (listBLEDvcFromDB != null && listBLEDvcFromDB.size() > 0) {
 
             progressDialog = new ProgressDialog(mContext);
@@ -62,7 +64,7 @@ public class FragDashboardPebbleHome extends Fragment {
             progressDialog.setCancelable(false);
             progressDialog.show();
 
-            dvcMacAddress = listBLEDvcFromDB.get(0).getDvcMacAddrs();
+            dvcMacAddress = listBLEDvcFromDB.get(0).getDvcMacAddress();
             myFragment = FragDashboardPebbleHome.this;
             BLEAppLevel.getInstance(mContext, myFragment, dvcMacAddress, progressDialog);
         }*/
@@ -79,18 +81,14 @@ public class FragDashboardPebbleHome extends Fragment {
         llMyDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
-                List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
-
-                if (listBLEDvcFromDB != null && listBLEDvcFromDB.size() > 0) {
+                List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+                if (listAllDevices.size() > 0) {
                     //Adding Fragment(FragDeviceMAP)
                     MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
                 } else {
                     //Adding Fragment(FragDontHvDevice)
                     MyFragmentTransactions.replaceFragment(mContext, new FragDontHvDevice(), Constant.DO_NOT_HAVE_DEVICE, mContext.frm_lyt_container_int, true);
                 }
-
-
             }
         });
 

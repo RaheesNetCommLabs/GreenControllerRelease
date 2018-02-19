@@ -20,12 +20,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.InterfaceValveAdapter;
 import com.netcommlabs.greencontroller.Interfaces.BLEInterface;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.AdptrAvailableDVCs;
-import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
@@ -38,7 +36,7 @@ import java.util.List;
  * Created by Android on 12/6/2017.
  */
 
-public class FragAvailableDevices extends Fragment implements InterfaceValveAdapter, BLEInterface {
+public class FragAvailableDevices extends Fragment implements BLEInterface {
 
     private MainActivity mContext;
     private View view;
@@ -152,16 +150,11 @@ public class FragAvailableDevices extends Fragment implements InterfaceValveAdap
             }
 
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
-
-                //Toast.makeText(mContext, "Device Found", Toast.LENGTH_SHORT).show();
                 BluetoothDevice availbleDvc = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
                 if (!listAvailbleDvcs.contains(availbleDvc)) {
                     listAvailbleDvcs.add(availbleDvc);
-
-                    reViListAvailDvc.setAdapter(new AdptrAvailableDVCs(mContext, FragAvailableDevices.this, listAvailbleDvcs, mBluetoothAdapter));
+                    reViListAvailDvc.setAdapter(new AdptrAvailableDVCs(mContext, FragAvailableDevices.this, listAvailbleDvcs));
                 }
-
             }
 
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
@@ -171,30 +164,11 @@ public class FragAvailableDevices extends Fragment implements InterfaceValveAdap
                     reViListAvailDvc.setVisibility(View.GONE);
                     llNoDevice.setVisibility(View.VISIBLE);
                 }
-
-                //mBluetoothAdapter.cancelDiscovery();
             }
         }
     };
 
-  /*  @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.disable();
-
-        }
-        try {
-            unregisterReceiver(mBroadcastReceiver);
-
-        } catch (Exception e) {
-            Log.e("!!!!!BCR ", e.toString());
-        }
-    }*/
-
-
-    @Override
-    public void onRecyclerItemClickedNameAdress(String name, String address) {
+    public void availableDvcListClicked(String name, String address) {
         if (BLEAppLevel.getInstanceOnly() != null) {
             Toast.makeText(mContext, "An other BLE device connected already", Toast.LENGTH_SHORT).show();
             return;
@@ -210,6 +184,7 @@ public class FragAvailableDevices extends Fragment implements InterfaceValveAdap
         myFragment = FragAvailableDevices.this;
         BLEAppLevel.getInstance(mContext, myFragment, dvcMacAddress);
     }
+
 
     @Override
     public void dvcIsReadyNowNextScreen() {
@@ -238,48 +213,6 @@ public class FragAvailableDevices extends Fragment implements InterfaceValveAdap
             progressDialog.dismiss();
         }
     }
-
-   /* public void onSetTime() {
-        String[] ids = TimeZone.getAvailableIDs(+5 * 60 * 60 * 1000);
-        SimpleTimeZone pdt = new SimpleTimeZone(+5 * 60 * 60 * 1000, ids[0]);
-
-        Calendar calendar = new GregorianCalendar(pdt);
-        Date trialTime = new Date();
-        calendar.setTime(trialTime);
-
-        //Set present time as data packet
-        byte hours = (byte) calendar.get(Calendar.HOUR);
-        if (calendar.get(Calendar.AM_PM) == 1) {
-            hours = (byte) (calendar.get(Calendar.HOUR) + 12);
-        }
-        byte minutes = (byte) calendar.get(Calendar.MINUTE);
-        byte seconds = (byte) calendar.get(Calendar.SECOND);
-        byte DATE = (byte) calendar.get(Calendar.DAY_OF_MONTH);
-        byte MONTH = (byte) (calendar.get(Calendar.MONTH) + 1);
-        int iYEARMSB = (calendar.get(Calendar.YEAR) / 256);
-        int iYEARLSB = (calendar.get(Calendar.YEAR) % 256);
-        byte bYEARMSB = (byte) iYEARMSB;
-        byte bYEARLSB = (byte) iYEARLSB;
-        byte[] currentTime = {hours, minutes, seconds, DATE, MONTH, bYEARMSB, bYEARLSB};
-        bluetooth_le_adapter.writeCharacteristic(
-                BleAdapterService.CURRENT_TIME_SERVICE_SERVICE_UUID,
-                BleAdapterService.CURRENT_TIME_CHARACTERISTIC_UUID, currentTime
-        );
-    }
-*/
-   /* @Override
-    public void onBackPressed() {
-        back_requested = true;
-        if(bluetooth_le_adapter!=null)
-            if (bluetooth_le_adapter.isConnected()) {
-                try {
-                    bluetooth_le_adapter.disconnect();
-                } catch (Exception e) {
-                }
-            } else {
-                finish();
-            }
-    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

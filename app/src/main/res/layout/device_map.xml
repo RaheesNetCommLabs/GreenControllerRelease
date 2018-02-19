@@ -84,7 +84,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/llMapNewAddress"
+                    android:id="@+id/llAddNewAddress"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_35sdp"
                     android:layout_marginTop="@dimen/_3sdp"
@@ -136,7 +136,7 @@
                     android:layout_width="@dimen/_60sdp"
                     android:layout_height="@dimen/_60sdp"
                     android:layout_centerHorizontal="true"
-                    android:background="@drawable/home_icon" />
+                    android:background="@drawable/home_icon_imap" />
 
                 <RelativeLayout
                     android:id="@+id/rlBubbleLeftTop"
@@ -276,7 +276,7 @@
                 android:id="@+id/rlBubbleLeftBottom"
                 android:layout_width="@dimen/_130sdp"
                 android:layout_height="@dimen/_50sdp"
-                android:layout_above="@+id/ll_footer"
+                android:layout_above="@+id/llFooterIM"
                 android:layout_marginLeft="@dimen/_20sdp"
                 android:visibility="gone">
 
@@ -319,7 +319,7 @@
                 android:id="@+id/rlBubbleRightBottom"
                 android:layout_width="@dimen/_130sdp"
                 android:layout_height="@dimen/_50sdp"
-                android:layout_above="@+id/ll_footer"
+                android:layout_above="@+id/llFooterIM"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/_20sdp"
                 android:visibility="gone">
@@ -360,7 +360,7 @@
 
 
             <LinearLayout
-                android:id="@+id/ll_footer"
+                android:id="@+id/llFooterIM"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"

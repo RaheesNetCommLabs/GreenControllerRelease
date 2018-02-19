@@ -68,6 +68,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     private int etDisPntsInt = 0;
     private TextView tvORText/*, tvTitleTop, tvClearEditData*/, tvClearEditData;
     private Fragment myRequestedFrag;
+    private DatabaseHandler databaseHandler;
 
     //Mr. Vijay
     public static final String EXTRA_NAME = "name";
@@ -169,6 +170,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }
 
     private void initBase() {
+        databaseHandler=DatabaseHandler.getInstance(mContext);
         myRequestedFrag = FragAddEditSesnPlan.this;
         mapDayTimings = new HashMap<>();
         listSingleValveData = new ArrayList<>();
@@ -2170,7 +2172,6 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }*/
 
     void saveValveDatatoDB() {
-        DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
         databaseHandler.updateValveDataAndState(macAdd, clkdVlvName, listSingleValveData, "PLAY");
         //databaseHandler.updateValveStates(macAdd, clkdVlvName, "ACTIVATE");
         Toast.makeText(mContext, clkdVlvName + " session activated", Toast.LENGTH_SHORT).show();
