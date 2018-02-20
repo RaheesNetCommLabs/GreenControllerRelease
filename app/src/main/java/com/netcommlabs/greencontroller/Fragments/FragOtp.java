@@ -57,10 +57,10 @@ public class FragOtp extends Fragment implements View.OnClickListener {
         ll_timer_otp.setVisibility(View.VISIBLE);
         ll_resnd_otp.setVisibility(View.GONE);
         timerOTP();
-        setOTP();
+        //setOTP();
     }
 
-    private void setOTP() {
+   /* private void setOTP() {
 
         myBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -86,7 +86,7 @@ public class FragOtp extends Fragment implements View.OnClickListener {
                 }
             }
         };
-    }
+    }*/
 
 
     @Override
@@ -107,8 +107,6 @@ public class FragOtp extends Fragment implements View.OnClickListener {
             public void onTick(long millisUntilFinished) {
                 mSeconds = Math.round(millisUntilFinished * 0.001f);
                 tv_countdown_timer.setText(" 00 : " + getTwoDigitNumber(mSeconds));
-
-
             }
 
             public void onFinish() {
