@@ -449,9 +449,9 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
                 if (landedHereFrom.equals("FragAddressDetail") && modalAddressModule.getAddressRadioName().equalsIgnoreCase(radioAddressName)) {
 
                 }//Maintaining Address Name uniqueness
-                else if (databaseHandler.getAllAddressIDRadioNameSelectStatus().size() > 0) {
-                    for (int i = 0; i < databaseHandler.getAllAddressIDRadioNameSelectStatus().size(); i++) {
-                        if (databaseHandler.getAllAddressIDRadioNameSelectStatus().get(i).getAddressRadioName().equalsIgnoreCase(radioAddressName)) {
+                else if (databaseHandler.getAlladdressUUIDRadioNameSelectStatus().size() > 0) {
+                    for (int i = 0; i < databaseHandler.getAlladdressUUIDRadioNameSelectStatus().size(); i++) {
+                        if (databaseHandler.getAlladdressUUIDRadioNameSelectStatus().get(i).getAddressRadioName().equalsIgnoreCase(radioAddressName)) {
                             Toast.makeText(mContext, "\"" + radioAddressName + "\" already exists with app, Choose different Address Name", Toast.LENGTH_LONG).show();
                             return;
                         }
@@ -478,10 +478,10 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
                 longitudeLocation = placeLatLong.longitude;
                 //objPlaceLatLong = (Object)placeLatLong;
                 if (landedHereFrom.equals("FragAddressDetail")) {
-                    modalAddressModule = new ModalAddressModule(modalAddressModule.getAddressID(), etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radioAddressName, latitudeLocation, longitudeLocation, placeWellKnownName, placeAddress);
+                    modalAddressModule = new ModalAddressModule(modalAddressModule.getAddressUUID(), etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radioAddressName, latitudeLocation, longitudeLocation, placeWellKnownName, placeAddress);
                 } else {
                     //Passing dummy addressID, in case of insertAddressModule not impacting a all
-                    modalAddressModule = new ModalAddressModule(0, etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radioAddressName, latitudeLocation, longitudeLocation, placeWellKnownName, placeAddress);
+                    modalAddressModule = new ModalAddressModule("", etFlatInput, etStreetInput, etLocalityLandmarkInput, etPincodeInput, etCityInput, etStateInput, radioAddressName, latitudeLocation, longitudeLocation, placeWellKnownName, placeAddress);
                 }
                 Fragment fragment = getTargetFragment();
                 if (fragment == null) {

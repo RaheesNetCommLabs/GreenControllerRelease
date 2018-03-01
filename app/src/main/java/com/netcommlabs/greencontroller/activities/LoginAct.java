@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -21,7 +21,7 @@ import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import org.json.JSONObject;
 
-public class LoginAct extends AppCompatActivity implements View.OnClickListener,ResponseListener {
+public class LoginAct extends AppCompatActivity implements View.OnClickListener,APIResponseListener {
 
     private LoginAct mContext;
     private TextView tvForgtPassEvent, tvLoginEvent, tvSignUpEvent;

@@ -7,14 +7,14 @@
     tools:context="com.netcommlabs.greencontroller.activities.DeviceActivity">
 
   <!--  <LinearLayout
-        android:id="@+id/llHamburgerIcon"
+        andrdvcIdd:iddvcId@+id/llHamburgerIcon"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:layout_gravity="center"
         android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/llScrnHeader"
+            andrdvcIdd:iddvcId@+id/llScrnHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.4"
@@ -36,7 +36,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvShowAddressTop"
+            andrdvcIdd:iddvcId@+id/tvShowAddressTop"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

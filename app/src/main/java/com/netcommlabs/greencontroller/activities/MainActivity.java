@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         databaseHandler = DatabaseHandler.getInstance(mContext);
         databaseHandler.createActiveUser();
 
-        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap("");
         if (listAllDevices.size() > 0) {
             dvcMacAddress = listAllDevices.get(0).getDvcMacAddress();
             //myFragment = new Fragment();

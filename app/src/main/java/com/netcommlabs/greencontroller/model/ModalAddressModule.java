@@ -8,11 +8,11 @@ import java.io.Serializable;
 
 public class ModalAddressModule implements Serializable {
 
-    private int addressID;
+    private String addressUUID;
     private int addressSelectStatus;
 
-    public int getAddressID() {
-        return addressID;
+    public String getAddressUUID() {
+        return addressUUID;
     }
 
     public int getAddressSelectStatus() {
@@ -66,14 +66,14 @@ public class ModalAddressModule implements Serializable {
     public ModalAddressModule() {
     }
 
-    public ModalAddressModule(int addressID, String flat_num,
+    public ModalAddressModule(String addressUUID, String flat_num,
                               String streetName,
                               String locality_landmark,
                               String pinCode,
                               String city,
                               String state,
                               String addressRadioName) {
-        this.addressID = addressID;
+        this.addressUUID = addressUUID;
         this.flat_num = flat_num;
         this.streetName = streetName;
         this.locality_landmark = locality_landmark;
@@ -83,7 +83,7 @@ public class ModalAddressModule implements Serializable {
         this.addressRadioName = addressRadioName;
     }
 
-    public ModalAddressModule(int addressID, String flat_num,
+    public ModalAddressModule(String addressUUID, String flat_num,
                               String streetName,
                               String locality_landmark,
                               String pinCode,
@@ -91,7 +91,7 @@ public class ModalAddressModule implements Serializable {
                               String state,
                               String addressRadioName, double latitudeLocation, double longitudeLocation, String placeWellKnownName, String placeAddress) {
 
-        this.addressID = addressID;
+        this.addressUUID = addressUUID;
         this.flat_num = flat_num;
         this.streetName = streetName;
         this.locality_landmark = locality_landmark;
@@ -107,8 +107,8 @@ public class ModalAddressModule implements Serializable {
 
     }
 
-    public ModalAddressModule(int addressID, String addressRadioName, int addressSelectStatus) {
-        this.addressID = addressID;
+    public ModalAddressModule(String addressUUID, String addressRadioName, int addressSelectStatus) {
+        this.addressUUID = addressUUID;
         this.addressRadioName = addressRadioName;
         this.addressSelectStatus = addressSelectStatus;
     }

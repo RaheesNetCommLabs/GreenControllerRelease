@@ -6,6 +6,7 @@ package com.netcommlabs.greencontroller.constant;
 
 public class UrlConstants {
     public static final String BASE_URL = "http://myvicinity.netcommlabs.net/api/";
+
     public static final String LOGIN = BASE_URL + "login";
     public static final String REGISTERATION = BASE_URL + "register";
     public static final String OTP = BASE_URL + "register_confirm";

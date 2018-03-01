@@ -1,9 +1,6 @@
 package com.netcommlabs.greencontroller.Fragments;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -38,7 +35,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private View view;
     private RecyclerView recyclerView;
     private DeviceAddressAdapter mAdapter;
-    private LinearLayout llAddNewAddress;
+    private LinearLayout llAddNewAddress, llDialogLongPressDvc;
     public LinearLayout llBubbleLeftTopBG, llFooterIM;
     /* private LinearLayout ll_3st;
      private LinearLayout ll_4st;
@@ -57,7 +54,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private BLEAppLevel bleAppLevel;
     private TextView tvAddressTop;
     private DatabaseHandler databaseHandler;
-    private int addressID;
+    private String addressUUID, dvcUUID;
     private int addressSelectStatus;
     private List<ModalDeviceModule> listModalDeviceModule;
     private List<ModalAddressModule> listModalAddressModule;
@@ -97,22 +94,23 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         ivNext = view.findViewById(R.id.ivNext);
         tvDeviceName = view.findViewById(R.id.tvDeviceName);
         tvValveCount = view.findViewById(R.id.tvValveCount);
+        llDialogLongPressDvc = view.findViewById(R.id.llDialogLongPressDvc);
     }
 
     private void initBase() {
         bleAppLevel = BLEAppLevel.getInstanceOnly();
         databaseHandler = DatabaseHandler.getInstance(mContext);
-        listModalAddressModule = databaseHandler.getAllAddressIDRadioNameSelectStatus();
+        listModalAddressModule = databaseHandler.getAlladdressUUIDRadioNameSelectStatus();
         if (listModalAddressModule.size() > 0) {
             for (int i = 0; i < listModalAddressModule.size(); i++) {
                 if (listModalAddressModule.get(i).getAddressSelectStatus() == 1) {
-                    addressID = listModalAddressModule.get(i).getAddressID();
+                    addressUUID = listModalAddressModule.get(i).getAddressUUID();
                     selectAddressNameListAt = i;
                     break;
                 }
             }
         }
-        //listAddressName=databaseHandler.getAllAddressIDRadioNameSelectStatus();
+        //listAddressName=databaseHandler.getAlladdressUUIDRadioNameSelectStatus();
         //listAddressName.add("Home");
 
        /* bleAppLevel = BLEAppLevel.getInstanceOnly();
@@ -146,7 +144,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         tvValveCount.setText(valveNum + "");*/
 
         setRecyclerViewAdapter();
-        setUIForAddressNdDeviceMap(addressID);
+        setUIForAddressNdDeviceMap(addressUUID);
     }
 
     private void initListeners() {
@@ -179,15 +177,16 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         }, 200);
     }
 
-    public void setUIForAddressNdDeviceMap(int addressID) {
-        listModalAddressModule = DatabaseHandler.getInstance(mContext).getAddressListFormData(addressID);
+    public void setUIForAddressNdDeviceMap(String addressUUID) {
+        listModalAddressModule = DatabaseHandler.getInstance(mContext).getAddressListFormData(addressUUID);
         modalAddressModule = listModalAddressModule.get(0);
 
-        listModalDeviceModule = databaseHandler.getDeviceDataForIMap(addressID);
+        listModalDeviceModule = databaseHandler.getDeviceDataForIMap(addressUUID);
         addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
         tvAddressTop.setText(addressComplete);
 
         if (listModalDeviceModule.size() == 1) {
+            dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
             dvcName = listModalDeviceModule.get(0).getName();
             dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
             valveNum = listModalDeviceModule.get(0).getValvesNum();
@@ -236,8 +235,11 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 break;
             case R.id.rlBubbleLeftTop:
+                //Toast.makeText(mContext, "In progress...", Toast.LENGTH_SHORT).show();
                 FragDeviceDetails fragDeviceDetails = new FragDeviceDetails();
                 Bundle bundle = new Bundle();
+                //bundle.putInt(FragDeviceDetails.EXTRA_ADDRESS_ID, addressUUID);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
                 bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
                 bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
                 bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
@@ -269,29 +271,31 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
 
     @Override
     public boolean onLongClick(View v) {
-        int id = view.getId();
+        int id = v.getId();
         switch (id) {
             case R.id.rlBubbleLeftTop:
-                showpopupLongClick();
+                dialogLongPressDvc();
                 break;
             case R.id.rlBubbleMiddle:
-                showpopupLongClick();
+                dialogLongPressDvc();
                 break;
            /* case R.id.ll_3st:
-                showpopupLongClick();
+                dialogLongPressDvc();
                 break;
             case R.id.ll_4st:
-                showpopupLongClick();
+                dialogLongPressDvc();
                 break;
             case R.id.ll_5st:
-                showpopupLongClick();
+                dialogLongPressDvc();
                 break;*/
         }
         return true;
     }
 
-    public void showpopupLongClick() {
-        Dialog dialog = null;
+    public void dialogLongPressDvc() {
+        llDialogLongPressDvc.setVisibility(View.VISIBLE);
+
+        /*Dialog dialog = null;
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Options")
                 .setItems(R.array.long_press_option, new DialogInterface.OnClickListener() {
@@ -302,7 +306,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 });
         dialog = builder.create();
         dialog.setCancelable(true);
-        dialog.show();
+        dialog.show();*/
     }
 
    /* @Override

@@ -81,7 +81,7 @@ public class FragDashboardPebbleHome extends Fragment {
         llMyDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+                List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap("");
                 if (listAllDevices.size() > 0) {
                     //Adding Fragment(FragDeviceMAP)
                     MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);

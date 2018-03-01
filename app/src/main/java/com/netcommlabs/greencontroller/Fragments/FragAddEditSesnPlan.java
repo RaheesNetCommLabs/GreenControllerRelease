@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.DataTransferModel;
+import com.netcommlabs.greencontroller.model.ModalValveSessionData;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
@@ -56,6 +57,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     private int timePointsCounter, sunTimePointsCount, monTimePointsCount, tueTimePointsCount, wedTimePointsCount, thuTimePointsCount, friTimePointsCount, satTimePointsCount, etDurWtrInputInt, etQuantWtrInputInt, etPotsInputInt, inputSunInt, inputMonInt, inputTueInt, inputWedInt, inputThuInt, inputFriInt, inputSatInt;
     private HashMap<Integer, List<Integer>> mapDayTimings;
     private View viewSelectedRound;
+    private ArrayList<ModalValveSessionData> listValveSessionData;
     private ArrayList<DataTransferModel> listSingleValveData;
     String etInputTimePointStrn = "00:00";
     private ArrayList<Integer> listTimePntsSun, listTimePntsMon, listTimePntsTue, listTimePntsWed, listTimePntsThu, listTimePntsFri, listTimePntsSat;
@@ -74,12 +76,13 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     public static final String EXTRA_NAME = "name";
     public static final String EXTRA_ID = "id";
     public static final String EXTRA_VALVE_NAME_DB = "valveNameSingle";
+    public static final String EXTRA_VALVE_UUID = "clickedVlvUUID";
     public static final String EXTRA_VALVE_EDITABLE_DATA = "valveEditableData";
     public static final String EXTRA_OPERATION_TYPE = "oprtnType";
     private BleAdapterService bluetooth_le_adapter;
 
     private String device_name;
-    private String macAdd, clkdVlvName, operationType;
+    private String macAdd, clkdVlvName, operationType, clkdVlvUUID;
     private boolean back_requested = false;
     private int alert_level;
     private static int dataSendingIndex = 0;
@@ -170,7 +173,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }
 
     private void initBase() {
-        databaseHandler=DatabaseHandler.getInstance(mContext);
+        databaseHandler = DatabaseHandler.getInstance(mContext);
         myRequestedFrag = FragAddEditSesnPlan.this;
         mapDayTimings = new HashMap<>();
         listSingleValveData = new ArrayList<>();
@@ -186,11 +189,19 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         device_name = bundle.getString(EXTRA_NAME);
         macAdd = bundle.getString(EXTRA_ID);
         clkdVlvName = bundle.getString(EXTRA_VALVE_NAME_DB);
+        clkdVlvUUID = bundle.getString(EXTRA_VALVE_UUID);
         operationType = bundle.getString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE);
-        if (operationType.equals("Edit")) {
+        if (operationType.equals("Add")) {
+            long isDataAddedForThisValve = databaseHandler.valveSesnAddedRowsCount(clkdVlvUUID);
+            if (isDataAddedForThisValve <= 0) {
+                for (int i = 1; i <= 4; i++) {
+                    databaseHandler.insertValveSesnTemp(clkdVlvUUID, i);
+                }
+            }
+        } else {
             tvClearEditData = mContext.tvClearEditData;
-            listSingleValveData = (ArrayList<DataTransferModel>) bundle.getSerializable(FragAddEditSesnPlan.EXTRA_VALVE_EDITABLE_DATA);
-            setEditableValveDataToUI();
+            listValveSessionData = (ArrayList<ModalValveSessionData>) bundle.getSerializable(FragAddEditSesnPlan.EXTRA_VALVE_EDITABLE_DATA);
+            setEditableValveDataToUI(listValveSessionData);
         }
 
         /*llDuration.setVisibility(View.GONE);
@@ -451,7 +462,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         });
     }
 
-    private void setEditableValveDataToUI() {
+    private void setEditableValveDataToUI(ArrayList<ModalValveSessionData> listValveSessionData) {
         tvClearEditData.setVisibility(View.VISIBLE);
         tvClearEditData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -460,7 +471,224 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             }
         });
 
-        DataTransferModel dataTransferModel;
+        //setTimePntsVisibilityGONE();
+        //listValveSessionData = databaseHandler.getValveSessionData(clickedVlvUUID);
+        //listValveSessionData = modalBLEValve.getListValveData();
+       /* if (listValveSessionData == null || listValveSessionData.size() == 0) {
+            return;
+        }*/
+        int dischargePnts = 0, duration = 0, quantity = 0;
+
+        for (int i = 0; i < listValveSessionData.size(); i++) {
+            ModalValveSessionData mvsd = listValveSessionData.get(i);
+
+            dischargePnts = mvsd.getSessionDP();
+            duration = mvsd.getSessionDuration();
+            quantity = mvsd.getSessionQuantity();
+
+            if (dischargePnts == 0) {
+                etDischargePoints.setText(dischargePnts + "");
+                llDuration.setVisibility(View.VISIBLE);
+                etDurationPlan.setText(duration + "");
+                tvORText.setVisibility(View.GONE);
+                llWaterQuantity.setVisibility(View.GONE);
+            } else {
+                etDischargePoints.setText(dischargePnts + "");
+                llDuration.setVisibility(View.VISIBLE);
+                tvORText.setVisibility(View.VISIBLE);
+                llWaterQuantity.setVisibility(View.VISIBLE);
+                etDurationPlan.setText(duration + "");
+                etWaterQuant.setText(quantity + "");
+            }
+
+            if (mvsd.getSesnSlotNum() == 1) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunFirst.setVisibility(View.VISIBLE);
+                    tvSunFirst.setText(mvsd.getSunTP());
+
+                    listSingleValveData.add(new DataTransferModel(1, timePointStringToInt(mvsd.getSunTP()), 1));
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonFirst.setVisibility(View.VISIBLE);
+                    tvMonFirst.setText(mvsd.getMonTP());
+
+                    listSingleValveData.add(new DataTransferModel(2, timePointStringToInt(mvsd.getMonTP()), 1));
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueFirst.setVisibility(View.VISIBLE);
+                    tvTueFirst.setText(mvsd.getTueTP());
+
+                    listSingleValveData.add(new DataTransferModel(3, timePointStringToInt(mvsd.getTueTP()), 1));
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedFirst.setVisibility(View.VISIBLE);
+                    tvWedFirst.setText(mvsd.getWedTP());
+
+                    listSingleValveData.add(new DataTransferModel(4, timePointStringToInt(mvsd.getWedTP()), 1));
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuFirst.setVisibility(View.VISIBLE);
+                    tvThuFirst.setText(mvsd.getThuTP());
+
+                    listSingleValveData.add(new DataTransferModel(5, timePointStringToInt(mvsd.getThuTP()), 1));
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriFirst.setVisibility(View.VISIBLE);
+                    tvFriFirst.setText(mvsd.getFriTP());
+
+                    listSingleValveData.add(new DataTransferModel(6, timePointStringToInt(mvsd.getFriTP()), 1));
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatFirst.setVisibility(View.VISIBLE);
+                    tvSatFirst.setText(mvsd.getSatTP());
+
+                    listSingleValveData.add(new DataTransferModel(7, timePointStringToInt(mvsd.getSatTP()), 1));
+                }
+                continue;
+            }
+
+            if (mvsd.getSesnSlotNum() == 2) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunSecond.setVisibility(View.VISIBLE);
+                    tvSunSecond.setText(mvsd.getSunTP());
+
+                    listSingleValveData.add(new DataTransferModel(1, timePointStringToInt(mvsd.getSunTP()), 2));
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonSecond.setVisibility(View.VISIBLE);
+                    tvMonSecond.setText(mvsd.getMonTP());
+
+                    listSingleValveData.add(new DataTransferModel(2, timePointStringToInt(mvsd.getMonTP()), 2));
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueSecond.setVisibility(View.VISIBLE);
+                    tvTueSecond.setText(mvsd.getTueTP());
+
+                    listSingleValveData.add(new DataTransferModel(3, timePointStringToInt(mvsd.getTueTP()), 2));
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedSecond.setVisibility(View.VISIBLE);
+                    tvWedSecond.setText(mvsd.getWedTP());
+
+                    listSingleValveData.add(new DataTransferModel(4, timePointStringToInt(mvsd.getWedTP()), 2));
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuSecond.setVisibility(View.VISIBLE);
+                    tvThuSecond.setText(mvsd.getThuTP());
+
+                    listSingleValveData.add(new DataTransferModel(5, timePointStringToInt(mvsd.getThuTP()), 2));
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriSecond.setVisibility(View.VISIBLE);
+                    tvFriSecond.setText(mvsd.getFriTP());
+
+                    listSingleValveData.add(new DataTransferModel(6, timePointStringToInt(mvsd.getFriTP()), 2));
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatSecond.setVisibility(View.VISIBLE);
+                    tvSatSecond.setText(mvsd.getSatTP());
+
+                    listSingleValveData.add(new DataTransferModel(7, timePointStringToInt(mvsd.getSatTP()), 2));
+                }
+                continue;
+            }
+
+            if (mvsd.getSesnSlotNum() == 3) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunThird.setVisibility(View.VISIBLE);
+                    tvSunThird.setText(mvsd.getSunTP());
+
+                    listSingleValveData.add(new DataTransferModel(1, timePointStringToInt(mvsd.getSunTP()), 3));
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonThird.setVisibility(View.VISIBLE);
+                    tvMonThird.setText(mvsd.getMonTP());
+
+                    listSingleValveData.add(new DataTransferModel(2, timePointStringToInt(mvsd.getMonTP()), 3));
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueThird.setVisibility(View.VISIBLE);
+                    tvTueThird.setText(mvsd.getTueTP());
+
+                    listSingleValveData.add(new DataTransferModel(3, timePointStringToInt(mvsd.getTueTP()), 3));
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedThird.setVisibility(View.VISIBLE);
+                    tvWedThird.setText(mvsd.getWedTP());
+
+                    listSingleValveData.add(new DataTransferModel(4, timePointStringToInt(mvsd.getWedTP()), 3));
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuThird.setVisibility(View.VISIBLE);
+                    tvThuThird.setText(mvsd.getThuTP());
+
+                    listSingleValveData.add(new DataTransferModel(5, timePointStringToInt(mvsd.getThuTP()), 3));
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriThird.setVisibility(View.VISIBLE);
+                    tvFriThird.setText(mvsd.getFriTP());
+
+                    listSingleValveData.add(new DataTransferModel(6, timePointStringToInt(mvsd.getFriTP()), 3));
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatThird.setVisibility(View.VISIBLE);
+                    tvSatThird.setText(mvsd.getSatTP());
+
+                    listSingleValveData.add(new DataTransferModel(7, timePointStringToInt(mvsd.getSatTP()), 3));
+                }
+                continue;
+            }
+
+            if (mvsd.getSesnSlotNum() == 4) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunFourth.setVisibility(View.VISIBLE);
+                    tvSunFourth.setText(mvsd.getSunTP());
+
+                    listSingleValveData.add(new DataTransferModel(1, timePointStringToInt(mvsd.getSunTP()), 4));
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonFourth.setVisibility(View.VISIBLE);
+                    tvMonFourth.setText(mvsd.getMonTP());
+
+                    listSingleValveData.add(new DataTransferModel(2, timePointStringToInt(mvsd.getMonTP()), 4));
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueFourth.setVisibility(View.VISIBLE);
+                    tvTueFourth.setText(mvsd.getTueTP());
+
+                    listSingleValveData.add(new DataTransferModel(3, timePointStringToInt(mvsd.getTueTP()), 4));
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedFourth.setVisibility(View.VISIBLE);
+                    tvWedFourth.setText(mvsd.getWedTP());
+
+                    listSingleValveData.add(new DataTransferModel(4, timePointStringToInt(mvsd.getWedTP()), 4));
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuFourth.setVisibility(View.VISIBLE);
+                    tvThuFourth.setText(mvsd.getThuTP());
+
+                    listSingleValveData.add(new DataTransferModel(5, timePointStringToInt(mvsd.getThuTP()), 4));
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriFourth.setVisibility(View.VISIBLE);
+                    tvFriFourth.setText(mvsd.getFriTP());
+
+                    listSingleValveData.add(new DataTransferModel(6, timePointStringToInt(mvsd.getFriTP()), 4));
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatFourth.setVisibility(View.VISIBLE);
+                    tvSatFourth.setText(mvsd.getSatTP());
+
+                    listSingleValveData.add(new DataTransferModel(7, timePointStringToInt(mvsd.getSatTP()), 4));
+                }
+            }
+
+
+
+
+
+       /* DataTransferModel dataTransferModel;
         listTimePntsSun = new ArrayList<>();
         listTimePntsMon = new ArrayList<>();
         listTimePntsTue = new ArrayList<>();
@@ -483,26 +711,26 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             }
 
             //For Sunday
-            if (dataTransferModel.getDayOfTheWeek() == 1) {
-                listTimePntsSun.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 1) {
+                listTimePntsSun.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 2) {
-                listTimePntsMon.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 2) {
+                listTimePntsMon.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 3) {
-                listTimePntsTue.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 3) {
+                listTimePntsTue.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 4) {
-                listTimePntsWed.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 4) {
+                listTimePntsWed.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 5) {
-                listTimePntsThu.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 5) {
+                listTimePntsThu.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 6) {
-                listTimePntsFri.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 6) {
+                listTimePntsFri.add(dataTransferModel.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 7) {
-                listTimePntsSat.add(dataTransferModel.getHours());
+            if (dataTransferModel.getDayOfWeek() == 7) {
+                listTimePntsSat.add(dataTransferModel.getHourOfDay());
             }
 
         }
@@ -862,10 +1090,8 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     tvSatFourth.setText(timePntsUserFriendly);
                     continue;
                 }
-            }
+            }*/
         }
-
-
     }
 
     private void clearWholeDataFromUI() {
@@ -1067,31 +1293,31 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         for (int i = 0; i < listSingleValveData.size(); i++) {
             dataTransferModel = listSingleValveData.get(i);
 
-            if (plusVisibleOf == 1 && dataTransferModel.getDayOfTheWeek() == 1 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 1 && dataTransferModel.getDayOfWeek() == 1 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 2 && dataTransferModel.getDayOfTheWeek() == 2 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 2 && dataTransferModel.getDayOfWeek() == 2 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 3 && dataTransferModel.getDayOfTheWeek() == 3 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 3 && dataTransferModel.getDayOfWeek() == 3 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 4 && dataTransferModel.getDayOfTheWeek() == 4 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 4 && dataTransferModel.getDayOfWeek() == 4 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 5 && dataTransferModel.getDayOfTheWeek() == 5 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 5 && dataTransferModel.getDayOfWeek() == 5 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 6 && dataTransferModel.getDayOfTheWeek() == 6 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 6 && dataTransferModel.getDayOfWeek() == 6 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (plusVisibleOf == 7 && dataTransferModel.getDayOfTheWeek() == 7 && dataTransferModel.getHours() == etInputTimePointInt) {
+            if (plusVisibleOf == 7 && dataTransferModel.getDayOfWeek() == 7 && dataTransferModel.getHourOfDay() == etInputTimePointInt) {
                 Toast.makeText(mContext, "Time Point is already made in this day", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -1109,7 +1335,8 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSunFirst.getVisibility() != View.VISIBLE) {
                 tvSunFirst.setVisibility(View.VISIBLE);
                 tvSunFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(1, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(1, etInputTimePointInt, 1));
+                //listSingleValveData.add(getObject(1, etInputTimePointInt));
 
                 //listTimePntsSun.add(etInputTimePointInt);
                 return;
@@ -1117,7 +1344,8 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSunSecond.getVisibility() != View.VISIBLE) {
                 tvSunSecond.setVisibility(View.VISIBLE);
                 tvSunSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(1, etInputTimePointInt));
+                //listSingleValveData.add(getObject(1, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(1, etInputTimePointInt, 2));
 
                 //listTimePntsSun.add(etInputTimePointInt);
                 return;
@@ -1125,14 +1353,17 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSunThird.getVisibility() != View.VISIBLE) {
                 tvSunThird.setVisibility(View.VISIBLE);
                 tvSunThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(1, etInputTimePointInt));
+                //listSingleValveData.add(getObject(1, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(1, etInputTimePointInt, 3));
                 // listTimePntsSun.add(etInputTimePointInt);
                 return;
             }
             if (tvSunFourth.getVisibility() != View.VISIBLE) {
                 tvSunFourth.setVisibility(View.VISIBLE);
                 tvSunFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(1, etInputTimePointInt));
+                //listSingleValveData.add(getObject(1, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(1, etInputTimePointInt, 4));
+
                 //listTimePntsSun.add(etInputTimePointInt);
 
                 return;
@@ -1150,28 +1381,36 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvMonFirst.getVisibility() != View.VISIBLE) {
                 tvMonFirst.setVisibility(View.VISIBLE);
                 tvMonFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(2, etInputTimePointInt));
+                //listSingleValveData.add(getObject(2, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(2, etInputTimePointInt, 1));
+
                 //listTimePntsMon.add(etInputTimePointInt);
                 return;
             }
             if (tvMonSecond.getVisibility() != View.VISIBLE) {
                 tvMonSecond.setVisibility(View.VISIBLE);
                 tvMonSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(2, etInputTimePointInt));
+                //listSingleValveData.add(getObject(2, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(2, etInputTimePointInt, 2));
+
                 //listTimePntsMon.add(etInputTimePointInt);
                 return;
             }
             if (tvMonThird.getVisibility() != View.VISIBLE) {
                 tvMonThird.setVisibility(View.VISIBLE);
                 tvMonThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(2, etInputTimePointInt));
+                //listSingleValveData.add(getObject(2, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(2, etInputTimePointInt, 3));
+
                 //listTimePntsMon.add(etInputTimePointInt);
                 return;
             }
             if (tvMonFourth.getVisibility() != View.VISIBLE) {
                 tvMonFourth.setVisibility(View.VISIBLE);
                 tvMonFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(2, etInputTimePointInt));
+                //listSingleValveData.add(getObject(2, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(2, etInputTimePointInt, 4));
+
                 //listTimePntsMon.add(etInputTimePointInt);
                 return;
             }
@@ -1188,28 +1427,36 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvTueFirst.getVisibility() != View.VISIBLE) {
                 tvTueFirst.setVisibility(View.VISIBLE);
                 tvTueFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(3, etInputTimePointInt));
+                //listSingleValveData.add(getObject(3, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(3, etInputTimePointInt, 1));
+
                 //listTimePntsTue.add(etInputTimePointInt);
                 return;
             }
             if (tvTueSecond.getVisibility() != View.VISIBLE) {
                 tvTueSecond.setVisibility(View.VISIBLE);
                 tvTueSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(3, etInputTimePointInt));
+                //listSingleValveData.add(getObject(3, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(3, etInputTimePointInt, 2));
+
                 //listTimePntsTue.add(etInputTimePointInt);
                 return;
             }
             if (tvTueThird.getVisibility() != View.VISIBLE) {
                 tvTueThird.setVisibility(View.VISIBLE);
                 tvTueThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(3, etInputTimePointInt));
+                //listSingleValveData.add(getObject(3, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(3, etInputTimePointInt, 3));
+
                 //listTimePntsTue.add(etInputTimePointInt);
                 return;
             }
             if (tvTueFourth.getVisibility() != View.VISIBLE) {
                 tvTueFourth.setVisibility(View.VISIBLE);
                 tvTueFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(3, etInputTimePointInt));
+                //listSingleValveData.add(getObject(3, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(3, etInputTimePointInt, 4));
+
                 //listTimePntsTue.add(etInputTimePointInt);
                 return;
             }
@@ -1226,14 +1473,18 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvWedFirst.getVisibility() != View.VISIBLE) {
                 tvWedFirst.setVisibility(View.VISIBLE);
                 tvWedFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(4, etInputTimePointInt));
+                //listSingleValveData.add(getObject(4, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(4, etInputTimePointInt, 1));
+
                 //listTimePntsWed.add(etInputTimePointInt);
                 return;
             }
             if (tvWedSecond.getVisibility() != View.VISIBLE) {
                 tvWedSecond.setVisibility(View.VISIBLE);
                 tvWedSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(4, etInputTimePointInt));
+                //listSingleValveData.add(getObject(4, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(4, etInputTimePointInt, 2));
+
 
                 //listTimePntsWed.add(etInputTimePointInt);
                 return;
@@ -1241,7 +1492,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvWedThird.getVisibility() != View.VISIBLE) {
                 tvWedThird.setVisibility(View.VISIBLE);
                 tvWedThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(4, etInputTimePointInt));
+                //listSingleValveData.add(getObject(4, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(4, etInputTimePointInt, 3));
+
 
                 //listTimePntsWed.add(etInputTimePointInt);
                 return;
@@ -1249,7 +1502,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvWedFourth.getVisibility() != View.VISIBLE) {
                 tvWedFourth.setVisibility(View.VISIBLE);
                 tvWedFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(4, etInputTimePointInt));
+                //listSingleValveData.add(getObject(4, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(4, etInputTimePointInt, 4));
+
 
                 //listTimePntsWed.add(etInputTimePointInt);
                 return;
@@ -1267,14 +1522,18 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvThuFirst.getVisibility() != View.VISIBLE) {
                 tvThuFirst.setVisibility(View.VISIBLE);
                 tvThuFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(5, etInputTimePointInt));
+                //listSingleValveData.add(getObject(5, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(5, etInputTimePointInt, 1));
+
                 //listTimePntsThu.add(etInputTimePointInt);
                 return;
             }
             if (tvThuSecond.getVisibility() != View.VISIBLE) {
                 tvThuSecond.setVisibility(View.VISIBLE);
                 tvThuSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(5, etInputTimePointInt));
+                //listSingleValveData.add(getObject(5, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(5, etInputTimePointInt, 2));
+
 
                 //listTimePntsThu.add(etInputTimePointInt);
                 return;
@@ -1282,7 +1541,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvThuThird.getVisibility() != View.VISIBLE) {
                 tvThuThird.setVisibility(View.VISIBLE);
                 tvThuThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(5, etInputTimePointInt));
+                //listSingleValveData.add(getObject(5, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(5, etInputTimePointInt, 3));
+
 
                 //listTimePntsThu.add(etInputTimePointInt);
                 return;
@@ -1290,7 +1551,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvThuFourth.getVisibility() != View.VISIBLE) {
                 tvThuFourth.setVisibility(View.VISIBLE);
                 tvThuFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(5, etInputTimePointInt));
+                //listSingleValveData.add(getObject(5, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(5, etInputTimePointInt, 4));
+
 
                 //listTimePntsThu.add(etInputTimePointInt);
                 return;
@@ -1308,7 +1571,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvFriFirst.getVisibility() != View.VISIBLE) {
                 tvFriFirst.setVisibility(View.VISIBLE);
                 tvFriFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(6, etInputTimePointInt));
+                //listSingleValveData.add(getObject(6, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(6, etInputTimePointInt, 1));
+
 
                 //listTimePntsFri.add(etInputTimePointInt);
                 return;
@@ -1316,7 +1581,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvFriSecond.getVisibility() != View.VISIBLE) {
                 tvFriSecond.setVisibility(View.VISIBLE);
                 tvFriSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(6, etInputTimePointInt));
+                //listSingleValveData.add(getObject(6, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(6, etInputTimePointInt, 2));
+
 
                 //listTimePntsFri.add(etInputTimePointInt);
                 return;
@@ -1324,7 +1591,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvFriThird.getVisibility() != View.VISIBLE) {
                 tvFriThird.setVisibility(View.VISIBLE);
                 tvFriThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(6, etInputTimePointInt));
+                //listSingleValveData.add(getObject(6, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(6, etInputTimePointInt, 3));
+
 
                 //listTimePntsFri.add(etInputTimePointInt);
                 return;
@@ -1332,7 +1601,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvFriFourth.getVisibility() != View.VISIBLE) {
                 tvFriFourth.setVisibility(View.VISIBLE);
                 tvFriFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(6, etInputTimePointInt));
+                //listSingleValveData.add(getObject(6, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(6, etInputTimePointInt, 4));
+
 
                 //listTimePntsFri.add(etInputTimePointInt);
                 return;
@@ -1350,7 +1621,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSatFirst.getVisibility() != View.VISIBLE) {
                 tvSatFirst.setVisibility(View.VISIBLE);
                 tvSatFirst.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(7, etInputTimePointInt));
+                //listSingleValveData.add(getObject(7, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(7, etInputTimePointInt, 1));
+
 
                 // listTimePntsSat.add(etInputTimePointInt);
                 return;
@@ -1358,7 +1631,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSatSecond.getVisibility() != View.VISIBLE) {
                 tvSatSecond.setVisibility(View.VISIBLE);
                 tvSatSecond.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(7, etInputTimePointInt));
+                //listSingleValveData.add(getObject(7, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(7, etInputTimePointInt, 2));
+
 
                 //listTimePntsSat.add(etInputTimePointInt);
                 return;
@@ -1366,7 +1641,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSatThird.getVisibility() != View.VISIBLE) {
                 tvSatThird.setVisibility(View.VISIBLE);
                 tvSatThird.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(7, etInputTimePointInt));
+                //listSingleValveData.add(getObject(7, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(7, etInputTimePointInt, 3));
+
 
                 //listTimePntsSat.add(etInputTimePointInt);
                 return;
@@ -1374,7 +1651,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             if (tvSatFourth.getVisibility() != View.VISIBLE) {
                 tvSatFourth.setVisibility(View.VISIBLE);
                 tvSatFourth.setText(etInputTimePointStrn);
-                listSingleValveData.add(getObject(7, etInputTimePointInt));
+                //listSingleValveData.add(getObject(7, etInputTimePointInt));
+                listSingleValveData.add(new DataTransferModel(7, etInputTimePointInt, 4));
+
 
                 //listTimePntsSat.add(etInputTimePointInt);
                 return;
@@ -1462,7 +1741,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSunFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 1 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 1 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1476,7 +1755,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSunSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 1 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 1 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1490,7 +1769,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSunThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 1 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 1 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1504,7 +1783,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSunFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 1 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 1 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1519,7 +1798,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvMonFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 2 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 2 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1533,7 +1812,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvMonSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 2 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 2 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1547,7 +1826,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvMonThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 2 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 2 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1561,7 +1840,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvMonFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 2 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 2 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1576,7 +1855,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvTueFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 3 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 3 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1590,7 +1869,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvTueSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 3 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 3 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1604,7 +1883,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvTueThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 3 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 3 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1618,7 +1897,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvTueFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 3 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 3 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1633,7 +1912,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvWedFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 4 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 4 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1647,7 +1926,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvWedSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 4 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 4 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1661,7 +1940,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvWedThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 4 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 4 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1675,7 +1954,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvWedFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 4 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 4 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1690,7 +1969,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvThuFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 5 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 5 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1704,7 +1983,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvThuSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 5 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 5 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1718,7 +1997,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvThuThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 5 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 5 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1732,7 +2011,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvThuFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 5 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 5 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1747,7 +2026,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvFriFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 6 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 6 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1761,7 +2040,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvFriSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 6 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 6 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1775,7 +2054,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvFriThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 6 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 6 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1789,7 +2068,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvFriFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 6 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 6 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1804,7 +2083,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSatFirst.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 7 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 7 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1818,7 +2097,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSatSecond.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 7 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 7 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1832,7 +2111,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSatThird.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 7 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 7 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -1846,7 +2125,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 tvSatFourth.setVisibility(View.GONE);
                 //deleting Time point form list
                 for (int i = 0; i < listSingleValveData.size(); i++) {
-                    if (listSingleValveData.get(i).getDayOfTheWeek() == 7 && listSingleValveData.get(i).getHours() == timePntInt) {
+                    if (listSingleValveData.get(i).getDayOfWeek() == 7 && listSingleValveData.get(i).getHourOfDay() == timePntInt) {
                         listSingleValveData.remove(i);
                         break;
                     }
@@ -2093,14 +2372,14 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 BleAdapterService.NEW_WATERING_TIME_POINT_CHARACTERISTIC_UUID, timePoint);
     }*/
 
-    void startSendData() {
+    /*void startSendData() {
         Log.e("@@@ INDEX", "" + dataSendingIndex);
         //byte index = (byte) (listSingleValveData.get(dataSendingIndex).getIndex() + 1);
         byte index = (byte) (dataSendingIndex + 1);
-        byte hours = (byte) listSingleValveData.get(dataSendingIndex).getHours();
-        byte dayOfTheWeek = (byte) listSingleValveData.get(dataSendingIndex).getDayOfTheWeek();
+        byte hours = (byte) listSingleValveData.get(dataSendingIndex).getHourOfDay();
+        byte dayOfTheWeek = (byte) listSingleValveData.get(dataSendingIndex).getDayOfWeek();
 
-/*<<<<<<< HEAD
+*//*<<<<<<< HEAD
         int iDurationMSB = (etDurationInt / 256);
         int iDurationLSB = (etDurationInt % 256);
         byte bDurationMSB = (byte) iDurationMSB;
@@ -2108,7 +2387,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
 
         int iVolumeMSB = (etWaterQuantInt / 256);
         int iVolumeLSB = (etWaterQuantInt % 256);
-=======*/
+=======*//*
         int iDurationMSB = (etDurationInt / 128);
         int iDurationLSB = (etDurationInt % 128);
         byte bDurationMSB = (byte) iDurationMSB;
@@ -2133,15 +2412,15 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         byte[] timePoint = {index, dayOfTheWeek, hours, 0, 0, bDurationMSB, bDurationLSB, bVolumeMSB, bVolumeLSB};
         bluetooth_le_adapter.writeCharacteristic(BleAdapterService.TIME_POINT_SERVICE_SERVICE_UUID,
                 BleAdapterService.NEW_WATERING_TIME_POINT_CHARACTERISTIC_UUID, timePoint);
-    }
+    }*/
 
 
-    DataTransferModel getObject(int dayOfTheWeek, int hours) {
+    /*DataTransferModel getObject(int dayOfTheWeek, int hours) {
         DataTransferModel data = new DataTransferModel();
-        data.setDayOfTheWeek(dayOfTheWeek);
-        data.setHours(hours);
+        data.setDayOfWeek(dayOfTheWeek);
+        data.setHourOfDay(hours);
         return data;
-    }
+    }*/
 
    /* public void onSetTime() {
         String[] ids = TimeZone.getAvailableIDs(+5 * 60 * 60 * 1000);
@@ -2172,18 +2451,66 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }*/
 
     void saveValveDatatoDB() {
-        databaseHandler.updateValveDataAndState(macAdd, clkdVlvName, listSingleValveData, "PLAY");
-        //databaseHandler.updateValveStates(macAdd, clkdVlvName, "ACTIVATE");
-        Toast.makeText(mContext, clkdVlvName + " session activated", Toast.LENGTH_SHORT).show();
-        getTargetFragment().onActivityResult(
-                getTargetRequestCode(),
-                Activity.RESULT_OK,
-                new Intent().putExtra("dataKey", "Success")
-        );
-        getActivity().onBackPressed();
+        int numOfRowsAffected = databaseHandler.updateSesnTimePoints(clkdVlvUUID, 0, 0, 0);
+
+        if (numOfRowsAffected > 0) {
+            for (int i = 0; i < listSingleValveData.size(); i++) {
+                DataTransferModel dtm = listSingleValveData.get(i);
+                int timeSlot = dtm.getSlotNum();
+                int timePoint = dtm.getHourOfDay();
+                int dayOfWeekInt = dtm.getDayOfWeek();
+                switch (dayOfWeekInt) {
+                    case 1:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 1, timePoint, timeSlot);
+                        break;
+                    case 2:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 2, timePoint, timeSlot);
+                        break;
+                    case 3:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 3, timePoint, timeSlot);
+                        break;
+                    case 4:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 4, timePoint, timeSlot);
+                        break;
+                    case 5:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 5, timePoint, timeSlot);
+                        break;
+                    case 6:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 6, timePoint, timeSlot);
+                        break;
+                    case 7:
+                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 7, timePoint, timeSlot);
+                }
+            }
+            //Updating DP, Duration and Quantity separately
+            databaseHandler.updateValveDPDurationQuant(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
+            int rowAffected = databaseHandler.updateValveOpTpSPPStatus(clkdVlvUUID, "PLAY");
+
+            //Operation between Session Temp, Master and Log tables
+            databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID);
+
+            if (rowAffected > 0) {
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(),
+                        Activity.RESULT_OK,
+                        new Intent().putExtra("dataKey", "Success")
+                );
+                getActivity().onBackPressed();
+            }
+        }
     }
 
     public void doneWrtingAllTP() {
         saveValveDatatoDB();
+    }
+
+    private int timePointStringToInt(String timePoint) {
+        int timePointInt = 0;
+        if (timePoint.startsWith("0")) {
+            timePointInt = Integer.parseInt(timePoint.substring(1, 2));
+        } else {
+            timePointInt = Integer.parseInt(timePoint.substring(0, 2));
+        }
+        return timePointInt;
     }
 }

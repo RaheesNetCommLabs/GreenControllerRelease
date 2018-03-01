@@ -16,7 +16,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.utilities.AppController;
 import com.netcommlabs.greencontroller.utilities.CustomProgressDialog;
@@ -40,27 +40,28 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class ProjectWebRequest {
     private Context mContext;
-    private JSONObject object;
+    private JSONObject jsonObject;
     private String url;
-    private ResponseListener listener;
-    private CustomProgressDialog dialog;
+    private APIResponseListener apiResponseListener;
+    private CustomProgressDialog progressDialog;
     private int Tag;
     private String errorMsg;
 
 
-    public ProjectWebRequest(Context mContext, JSONObject object, String url, ResponseListener listener, int Tag) {
+    public ProjectWebRequest(Context mContext, JSONObject jsonObject, String url, APIResponseListener apiResponseListener, int Tag) {
         this.mContext = mContext;
-        this.object = object;
+        this.jsonObject = jsonObject;
         this.url = url;
-        this.listener = listener;
+        this.apiResponseListener = apiResponseListener;
         this.Tag = Tag;
-        dialog = CustomProgressDialog.getInstance(mContext);
+
+        progressDialog = CustomProgressDialog.getInstance(mContext);
     }
 
     synchronized public void execute() {
         if (NetworkUtils.isConnected(mContext)) {
             errorMsg=null;
-            dialog.showProgressBar();
+            progressDialog.showProgressBar();
             if (url.contains("https")) {
                 Log.e("@@@@@@@@@@","HTTPS REQUEST");
                 showRequest();
@@ -70,7 +71,7 @@ public class ProjectWebRequest {
                 doPostUsingHttp();
             }
         } else {
-            listener.onFailure(null, MessageConstants.NO_NETWORK_TAG, "");
+            apiResponseListener.onFailure(null, MessageConstants.NO_NETWORK_TAG, "");
             if (mContext != null)
                 Toast.makeText(mContext, "No internet connection found", Toast.LENGTH_LONG).show();
             return;
@@ -81,12 +82,12 @@ public class ProjectWebRequest {
     void doPostUsingHttp() {
         showRequest();
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
-                url, object,
+                url, jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        dialog.hideProgressBar();
-                        listener.onSuccess(response, Tag);
+                        progressDialog.hideProgressBar();
+                        apiResponseListener.onSuccess(response, Tag);
                         Log.e("@@@@@@@@Response", response.toString());
                     }
                 }, new Response.ErrorListener() {
@@ -94,7 +95,7 @@ public class ProjectWebRequest {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                dialog.hideProgressBar();
+                progressDialog.hideProgressBar();
                 error.printStackTrace();
                 if (error instanceof NetworkError) {
                     errorMsg = "Network error, please try again later";
@@ -109,7 +110,7 @@ public class ProjectWebRequest {
                 } else if (error instanceof TimeoutError) {
                     errorMsg = "Timeout error, please try again later";
                 }
-                listener.onFailure(errorMsg, Tag, errorMsg);
+                apiResponseListener.onFailure(errorMsg, Tag, errorMsg);
                 Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
             }
         }
@@ -134,7 +135,7 @@ public class ProjectWebRequest {
                 httpsConn.setRequestMethod("POST");
                 try {
                     OutputStreamWriter wr = new OutputStreamWriter(httpsConn.getOutputStream());
-                    wr.write(object.toString());
+                    wr.write(jsonObject.toString());
                     wr.flush();
                     StringBuilder sb = new StringBuilder();
                     int HttpResult = httpsConn.getResponseCode();
@@ -176,26 +177,26 @@ public class ProjectWebRequest {
 
         @Override
         protected void onPostExecute(Object result) {
-            dialog.hideProgressBar();
+            progressDialog.hideProgressBar();
             if (result != null) {
                 try {
                     JSONObject object = new JSONObject(result.toString());
                     Log.e("&&&&&&&&&&&&->>>>>>>>>>",""+object.toString());
-                    listener.onSuccess(object, Tag);
+                    apiResponseListener.onSuccess(object, Tag);
                 } catch (JSONException e) {
-                    listener.onFailure(errorMsg, Tag, e.getLocalizedMessage());
+                    apiResponseListener.onFailure(errorMsg, Tag, e.getLocalizedMessage());
                     Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             } else {
                 Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
-                listener.onFailure(errorMsg, Tag, errorMsg);
+                apiResponseListener.onFailure(errorMsg, Tag, errorMsg);
             }
         }
     }
 
     void showRequest() {
         Log.e("@@@@@@URL->>>>>>>>>>>", url);
-        Log.e("@@@@@@PARAM->>>>>>>>>", object.toString());
+        Log.e("@@@@@@PARAM->>>>>>>>>", jsonObject.toString());
     }
 }

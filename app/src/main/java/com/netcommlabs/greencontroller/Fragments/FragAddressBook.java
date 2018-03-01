@@ -61,7 +61,7 @@ public class FragAddressBook extends Fragment {
         gridRecyclerView.setLayoutManager(gridLayoutManager);
 
         databaseHandler = DatabaseHandler.getInstance(mContext);
-        listModalAddressModule = databaseHandler.getAddressListFormData(0);
+        listModalAddressModule = databaseHandler.getAddressListFormData("");
         if (listModalAddressModule.size() > 0) {
             tvNoAddressAvailable.setVisibility(View.GONE);
             gridRecyclerView.setVisibility(View.VISIBLE);

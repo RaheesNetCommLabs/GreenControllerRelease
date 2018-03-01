@@ -15,33 +15,35 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
-        android:allowBackup="true"
+        android:name="com.netcommlabs.greencontroller.utilities.AppController"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name="com.netcommlabs.greencontroller.utilities.AppController"
-        android:theme="@style/FullScreen">
+        android:theme="@style/FullScreen"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize|keyboard"
             android:screenOrientation="landscape">
-            <!-- <intent-filter>
+             <intent-filter>
                  <action android:name="android.intent.action.MAIN" />
 
                  <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>-->
+             </intent-filter>
         </activity>
         <activity
             android:name=".activities.LoginAct"
             android:screenOrientation="landscape">
-            <intent-filter>
+           <!-- <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
-        <activity android:name=".activities.ActvityOtp"
+        <activity
+            android:name=".activities.ActvityOtp"
             android:screenOrientation="landscape"></activity>
         <activity
             android:name=".activities.AddAddressActivity"

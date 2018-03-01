@@ -9,7 +9,7 @@
     tools:context="com.netcommlabs.greencontroller.activities.ConnectedQRAct">
 
     <!-- <LinearLayout
-         android:id="@+id/llScrnHeader"
+         andrdvcIdd:iddvcId@+id/llScrnHeader"
          android:layout_width="match_parent"
          android:layout_height="?android:attr/actionBarSize"
          android:gravity="center_vertical"
@@ -21,7 +21,7 @@
              android:src="@drawable/back_arrow_circle" />
 
          <TextView
-             android:id="@+id/tvTitleConctnt"
+             andrdvcIdd:iddvcId@+id/tvTitleConctnt"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:layout_marginLeft="@dimen/_5sdp"

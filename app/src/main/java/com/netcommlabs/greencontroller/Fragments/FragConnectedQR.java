@@ -216,15 +216,22 @@ public class FragConnectedQR extends Fragment {
                         }
                     }
                 }
+
+
                 long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
+                if (insertedAddressUniqueID!=0){
+                    databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+
+                    //Replacing current Fragment by (FragDeviceMAP)
+                    MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                    dvcNameEdited = "";
+                    qrCodeEdited = "";
+                    Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                }
+                /*long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
                 databaseHandler.insertDeviceModule(insertedAddressUniqueID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
                 //ModalDeviceModule modalBleDevice = new ModalDeviceModule(dvcNameEdited, dvc_mac_address, modalAddressModule, valveNum);
-                //databaseHandler.addBLEDevice(modalBleDevice);
-                //Adding Fragment(FragAvailableDevices)
-                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
-                dvcNameEdited = "";
-                qrCodeEdited = "";
-                Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                //databaseHandler.addBLEDevice(modalBleDevice);*/
             }
 
         });

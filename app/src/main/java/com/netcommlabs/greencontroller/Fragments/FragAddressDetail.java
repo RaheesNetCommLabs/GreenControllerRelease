@@ -28,8 +28,8 @@ import com.netcommlabs.greencontroller.utilities.Constant;
 public class FragAddressDetail extends Fragment {
     private MainActivity mContext;
     private LinearLayout llBack, llEditAddress, llDelete;
-    public static final String ADDRESS_ID_KEY = "address_id_key";
-    private static int addressID;
+    public static final String ADDRESS_UUID_KEY = "address_uuid_key";
+    private static String addressUUID;
     private ModalAddressModule modalAddressModule;
     private ImageView ivAddressTypeIconAD;
     private TextView tvAddressTypeNameAD, tvFlatNum, tvStreetArea, tvLocalityLandmark, tvPincode, tvCity, tvState;
@@ -65,8 +65,8 @@ public class FragAddressDetail extends Fragment {
     }
 
     private void initBaseNdListeners() {
-        addressID = getArguments().getInt(ADDRESS_ID_KEY, 0);
-        modalAddressModule = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressID);
+        addressUUID = getArguments().getString(ADDRESS_UUID_KEY, "");
+        modalAddressModule = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
         updateUIUsingFetchedData();
 
         llBack.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +129,7 @@ public class FragAddressDetail extends Fragment {
         alBui.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteAddress(addressID);
+                int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteAddress(addressUUID);
                 if (deleteConfirm > 0) {
                     Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
                     mContext.onBackPressed();

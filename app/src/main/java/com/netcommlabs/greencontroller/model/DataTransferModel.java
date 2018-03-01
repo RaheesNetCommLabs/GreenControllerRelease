@@ -6,17 +6,24 @@ import java.io.Serializable;
  * Created by Netcomm on 11/20/2017.
  */
 
-public class DataTransferModel implements Serializable{
+public class DataTransferModel implements Serializable {
 
-    private  int index;
-    private  int dayOfTheWeek;
-    private  int hours;
-    private  int minutes;
-    private  int seconds;
-    private  int bDurationMSB;
-    private  int bDurationLSB;
-    private  int bVolumeMSB;
-    private  int bVolumeLSB;
+    private int index;
+    private int dayOfWeek;
+    private int slotNum;
+    private int hourOfDay;
+    private int minutes;
+    private int seconds;
+    private int bDurationMSB;
+    private int bDurationLSB;
+    private int bVolumeMSB;
+    private int bVolumeLSB;
+
+    public DataTransferModel(int dayOfWeek, int hourOfDay, int slotNum) {
+        this.dayOfWeek = dayOfWeek;
+        this.hourOfDay = hourOfDay;
+        this.slotNum = slotNum;
+    }
 
     public int getQty() {
         return Qty;
@@ -42,9 +49,9 @@ public class DataTransferModel implements Serializable{
         Discharge = discharge;
     }
 
-    private  int Qty;
-    private  int Duration;
-    private  int Discharge;
+    private int Qty;
+    private int Duration;
+    private int Discharge;
 
     public int getIndex() {
         return index;
@@ -54,20 +61,24 @@ public class DataTransferModel implements Serializable{
         this.index = index;
     }
 
-    public int getDayOfTheWeek() {
-        return dayOfTheWeek;
+    public int getDayOfWeek() {
+        return dayOfWeek;
     }
 
-    public void setDayOfTheWeek(int dayOfTheWeek) {
-        this.dayOfTheWeek = dayOfTheWeek;
+    public void setDayOfWeek(int dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 
-    public int getHours() {
-        return hours;
+    public int getHourOfDay() {
+        return hourOfDay;
     }
 
-    public void setHours(int hours) {
-        this.hours = hours;
+    public void setHourOfDay(int hourOfDay) {
+        this.hourOfDay = hourOfDay;
+    }
+
+    public int getSlotNum() {
+        return slotNum;
     }
 
     public int getMinutes() {

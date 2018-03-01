@@ -10,7 +10,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
@@ -22,10 +22,10 @@ public class ErroScreenDialog {
     private static ErroScreenDialog object;
     private static Dialog dialog;
     private static Context mContext;
-    private static ResponseListener listener;
+    private static APIResponseListener listener;
     private static String errorMsg;
 
-    public static void showErroScreenDialog(Context mmContext, String merrorMsg, ResponseListener mlistener) {
+    public static void showErroScreenDialog(Context mmContext, String merrorMsg, APIResponseListener mlistener) {
         mContext = mmContext;
         errorMsg = merrorMsg;
         listener = mlistener;

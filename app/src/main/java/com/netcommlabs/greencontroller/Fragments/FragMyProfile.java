@@ -29,7 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * Created by Android on 12/7/2017.
  */
 
-public class FragMyProfile extends Fragment implements View.OnClickListener, ResponseListener {
+public class FragMyProfile extends Fragment implements View.OnClickListener, APIResponseListener {
     private ProjectWebRequest request;
     private MainActivity mContext;
     private View view;

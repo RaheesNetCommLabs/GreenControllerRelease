@@ -26,13 +26,13 @@ public class DeviceAddressAdapter extends RecyclerView.Adapter<DeviceAddressAdap
     private DatabaseHandler databaseHandler;
     private List<ModalAddressModule> listAdrsIDRdoNameSlctStatus;
     private ModalAddressModule modalAddressModule;
-    private int addressID;
+    private String addressUUID;
 
     public DeviceAddressAdapter(Context mContext, FragDeviceMAP fragDeviceMAP) {
         this.mContext = mContext;
         this.fragDeviceMAP = fragDeviceMAP;
         databaseHandler = DatabaseHandler.getInstance(mContext);
-        listAdrsIDRdoNameSlctStatus = databaseHandler.getAllAddressIDRadioNameSelectStatus();
+        listAdrsIDRdoNameSlctStatus = databaseHandler.getAlladdressUUIDRadioNameSelectStatus();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -71,20 +71,20 @@ public class DeviceAddressAdapter extends RecyclerView.Adapter<DeviceAddressAdap
             public void onClick(View v) {
                 for (int i = 0; i < listAdrsIDRdoNameSlctStatus.size(); i++) {
                     modalAddressModule = listAdrsIDRdoNameSlctStatus.get(i);
-                    addressID = modalAddressModule.getAddressID();
-                    databaseHandler.updateDeviceSelectStatus(addressID, 0);
+                    addressUUID = modalAddressModule.getAddressUUID();
+                    databaseHandler.updateDeviceSelectStatus(addressUUID, 0);
                     modalAddressModule.setAddressSelectStatus(0);
                     holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg);
                 }
                 modalAddressModule = listAdrsIDRdoNameSlctStatus.get(position);
                 if (modalAddressModule.getAddressSelectStatus() == 0) {
-                    addressID = modalAddressModule.getAddressID();
-                    databaseHandler.updateDeviceSelectStatus(addressID, 1);
+                    addressUUID = modalAddressModule.getAddressUUID();
+                    databaseHandler.updateDeviceSelectStatus(addressUUID, 1);
                     modalAddressModule.setAddressSelectStatus(1);
                     holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg_select);
                 }
                 notifyDataSetChanged();
-                fragDeviceMAP.setUIForAddressNdDeviceMap(addressID);
+                fragDeviceMAP.setUIForAddressNdDeviceMap(addressUUID);
             }
         });
     }

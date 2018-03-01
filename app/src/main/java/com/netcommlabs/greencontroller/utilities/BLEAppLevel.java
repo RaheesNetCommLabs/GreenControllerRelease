@@ -23,11 +23,7 @@ import com.netcommlabs.greencontroller.services.BleAdapterService;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 import static java.lang.Boolean.FALSE;
@@ -407,10 +403,10 @@ public class BLEAppLevel {
         //Log.e("@@@@@@@@@@@", "" + dataSendingIndex);
         //byte index = (byte) (listSingleValveData.get(dataSendingIndex).getIndex() + 1);
         byte index = (byte) (dataSendingIndex + 1);
-        byte hours = (byte) listSingleValveData.get(dataSendingIndex).getHours();
+        byte hours = (byte) listSingleValveData.get(dataSendingIndex).getHourOfDay();
         byte minutes = 0;
         byte seconds = 0;
-        byte dayOfTheWeek = (byte) listSingleValveData.get(dataSendingIndex).getDayOfTheWeek();
+        byte dayOfTheWeek = (byte) listSingleValveData.get(dataSendingIndex).getDayOfWeek();
 
 /*<<<<<<< HEAD
         int iDurationMSB = (etDurationInt / 256);

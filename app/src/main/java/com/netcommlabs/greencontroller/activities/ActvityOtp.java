@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -32,7 +32,7 @@ import org.json.JSONObject;
  * Created by Netcomm on 2/1/2018.
  */
 
-public class ActvityOtp extends Activity implements View.OnClickListener, ResponseListener {
+public class ActvityOtp extends Activity implements View.OnClickListener, APIResponseListener {
     private LinearLayout ll_resnd_otp;
     private LinearLayout ll_timer_otp;
     private LinearLayout ll_veryfyOtp;
@@ -128,7 +128,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
                 ll_resnd_otp.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        hitApiforResendOtp();
+                        hitApiToResendOtp();
                     }
                 });
 
@@ -155,14 +155,14 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
 
                 break;
             case R.id.ll_veryfyOtp:
-                hitApiforOtp();
+                hitApiToVarifyOtp();
                 break;
 
         }
 
     }
 
-    private void hitApiforResendOtp() {
+    private void hitApiToResendOtp() {
         try {
             request = new ProjectWebRequest(this, getParamResendOtp(), UrlConstants.RESENDOTP, this, UrlConstants.RESENDOTP_TAG);
             request.execute();
@@ -185,7 +185,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
         return object;
     }
 
-    private void hitApiforOtp() {
+    private void hitApiToVarifyOtp() {
 
         try {
             request = new ProjectWebRequest(this, getParamOtp(), UrlConstants.OTP, this, UrlConstants.OTP_TAG);
