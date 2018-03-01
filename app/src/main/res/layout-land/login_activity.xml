@@ -96,6 +96,7 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
+
                 <View
                     android:layout_width="@dimen/_100sdp"
                     android:layout_height="1dp"

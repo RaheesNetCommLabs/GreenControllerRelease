@@ -12,6 +12,11 @@ public class UrlConstants {
     public static final String RESENDOTP = BASE_URL + "resend_otp";
     public static final String MATCH_PASSWORD = BASE_URL + "match_password";
     public static final String CHANGE_PASSWORD = BASE_URL + "change_password";
+    public static final String CHANGE_MOBILE_NO = BASE_URL + "change_mobile";
+    public static final String CHANGE_MOBILE_VERIFY_OTP = BASE_URL + "change_mobile_verify_otp";
+    public static final String UPDATE_PROFILE = BASE_URL + "update_profile";
+    public static final String FORGOT_PASSWORD= BASE_URL + "forgot_password";
+    public static final String VERIFY_OTP_FOR_FORGOT_PASS= BASE_URL + "verify_otp";
 
 
 
@@ -23,4 +28,9 @@ public class UrlConstants {
     public static final int RESENDOTP_TAG = 1004;
     public static final int MATCH_PASSWORD_TAG = 1005;
     public static final int CHANGE_PASSWORD_TAG = 1006;
+    public static final int CHANGE_MOBILE_NO_TAG = 1007;
+    public static final int CHANGE_MOBILE_VERIFY_OTP_TAG= 1008;
+    public static final int UPDATE_PROFILE_TAG= 1009;
+    public static final int FORGOT_PASSWORD_TAG= 1010;
+    public static final int VERIFY_OTP_FOR_FORGOT_PASS_TAG= 1011;
 }

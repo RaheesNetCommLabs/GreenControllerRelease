@@ -12,11 +12,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,18 +31,29 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
+import com.netcommlabs.greencontroller.utilities.FileUtils;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Android on 12/7/2017.
@@ -88,6 +101,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
     private int CAMERA_IMG_REQUEST = 1002;
     private Bitmap bitmap;
     PreferenceModel preference;
+    private  static String strEncodedImage;
 
     @Override
 
@@ -128,6 +142,11 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
         et_name.setText(preference.getName());
         et_mailid.setText(preference.getEmail());
         tv_phone_no.setText(preference.getMobile());
+        if (MySharedPreference.getInstance(getActivity()).getUser_img() != "")
+            Picasso
+                    .with(mContext)
+                    .load(MySharedPreference.getInstance(getActivity()).getUser_img()).skipMemoryCache()
+                    .into(image_user);
       /*layout match password*/
         match_password_layout = view.findViewById(R.id.match_password_layout);
         et_match_pass = view.findViewById(R.id.et_match_pass);
@@ -167,8 +186,19 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
         tv_cancel_match_pass.setOnClickListener(this);
         tv_cancel_change_pass.setOnClickListener(this);
         ll_edit_profile_img.setOnClickListener(this);
+
+
+
+
+     //  userImageCallback.userImage(MySharedPreference.getInstance(getActivity()).getUser_img());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
+        tv_phone_no.setText(preference.getMobile());
+    }
 
     public static boolean isValidPassword(final String password) {
 
@@ -235,8 +265,13 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
 
                 et_phoneNo.setCursorVisible(true);
                 if (et_phoneNo.getText().toString().trim().length() > 0) {
-                    phone_layout.setVisibility(View.GONE);
-                    tv_phone_no.setText(et_phoneNo.getText().toString());
+                    if(et_phoneNo.getText().toString().equals(preference.getMobile())){
+                        Toast.makeText(mContext, "You are Updating same no.", Toast.LENGTH_SHORT).show();
+                    }else {
+                        hitApiChangeMobileNo();
+                    }
+
+
                 } else {
                     Toast.makeText(getActivity(), "Please enter  mobile no.", Toast.LENGTH_SHORT).show();
                     phone_layout.setVisibility(View.VISIBLE);
@@ -260,6 +295,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
 
             case R.id.tv_save:
                 tv_edit.setVisibility(View.VISIBLE);
+                hitApiForUpdateProfiler();
                 tv_save.setVisibility(View.GONE);
                 et_name.setEnabled(false);
                 et_mailid.setEnabled(false);
@@ -267,7 +303,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
                 imgEditPhoneNo.setVisibility(View.GONE);
                 ll_change_pass.setVisibility(View.GONE);
                 ll_edit_profile_img.setVisibility(View.GONE);
-                Toast.makeText(mContext, "profile update successfully", Toast.LENGTH_SHORT).show();
+
                 break;
             case R.id.ll_change_pass:
                 change_password_dialog.setVisibility(View.VISIBLE);
@@ -318,6 +354,56 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
                 break;
         }
 
+    }
+
+    private void hitApiForUpdateProfiler() {
+        try {
+            request = new ProjectWebRequest(mContext, getParamUpdateProfile(), UrlConstants.UPDATE_PROFILE, this, UrlConstants.UPDATE_PROFILE_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamUpdateProfile() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("name", et_name.getText().toString());
+            object.put("image", strEncodedImage);
+            object.put("email", et_mailid.getText().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void hitApiChangeMobileNo() {
+        try {
+            request = new ProjectWebRequest(mContext, getParamForMobileNo(), UrlConstants.CHANGE_MOBILE_NO, this, UrlConstants.CHANGE_MOBILE_NO_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamForMobileNo() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("mobile", et_phoneNo.getText().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
     private void hitApiChangePassword() {
@@ -391,8 +477,6 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
     }
 
     private void openDailog() {
-
-
         dialog = new Dialog(mContext);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCanceledOnTouchOutside(true);
@@ -426,7 +510,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String picturePath = "";
-        if (requestCode == GALLERY_IMG_REQUEST) {
+        if (requestCode == GALLERY_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
             Cursor cursor = mContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -435,14 +519,65 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
             picturePath = cursor.getString(columnIndex);
             cursor.close();
             bitmap = BitmapFactory.decodeFile(picturePath);
-            //  setPath(picturePath);
-            image_user.setImageBitmap(bitmap);
-        } else if (requestCode == CAMERA_IMG_REQUEST) {
+              setPath(picturePath);
+          //  image_user.setImageBitmap(bitmap);
+           // convertBitmapToBse64(bitmap);
+        } else if (requestCode == CAMERA_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
             bitmap = (Bitmap) data.getExtras().get("data");
+            saveImage(bitmap);
+            picturePath = new File(Environment.getExternalStorageDirectory()
+                    + File.separator + "/test.jpg").getAbsolutePath();
+           setPath(picturePath);
 
-            image_user.setImageBitmap(bitmap);
+
         }
 
+    }
+
+    private void setPath(String picturePath) {
+        Bitmap compressedBitmap = FileUtils.getBitmapWithCompressedFromPicker(mContext, picturePath);
+        convertBitmapToBse64(compressedBitmap);
+        image_user.setImageBitmap(compressedBitmap);
+    }
+
+    private String convertBitmapToBse64(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        strEncodedImage=  Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+        return strEncodedImage;
+    }
+
+
+    private void saveImage(Bitmap bitmap) {
+        File file = new File(Environment.getExternalStorageDirectory()
+                + File.separator + "/test.jpg");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            file.delete();
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            if (fos != null) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                fos.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -460,7 +595,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
                 imgEditPhoneNo.setVisibility(View.VISIBLE);
                 ll_change_pass.setVisibility(View.VISIBLE);
                 ll_edit_profile_img.setVisibility(View.VISIBLE);
-                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
+
             } else {
                 Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
@@ -471,17 +606,41 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, Res
                 Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
 
+        }else if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+            if(obj.optString("status").equals("success")){
+                phone_layout.setVisibility(View.GONE);
+                mContext.setOtpForMobile(et_phoneNo.getText().toString());
+
+                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+        }else if(Tag==UrlConstants.UPDATE_PROFILE_TAG){
+            if(obj.optString("status").equals("success")){
+
+                PreferenceModel model = new Gson().fromJson(obj.toString(), PreferenceModel.class);
+                MySharedPreference.getInstance(mContext).setUserDetail(model);
+
+                MySharedPreference.getInstance(mContext).setUser_img(obj.optString("image"));
+              //  userImageCallback.userImage(obj.optString("Image"));
+
+                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+
         }
 
     }
 
     @Override
     public void onFailure(String error, int Tag, String erroMsg) {
-
+        clearRef();
+        if (Tag == MessageConstants.NO_NETWORK_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, MessageConstants.No_NETWORK_MSG, this);
+        }
     }
 
     @Override
     public void doRetryNow() {
-
+        clearRef();
     }
 }

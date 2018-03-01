@@ -17,6 +17,7 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -43,11 +45,12 @@ import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.FragDashboardPebbleHome;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
+import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.Interfaces.LocationDecetor;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.adapters.NavListAdapter;
-import com.netcommlabs.greencontroller.model.ModalDeviceModule;
+import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
@@ -59,15 +62,16 @@ import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 import com.netcommlabs.greencontroller.utilities.RowDataArrays;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.netcommlabs.greencontroller.utilities.Constant.ADDRESS_BOOK;
 import static com.netcommlabs.greencontroller.utilities.Constant.AVAILABLE_DEVICE;
 import static com.netcommlabs.greencontroller.utilities.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_MAP;
-import static com.netcommlabs.greencontroller.utilities.Constant.ADDRESS_BOOK;
 
 public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     public int frm_lyt_container_int;
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
     private static final int REQUEST_CODE_ENABLE = 1;
+
     private BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_CODE = 1001;
     private ProgressDialog progressDoalog;
@@ -98,7 +103,10 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     private DatabaseHandler databaseHandler;
     //public TextView tvAddNewAddress;
     public LinearLayout llAddNewAddress;
-
+    private ImageView circularIVNav;
+    private LinearLayout nav_header;
+   private PreferenceModel preference;
+   private TextView username_header;
 
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
@@ -112,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     }
 
     private void findLocalViews() {
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
         frm_lyt_container_int = R.id.frm_lyt_container;
         rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
         llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
@@ -124,10 +133,32 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         nav_revi_slider = findViewById(R.id.nav_revi_slider);
         btnMapDone = findViewById(R.id.btnAddressDone);
         btnMapBack = findViewById(R.id.btnAddressCancel);
+        nav_header = findViewById(R.id.nav_header);
+        username_header = (TextView) findViewById(R.id.username_header);
+        username_header.setText(preference.getName());
+
+        circularIVNav=(ImageView) findViewById(R.id.circularIVNav);
+        if (MySharedPreference.getInstance(MainActivity.this).getUser_img() != "") {
+            Picasso
+                    .with(MainActivity.this)
+                    .load(MySharedPreference.getInstance(MainActivity.this).getUser_img()).skipMemoryCache().placeholder(R.drawable.user_profile_icon)
+                    .into(circularIVNav);
+        }
 
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
     }
 
+    /* @Override public void onResume() {
+         super.onResume();
+         //lock screen to portrait
+         MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+     }
+
+     @Override public void onPause() {
+         super.onPause();
+         //set rotation to sensor dependent
+         MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+     }*/
     public void setupUIForSoftkeyboardHide(View view) {
         // Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
@@ -161,15 +192,15 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             BLEAppLevel.getInstance(mContext, myFragment, dvcMacAddress);
 =======*/
         databaseHandler = DatabaseHandler.getInstance(mContext);
-        databaseHandler.createActiveUser();
+        //    databaseHandler.createActiveUser();
 
-        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+     /*   List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
         if (listAllDevices.size() > 0) {
             dvcMacAddress = listAllDevices.get(0).getDvcMacAddress();
             //myFragment = new Fragment();
             BLEAppLevel.getInstance(mContext, null, dvcMacAddress);
 //>>>>>>> d13132fa322c99ecac00fb3cd9d9bb83c28d4339
-        }
+        }*/
         //Checking Marshmallow
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermission();
@@ -414,6 +445,35 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
     }
 
+    public void setOtpForMobile(String s) {
+        String tag = getActiveFragment();
+        Fragment parentFragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if (tag.equals("My Profile")) {
+            Intent i = new Intent(MainActivity.this, ActvityOtp.class);
+            ActvityOtp.getTagData("My Profile", s);
+            // i.putExtra("Tag",ActvityOtp.getTagData("My Profile"));
+            startActivity(i);
+
+        }
+    }
+
+    public void CallBackForProfile() {
+        Fragment fragment = new FragMyProfile();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.frm_lyt_container, fragment)
+                .commit();
+        // MyFragmentTransactions.replaceFragment(MainActivity.this, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
+
+        return;
+
+    }
+
+
+    /* public void CallBackForProfile() {
+         MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
+     }
+ */
     private class GeocoderHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
@@ -435,6 +495,15 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 progressDoalog.dismiss();
             }
         }
+    }
+
+
+    public String getActiveFragment() {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            return null;
+        }
+        String tag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName();
+        return tag;
     }
 
     @Override
@@ -467,7 +536,6 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 }
                 if (currentFragment != null) {
                     super.onBackPressed();
-
                     currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
                     tagCurrFrag = currentFragment.getTag();
                     backPressHeaderHandle(tagCurrFrag);

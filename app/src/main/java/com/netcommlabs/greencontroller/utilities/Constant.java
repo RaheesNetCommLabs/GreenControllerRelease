@@ -38,7 +38,6 @@ public class Constant {
     public static final String AVAILABLE_DEVICE = "Find & Connect";
     public static final String MY_PROFILE = "My Profile";
     public static final String ADDRESS_DETAIL = "Address Detail";
-    public static final String VERIFY_OTP = "Verify_OTP";
-
+   public static final String VERIFY_OTP = "Verify OTP";
 
 }

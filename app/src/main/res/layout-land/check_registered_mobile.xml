@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+
+        android:layout_marginLeft="@dimen/_20sdp"
+        android:layout_marginRight="@dimen/_20sdp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:gravity="center"
+            android:text="Input Your Number for change password" />
+
+        <EditText
+            android:id="@+id/et_mobile_no"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_55sdp"
+            android:background="@drawable/rect_shadow_all_bg"
+            android:hint="Enter phone "
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="phone"
+            android:maxLength="10"
+            android:paddingLeft="@dimen/_15sdp"
+            android:singleLine="true"
+            android:textSize="@dimen/_13sdp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_submit_mobile"
+                android:layout_width="@dimen/_120sdp"
+                android:layout_height="@dimen/_42sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/round_back_shadow_small"
+                android:gravity="center"
+                android:text="Submit"
+                android:textAllCaps="true"
+                android:textSize="@dimen/_14sdp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

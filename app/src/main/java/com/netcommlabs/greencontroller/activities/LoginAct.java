@@ -21,7 +21,7 @@ import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import org.json.JSONObject;
 
-public class LoginAct extends AppCompatActivity implements View.OnClickListener,ResponseListener {
+public class LoginAct extends AppCompatActivity implements View.OnClickListener, ResponseListener {
 
     private LoginAct mContext;
     private TextView tvForgtPassEvent, tvLoginEvent, tvSignUpEvent;
@@ -33,7 +33,6 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-
         initBase();
 
 
@@ -53,6 +52,7 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
         llLoginGoogle = (LinearLayout) findViewById(R.id.llLoginGoogle);
         tvSignUpEvent.setOnClickListener(this);
         tvLoginEvent.setOnClickListener(this);
+        tvForgtPassEvent.setOnClickListener(this);
 
     }
 
@@ -66,26 +66,31 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                 break;
             case R.id.tvLoginEvent:
                 validationLogin();
-              //  hitApi();
+                //  hitApi();
+                break;
+            case R.id.tvForgtPassEvent:
+                Intent intent=new Intent(LoginAct.this,ActvityCheckRegisteredMobileNo.class);
+                startActivity(intent);
+                finish();
                 break;
         }
 
     }
 
     private void validationLogin() {
-        if (etPhoneEmail.getText().toString().trim().length() <= 0 || etPhoneEmail.getText().toString().trim().length()<=0) {
+        if (etPhoneEmail.getText().toString().trim().length() <= 0 || etPhoneEmail.getText().toString().trim().length() <= 0) {
             Toast.makeText(this, "Please Enter Email Address or Mobile no", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if(etPassword.getText().toString().trim().length()<=0){
+        if (etPassword.getText().toString().trim().length() <= 0) {
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
         }
-       hitApi();
+        hitApi();
     }
 
-  private void hitApi() {
+    private void hitApi() {
         try {
             request = new ProjectWebRequest(this, getParamForLogin(), UrlConstants.LOGIN, this, UrlConstants.LOGIN_TAG);
             request.execute();
@@ -115,16 +120,15 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
             if (object.optString("status").equals("success")) {
                 PreferenceModel model = new Gson().fromJson(object.toString(), PreferenceModel.class);
                 MySharedPreference.getInstance(this).setUserDetail(model);
-                MySharedPreference.getInstance(this).setUser_img(object.optString("ImageUrl"));
+                MySharedPreference.getInstance(this).setUser_img(object.optString("image"));
                 startActivity(new Intent(LoginAct.this, MainActivity.class));
                 finish();
-            }else {
+            } else {
                 Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
             }
 
-            }
         }
-        
+    }
 
 
     @Override
@@ -137,7 +141,8 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
 
     @Override
     public void doRetryNow() {
-
+        clearRef();
+        hitApi();
     }
 
     void clearRef() {

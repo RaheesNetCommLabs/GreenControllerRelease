@@ -19,9 +19,11 @@ public class MySharedPreference {
 
     private String keyConnectedTime = "connTime";
     private final String Name = "name";
-    private final String User_img = "user_img";
+    private final String User_img = "image";
     private final String UID = "user_id";
     private final String EMAIL = "email";
+
+
     private final String MOBILE = "mobile";
 
     public static MySharedPreference getInstance(Context mContext) {
@@ -83,12 +85,12 @@ public class MySharedPreference {
     public void setUserDetail(PreferenceModel data) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(Name, data.getName());
-
         editor.putString(UID, data.getUser_id());
         editor.putString(EMAIL, data.getEmail());
         editor.putString(MOBILE, data.getMobile());
         editor.commit();
     }
+
 
 
     public PreferenceModel getsharedPreferenceData() {
@@ -108,6 +110,17 @@ public class MySharedPreference {
     public void setUser_img(String data) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(User_img, data);
+        editor.commit();
+    }
+
+
+
+    public String getMOBILE() {
+        return sharedpreferences.getString(MOBILE,null);
+    }
+    public void  setMOBILE(String data){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(MOBILE, data);
         editor.commit();
     }
 

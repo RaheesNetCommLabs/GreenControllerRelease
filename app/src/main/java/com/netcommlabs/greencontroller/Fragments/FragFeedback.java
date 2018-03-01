@@ -29,7 +29,7 @@ public class FragFeedback extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.actvity_registration, null);
+        view = inflater.inflate(R.layout.new_device_map, null);
         return view;
     }
 

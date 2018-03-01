@@ -33,6 +33,7 @@ public class ErroScreenDialog {
     }
 
     private static void showErorScreen() {
+
         dialog = new Dialog(mContext);
         // dialog.getWindow().getAttributes().windowAnimations = R.style.CustomThemeBottomAndUpAnimation;
         dialog.setCancelable(false);
@@ -64,10 +65,10 @@ public class ErroScreenDialog {
         });
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialog.getWindow().setAttributes(lp);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.getWindow().setBackgroundDrawableResource(R.color.theme_color);
         dialog.show();
     }
 }

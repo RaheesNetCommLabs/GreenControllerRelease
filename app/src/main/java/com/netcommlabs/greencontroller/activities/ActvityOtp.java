@@ -1,15 +1,19 @@
 package com.netcommlabs.greencontroller.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.SmsMessage;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,24 +42,33 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
     private LinearLayout ll_veryfyOtp;
     private TextView tv_countdown_timer;
     private ProjectWebRequest request;
-
-
+    private static String mobileNo;
+    PreferenceModel preference;
+    private static String tagValue = "";
+    private static String tagVarifyUser = "";
     private View view;
     private long mSeconds = 0;
     private EditText et_otp_value;
     private BroadcastReceiver myBroadcastReceiver;
-    private String userId;
+    private String userId,mobileNoFromRegs;
+    private TextView tv_mobile_no;
 
+    TelephonyManager tm;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.otp_layout);
         userId = getIntent().getStringExtra("userId");
+        mobileNoFromRegs=getIntent().getStringExtra("mobile");
         init();
+        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
     }
 
 
     private void init() {
+
+        tv_mobile_no = findViewById(R.id.tv_mobile_no);
         ll_resnd_otp = findViewById(R.id.ll_resnd_otp);
         ll_timer_otp = findViewById(R.id.ll_timer_otp);
         ll_veryfyOtp = findViewById(R.id.ll_veryfyOtp);
@@ -64,52 +77,80 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
         ll_resnd_otp.setOnClickListener(this);
         ll_timer_otp.setVisibility(View.VISIBLE);
         ll_resnd_otp.setVisibility(View.GONE);
+        if (tagValue.equals("My Profile")) {
+            tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNo);
+        }else {
+            tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNoFromRegs);
+        }
 
+        if (ContextCompat.checkSelfPermission(ActvityOtp.this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ActvityOtp.this, new String[]{Manifest.permission.RECEIVE_SMS}, 120);
+        } else {
+            registerReceiver(broadcastReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
+        }
         ll_veryfyOtp.setOnClickListener(this);
         timerOTP();
-        setOTP();
+
+
     }
 
-    private void setOTP() {
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+                Bundle bundle = intent.getExtras();
+                SmsMessage[] msgs = null;
+                String msg_from;
+                if (bundle != null) {
+                    try {
+                        Object[] pdus = (Object[]) bundle.get("pdus");
+                        msgs = new SmsMessage[pdus.length];
+                        for (int i = 0; i < msgs.length; i++) {
+                            msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+                            msg_from = msgs[i].getOriginatingAddress();
+                            String msgBody = msgs[i].getMessageBody();
+                            if (msg_from.contains("TX-EDUNET")) {
+                                /*if (msgBody.contains("Kindly use One Time Password - OTP") && msgBody.contains("")) {
+                                    String otp = msgBody.substring(35, 41);*/
+                                    et_otp_value.setText(msgBody);
+                                    if (tagValue.equals("My Profile")) {
+                                        hitOtpApiForMobile();
 
-        myBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, android.content.Intent intent) {
-                Toast.makeText(ActvityOtp.this, "Broadcast received!", Toast.LENGTH_SHORT).show();//Do what you want when the broadcast is received...
+                                    }else if(tagVarifyUser.equals("Register User Varification")){
+                                        hitApiForvarifyuUser();
+                                    }
 
-                final Bundle bundle = intent.getExtras();
-                try {
-                    if (bundle != null) {
-                        final Object[] pdusObj = (Object[]) bundle.get("pdus");
-                        for (int i = 0; i < pdusObj.length; i++) {
-                            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-                            String phoneNumber = currentMessage.getDisplayOriginatingAddress();
-                            String senderNum = phoneNumber;
-                            String message = currentMessage.getDisplayMessageBody();
-                            et_otp_value.setText(message);
+                                    else {
+                                        hitApiforOtp();
+                                    }
 
+                              //  }
+                            }
                         }
+                    } catch (Exception e) {
                     }
-
-                } catch (Exception e) {
-
                 }
             }
-        };
-    }
+
+        }
+    };
+
+
 
 
     @Override
-    public void onResume() {
-        LocalBroadcastManager.getInstance(ActvityOtp.this).registerReceiver(myBroadcastReceiver, new IntentFilter("otp"));
-        super.onResume();
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 120) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                registerReceiver(broadcastReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
+            } else {
+                Toast.makeText(ActvityOtp.this, "OTP will not be autofill", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        // LocalBroadcastManager.getInstance(mContext).unregisterReceiver(myBroadcastReceiver);
-    }
+
 
     private void timerOTP() {
         CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) {
@@ -128,12 +169,44 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
                 ll_resnd_otp.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        hitApiforResendOtp();
+                        if(tagValue.equals("My Profile")){
+                            hitResendOtpForMobileNo();
+
+                        }else{
+                            hitApiforResendOtpRegister();
+                        }
+
+
                     }
                 });
 
             }
         }.start();
+    }
+
+    private void hitResendOtpForMobileNo() {
+        try {
+            request = new ProjectWebRequest(this, getParamForMobileNo(), UrlConstants.CHANGE_MOBILE_NO, this, UrlConstants.CHANGE_MOBILE_NO_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamForMobileNo() {
+        preference = MySharedPreference.getInstance(this).getsharedPreferenceData();
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("mobile",mobileNo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
 
@@ -152,17 +225,76 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
                 ll_timer_otp.setVisibility(View.VISIBLE);
                 ll_resnd_otp.setVisibility(View.GONE);
                 timerOTP();
-
                 break;
             case R.id.ll_veryfyOtp:
-                hitApiforOtp();
+                if (tagValue.equals("My Profile")) {
+                    hitOtpApiForMobile();
+
+                }else if(tagVarifyUser.equals("Register User Varification")){
+                    hitApiForvarifyuUser();
+                }
+
+                else {
+                    hitApiforOtp();
+                }
+
+
                 break;
 
         }
 
     }
 
-    private void hitApiforResendOtp() {
+    private void hitApiForvarifyuUser() {
+        try {
+            request = new ProjectWebRequest(this, getParamVarifyUser(), UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS, this, UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamVarifyUser() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", userId);
+            object.put("otp", et_otp_value.getText().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void hitOtpApiForMobile() {
+        try {
+            request = new ProjectWebRequest(this, getParamChangeMobileOtp(), UrlConstants.CHANGE_MOBILE_VERIFY_OTP, this, UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParamChangeMobileOtp() {
+        preference = MySharedPreference.getInstance(ActvityOtp.this).getsharedPreferenceData();
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("otp", et_otp_value.getText().toString());
+            object.put("mobile", mobileNo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void hitApiforResendOtpRegister() {
         try {
             request = new ProjectWebRequest(this, getParamResendOtp(), UrlConstants.RESENDOTP, this, UrlConstants.RESENDOTP_TAG);
             request.execute();
@@ -234,11 +366,40 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
         } else if (Tag == UrlConstants.RESENDOTP_TAG) {
             if (object.optString("status").equals("success")) {
                 Toast.makeText(ActvityOtp.this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(ActvityOtp.this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG) {
+            if (object.optString("status").equals("success")) {
+                PreferenceModel model = new Gson().fromJson(object.toString(), PreferenceModel.class);
+
+                MySharedPreference.getInstance(ActvityOtp.this).setUserDetail(model);
+                Toast.makeText(ActvityOtp.this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(ActvityOtp.this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+        }else if (Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+            if(object.optString("status").equals("success")){
+
+                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
+            }
+        }else if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
+            if(object.optString("status").equals("success")){
+                Intent intentChangePass=new Intent(ActvityOtp.this,ActivityForgotPass.class);
+                intentChangePass.putExtra("userId",object.optString("user_id"));
+                startActivity(intentChangePass);
+              finish();
+
             }
         }
 
 
     }
+
+
 
     @Override
     public void onFailure(String error, int Tag, String erroMsg) {
@@ -250,6 +411,17 @@ public class ActvityOtp extends Activity implements View.OnClickListener, Respon
 
     @Override
     public void doRetryNow() {
+        clearRef();
+        hitApiforOtp();
+    }
 
+    public static String getTagData(String s1, String s) {
+        tagValue = s1;
+        mobileNo = s;
+        return s;
+    }
+
+    public static void getTagVarificationUser(String s) {
+        tagVarifyUser =s;
     }
 }

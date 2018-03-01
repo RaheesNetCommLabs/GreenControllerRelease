@@ -80,21 +80,41 @@
                 android:layout_height="@dimen/_50sdp"
                 android:layout_weight="1">
 
-
+                <!--<View
+                    android:id="@+id/vDottedLine"
+                    android:background="@drawadoted_line_horizontalline"
+                    android:layout_width="@dimen/_100sdp"
+                    android:layout_height="2dp"
+                    android:layout_gravity="center"
+                    android:layerType="software"></View>-->
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="211dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:gravity="center">
+
+                <View
+
+                    android:layout_width="@dimen/_90sdp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:background="@drawable/doted_line_horizontal"
+                    android:layerType="software"></View>
 
                 <ImageView
                     android:layout_width="@dimen/_50sdp"
                     android:layout_height="@dimen/_50sdp"
                     android:src="@drawable/home_icon_imap" />
 
+                <View
+                    android:layout_width="@dimen/_70sdp"
+                    android:layout_height="17dp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:background="@drawable/doted_line_horizontal"
+                    android:layerType="software"></View>
             </LinearLayout>
 
             <LinearLayout
@@ -124,12 +144,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
+
                 <RelativeLayout
                     android:id="@+id/rlBubbleLeftTop"
                     android:layout_width="@dimen/_130sdp"
                     android:layout_height="@dimen/_50sdp"
                     android:gravity="start"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
                     <LinearLayout
                         android:id="@+id/llBubbleLeftTopBG"
