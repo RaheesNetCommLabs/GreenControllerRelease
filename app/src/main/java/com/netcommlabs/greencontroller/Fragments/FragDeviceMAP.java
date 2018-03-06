@@ -1,15 +1,19 @@
 package com.netcommlabs.greencontroller.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -22,6 +26,7 @@ import com.netcommlabs.greencontroller.adapters.DeviceAddressAdapter;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
+import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.Constant;
 
@@ -35,7 +40,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private View view;
     private RecyclerView recyclerView;
     private DeviceAddressAdapter mAdapter;
-    private LinearLayout llAddNewAddress, llDialogLongPressDvc;
+    private LinearLayout llAddNewAddress;
     public LinearLayout llBubbleLeftTopBG, llFooterIM;
     /* private LinearLayout ll_3st;
      private LinearLayout ll_4st;
@@ -52,13 +57,16 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private String addressComplete;
     private List<String> listAddressName;
     private BLEAppLevel bleAppLevel;
-    private TextView tvAddressTop;
+    private TextView tvAddressTop, tvEditDvcName, tvPauseDvc, tvResumeDbc, tvConnectDvc, tvDisconnectDvc, tvDeleteDvc, tvEditBtn, tvCancelEdit;
     private DatabaseHandler databaseHandler;
     private String addressUUID, dvcUUID;
     private int addressSelectStatus;
     private List<ModalDeviceModule> listModalDeviceModule;
     private List<ModalAddressModule> listModalAddressModule;
     private int selectAddressNameListAt;
+    public LinearLayout llIMWholeDesign, llDialogLongPressDvc, llDialogEditDvcName;
+    private EditText etEditDvcName;
+    private int totalPlayValvesCount, totalPauseValvesCount;
     //private Fragment myFragment;
 
     @Override
@@ -95,6 +103,17 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         tvDeviceName = view.findViewById(R.id.tvDeviceName);
         tvValveCount = view.findViewById(R.id.tvValveCount);
         llDialogLongPressDvc = view.findViewById(R.id.llDialogLongPressDvc);
+        llIMWholeDesign = view.findViewById(R.id.llIMWholeDesign);
+        tvEditDvcName = view.findViewById(R.id.tvEditDvcName);
+        tvPauseDvc = view.findViewById(R.id.tvPauseDvc);
+        tvResumeDbc = view.findViewById(R.id.tvResumeDbc);
+        tvConnectDvc = view.findViewById(R.id.tvConnectDvc);
+        tvDisconnectDvc = view.findViewById(R.id.tvDisconnectDvc);
+        tvDeleteDvc = view.findViewById(R.id.tvDeleteDvc);
+        llDialogEditDvcName = view.findViewById(R.id.llDialogEditDvcName);
+        tvEditBtn = view.findViewById(R.id.tvSaveEditBtn);
+        tvCancelEdit = view.findViewById(R.id.tvCancelEdit);
+        etEditDvcName = view.findViewById(R.id.etEditDvcName);
     }
 
     private void initBase() {
@@ -192,7 +211,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             valveNum = listModalDeviceModule.get(0).getValvesNum();
 
             //myFragment = new Fragment();
-            BLEAppLevel.getInstance(mContext, null, dvcMac);
+            //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
             rlBubbleLeftTop.setVisibility(View.VISIBLE);
             rlBubbleRightTop.setVisibility(View.GONE);
@@ -293,7 +312,156 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     public void dialogLongPressDvc() {
+        llIMWholeDesign.setVisibility(View.GONE);
         llDialogLongPressDvc.setVisibility(View.VISIBLE);
+
+        if (llDialogLongPressDvc.getVisibility() == View.VISIBLE) {
+
+            bleAppLevel = BLEAppLevel.getInstanceOnly();
+            if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+
+                //Validation Valve PLAY if exists only
+                totalPlayValvesCount = databaseHandler.getDvcTotalValvesPlayPauseCount(dvcUUID, "PLAY");
+                if (totalPlayValvesCount > 0) {
+                    tvPauseDvc.setEnabled(true);
+                    tvPauseDvc.setTextColor(Color.BLACK);
+                } else {
+                    tvPauseDvc.setEnabled(false);
+                    tvPauseDvc.setTextColor(Color.GRAY);
+                }
+
+                //Validation Valve PAUSE if exists only
+                totalPauseValvesCount = databaseHandler.getDvcTotalValvesPlayPauseCount(dvcUUID, "PAUSE");
+                if (totalPauseValvesCount > 0) {
+                    tvResumeDbc.setEnabled(true);
+                    tvResumeDbc.setTextColor(Color.BLACK);
+                } else {
+                    tvResumeDbc.setEnabled(false);
+                    tvResumeDbc.setTextColor(Color.GRAY);
+                }
+
+                tvConnectDvc.setEnabled(false);
+                tvConnectDvc.setTextColor(Color.GRAY);
+
+                tvDisconnectDvc.setEnabled(true);
+                tvDeleteDvc.setEnabled(true);
+
+                tvDisconnectDvc.setTextColor(Color.BLACK);
+                tvDeleteDvc.setTextColor(Color.BLACK);
+            } else {
+                tvConnectDvc.setEnabled(true);
+                tvConnectDvc.setTextColor(Color.BLACK);
+
+                tvPauseDvc.setEnabled(false);
+                tvResumeDbc.setEnabled(false);
+                tvDisconnectDvc.setEnabled(false);
+                tvDeleteDvc.setEnabled(false);
+
+                tvPauseDvc.setTextColor(Color.GRAY);
+                tvResumeDbc.setTextColor(Color.GRAY);
+                tvDisconnectDvc.setTextColor(Color.GRAY);
+                tvDeleteDvc.setTextColor(Color.GRAY);
+            }
+
+            tvEditDvcName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(mContext, "Edit", Toast.LENGTH_SHORT).show();
+                    llDialogLongPressDvc.setVisibility(View.GONE);
+                    llDialogEditDvcName.setVisibility(View.VISIBLE);
+                    etEditDvcName.setText(dvcName);
+
+                    tvCancelEdit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            llIMWholeDesign.setVisibility(View.VISIBLE);
+                            llDialogEditDvcName.setVisibility(View.GONE);
+                        }
+                    });
+
+                    tvEditBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String userIPDvcName = etEditDvcName.getText().toString();
+                            if (userIPDvcName.isEmpty()) {
+                                Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
+                                return;
+                            } else if (userIPDvcName.equals(dvcName)) {
+                                Toast.makeText(mContext, "Please edit device name", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            //No device name should be duplicate
+                            if (databaseHandler.getAllDeviceName().size() > 0) {
+                                for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
+                                    if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(userIPDvcName)) {
+                                        Toast.makeText(mContext, "This device name already exists with app", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+                            }
+                            databaseHandler.updateDvcNameOnly(dvcUUID, etEditDvcName.getText().toString());
+                            llIMWholeDesign.setVisibility(View.VISIBLE);
+                            llDialogEditDvcName.setVisibility(View.GONE);
+
+                            Toast.makeText(mContext, "Device name edited successfully", Toast.LENGTH_SHORT).show();
+                            mContext.dvcLongPressEvents();
+                        }
+                    });
+                }
+            });
+            tvPauseDvc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    bleAppLevel = BLEAppLevel.getInstanceOnly();
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        dialogPauseResumeConfirm("Pause Device", "This will Pause device completely", "Pause");
+                    } else {
+                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                    }
+                }
+            });
+            tvResumeDbc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    bleAppLevel = BLEAppLevel.getInstanceOnly();
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        dialogPauseResumeConfirm("Resume Device", "This will Resume device completely", "Resume");
+                    } else {
+                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                    }
+                }
+            });
+            tvConnectDvc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    bleAppLevel = BLEAppLevel.getInstanceOnly();
+                    llDialogLongPressDvc.setVisibility(View.GONE);
+                    llIMWholeDesign.setVisibility(View.VISIBLE);
+                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                }
+            });
+            tvDisconnectDvc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    bleAppLevel = BLEAppLevel.getInstanceOnly();
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        bleAppLevel.disconnectBLECompletely();
+                    } else {
+                        Toast.makeText(mContext, "BLE Lost connection", Toast.LENGTH_SHORT).show();
+                    }
+                    llDialogLongPressDvc.setVisibility(View.GONE);
+                    llIMWholeDesign.setVisibility(View.VISIBLE);
+                }
+            });
+            tvDeleteDvc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(mContext, "Delete", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+        }
 
         /*Dialog dialog = null;
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -321,4 +489,48 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             }
         }
     }*/
+
+    private void dialogPauseResumeConfirm(String title, String msg, final String positiveBtnName) {
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(mContext);
+
+        builder.setTitle(title)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(positiveBtnName, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
+                        if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                            if (positiveBtnName.equals("Pause")) {
+                                bleAppLevel.cmdDvcPause(FragDeviceMAP.this, "PAUSE", totalPlayValvesCount);
+                            } else if (positiveBtnName.equals("Resume")) {
+                                bleAppLevel.cmdDvcPlay(FragDeviceMAP.this, "PLAY", totalPauseValvesCount);
+                            }
+                        } else {
+                            Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        /*llDialogLongPressDvc.setVisibility(View.GONE);
+                        llIMWholeDesign.setVisibility(View.VISIBLE);*/
+                    }
+                })
+                .show();
+    }
+
+    public void dvcLongPressBLEDone(String cmdTypeName) {
+        if (cmdTypeName.equals("PAUSE")) {
+            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PAUSE");
+            Toast.makeText(mContext, "Device paused successfully", Toast.LENGTH_SHORT).show();
+        } else if (cmdTypeName.equals("PLAY")) {
+            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PLAY");
+            Toast.makeText(mContext, "Device resumed successfully", Toast.LENGTH_SHORT).show();
+        }
+
+        llDialogLongPressDvc.setVisibility(View.GONE);
+        llIMWholeDesign.setVisibility(View.VISIBLE);
+    }
 }

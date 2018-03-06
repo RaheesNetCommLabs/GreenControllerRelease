@@ -307,7 +307,7 @@ public class FragDeviceDetails extends Fragment {
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     dialogSTOPConfirm();
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel);
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
                 }
             }
         });
@@ -323,7 +323,7 @@ public class FragDeviceDetails extends Fragment {
                         dialogPLAYConfirm();
                     }
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel);
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
                 }
             }
         });
@@ -335,7 +335,7 @@ public class FragDeviceDetails extends Fragment {
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     dialogFlushStart();
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel);
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
                 }
             }
         });

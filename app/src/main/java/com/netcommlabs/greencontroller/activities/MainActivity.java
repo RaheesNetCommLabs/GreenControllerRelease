@@ -414,6 +414,13 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
     }
 
+    public void dvcLongPressEvents() {
+        onBackPressed();
+        //Adding Fragment(FragDeviceMAP)
+        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+
+    }
+
     private class GeocoderHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
@@ -465,6 +472,16 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                     ((FragAddEditAddress) currentFragment).llSearchMAPok.setVisibility(View.GONE);
                     return;
                 }
+                if (currentFragment instanceof FragDeviceMAP) {
+                    if (((FragDeviceMAP) currentFragment).llDialogLongPressDvc.getVisibility() == View.VISIBLE) {
+                        ((FragDeviceMAP) currentFragment).llDialogLongPressDvc.setVisibility(View.GONE);
+                        ((FragDeviceMAP) currentFragment).llIMWholeDesign.setVisibility(View.VISIBLE);
+                        return;
+                    }else if (((FragDeviceMAP) currentFragment).llDialogEditDvcName.getVisibility() == View.VISIBLE){
+                        return;
+                    }
+                }
+
                 if (currentFragment != null) {
                     super.onBackPressed();
 
@@ -489,9 +506,9 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
     }
 
-    private void backPressHeaderHandle(String tag) {
+    private void backPressHeaderHandle(String currentFragName) {
         //Setting title of current Fragment
-        tvToolbar_title.setText(tag);
+        tvToolbar_title.setText(currentFragName);
         //Except Add/Edit Fragment, this View will be gone
         if (tvClearEditData.getVisibility() == View.VISIBLE) {
             tvClearEditData.setVisibility(View.GONE);
@@ -500,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         if (llAddNewAddress.getVisibility() == View.VISIBLE) {
             llAddNewAddress.setVisibility(View.GONE);
         }
-        switch (tag) {
+        switch (currentFragName) {
             case AVAILABLE_DEVICE:
                 BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null) {
@@ -508,8 +525,9 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 }
                 break;
             case DEVICE_MAP:
-                /*if (!MySharedPreference.getInstance(this).getStringData(ADDRESS).equalsIgnoreCase(""))
-                    tvDesc_txt.setText(MySharedPreference.getInstance(this).getStringData(ADDRESS));*/
+               /* if (((FragDeviceMAP) currentFragment).llDialogLongPressDvc.getVisibility() == View.VISIBLE) {
+                    ((FragDeviceMAP) currentFragment).llDialogLongPressDvc.setVisibility(View.GONE);
+                }*/
                 break;
             case DEVICE_DETAILS:
                 bleAppLevel = BLEAppLevel.getInstanceOnly();

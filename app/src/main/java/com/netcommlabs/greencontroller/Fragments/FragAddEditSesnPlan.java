@@ -456,7 +456,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     //This method will automatically followed by loading new time points method
                     bleAppLevel.eraseOldTimePoints(FragAddEditSesnPlan.this, etDisPntsInt, etDurationInt, etWaterQuantWithDPInt, listSingleValveData);
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel);
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
                 }
             }
         });
@@ -2451,7 +2451,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }*/
 
     void saveValveDatatoDB() {
-        int numOfRowsAffected = databaseHandler.updateSesnTimePoints(clkdVlvUUID, 0, 0, 0);
+        int numOfRowsAffected = databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 0, 0, 0);
 
         if (numOfRowsAffected > 0) {
             for (int i = 0; i < listSingleValveData.size(); i++) {
@@ -2461,42 +2461,43 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 int dayOfWeekInt = dtm.getDayOfWeek();
                 switch (dayOfWeekInt) {
                     case 1:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 1, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 1, timePoint, timeSlot);
                         break;
                     case 2:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 2, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 2, timePoint, timeSlot);
                         break;
                     case 3:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 3, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 3, timePoint, timeSlot);
                         break;
                     case 4:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 4, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 4, timePoint, timeSlot);
                         break;
                     case 5:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 5, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 5, timePoint, timeSlot);
                         break;
                     case 6:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 6, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 6, timePoint, timeSlot);
                         break;
                     case 7:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 7, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 7, timePoint, timeSlot);
                 }
             }
             //Updating DP, Duration and Quantity separately
-            databaseHandler.updateValveDPDurationQuant(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
-            int rowAffected = databaseHandler.updateValveOpTpSPPStatus(clkdVlvUUID, "PLAY");
+            databaseHandler.updateValveDPDurationQuantTemp(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
+
+            databaseHandler.updateValveOpTpSPPStatus("",clkdVlvUUID, "PLAY");
 
             //Operation between Session Temp, Master and Log tables
             databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID);
 
-            if (rowAffected > 0) {
+            //if (rowAffected > 0) {
                 getTargetFragment().onActivityResult(
                         getTargetRequestCode(),
                         Activity.RESULT_OK,
                         new Intent().putExtra("dataKey", "Success")
                 );
                 getActivity().onBackPressed();
-            }
+            //}
         }
     }
 

@@ -16,6 +16,7 @@ import com.netcommlabs.greencontroller.Constants;
 import com.netcommlabs.greencontroller.Fragments.FragAddEditSesnPlan;
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
@@ -43,7 +44,7 @@ public class BLEAppLevel {
     private Fragment myFragment;
     //private static Fragment myFragmentDD;
     private boolean isBLEConnected = false;
-    private int alert_level;
+    private int alert_level, totalPlayValvesCount = 0, totalPauseValvesCount = 0, pauseIndex = 1, playIndex = 1;
     private String cmdTypeName;
     private static int dataSendingIndex = 0;
     private static boolean oldTimePointsErased = FALSE;
@@ -130,7 +131,7 @@ public class BLEAppLevel {
                 case BleAdapterService.GATT_DISCONNECT:
                     //we're disconnected
                     isBLEConnected = false;
-                    showMsg("DISCONNECTED_ACK");
+                    showMsg("Device disconnected");
                     mContext.MainActBLEgotDisconnected();
                     disconnectBLECompletely();
                     break;
@@ -208,6 +209,30 @@ public class BLEAppLevel {
                     //ACK for command button valve
                     if (bundle.get(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toString().toUpperCase().equals(BleAdapterService.COMMAND_CHARACTERISTIC_UUID)) {
                         Log.e("@@@@@@@@@@@@", "ACK for command valve");
+
+                        if (myFragment instanceof FragDeviceMAP) {
+                            if (cmdTypeName.equals("PAUSE")) {
+                                pauseIndex++;
+                                if (pauseIndex <= totalPlayValvesCount) {
+                                    cmdDvcPause(null, "", 0);
+                                } else {
+                                    ((FragDeviceMAP) myFragment).dvcLongPressBLEDone(cmdTypeName);
+                                }
+                            }
+                        }
+
+                        if (myFragment instanceof FragDeviceMAP) {
+                            if (cmdTypeName.equals("PLAY")) {
+                                playIndex++;
+                                if (playIndex <= totalPauseValvesCount) {
+                                    cmdDvcPlay(null, "", 0);
+                                } else {
+                                    ((FragDeviceMAP) myFragment).dvcLongPressBLEDone(cmdTypeName);
+                                }
+                            }
+                        }
+
+
                         if (myFragment instanceof FragDeviceDetails) {
 
                             if (cmdTypeName.equals("STOP")) {
@@ -262,6 +287,34 @@ public class BLEAppLevel {
             }
         }
     };
+
+    public void cmdDvcPause(FragDeviceMAP fragDeviceMAP, String cmdTypeName, int totalPlayValvesCount) {
+        if (fragDeviceMAP != null) {
+            myFragment = fragDeviceMAP;
+            this.cmdTypeName = cmdTypeName;
+            this.totalPlayValvesCount = totalPlayValvesCount;
+        }
+        // Command for PAUSE
+        byte[] valveCommand = {4};
+        bluetooth_le_adapter.writeCharacteristic(
+                BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
+                BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
+        );
+    }
+
+    public void cmdDvcPlay(FragDeviceMAP fragDeviceMAP, String cmdTypeName, int totalPauseValvesCount) {
+        if (fragDeviceMAP != null) {
+            myFragment = fragDeviceMAP;
+            this.cmdTypeName = cmdTypeName;
+            this.totalPauseValvesCount = totalPauseValvesCount;
+        }
+        // Command for PLAY
+        byte[] valveCommand = {2};
+        bluetooth_le_adapter.writeCharacteristic(
+                BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
+                BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
+        );
+    }
 
     private void showMsg(final String msg) {
         Log.d(Constants.TAG, msg);
@@ -358,8 +411,8 @@ public class BLEAppLevel {
         }
     }
 
-    public void cmdButtonMethod(FragDeviceDetails fragDeviceDetails, String cmdTypeName) {
-        myFragment = fragDeviceDetails;
+    public void cmdButtonMethod(Fragment cmdOriginFragment, String cmdTypeName) {
+        myFragment = cmdOriginFragment;
         this.cmdTypeName = cmdTypeName;
 
         if (cmdTypeName.equals("PLAY")) {
@@ -448,4 +501,6 @@ public class BLEAppLevel {
                 BleAdapterService.NEW_WATERING_TIME_POINT_CHARACTERISTIC_UUID, timePoint);
 
     }
+
+
 }

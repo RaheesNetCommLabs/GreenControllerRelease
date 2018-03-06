@@ -117,6 +117,7 @@ public class FragConnectedQR extends Fragment {
                     Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //No device name should be duplicate
                 if (databaseHandler.getAllDeviceName().size() > 0) {
                     for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
                         if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(dvcNameEdited)) {
