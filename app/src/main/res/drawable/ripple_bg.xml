@@ -4,7 +4,7 @@
     android:color="#E1E1E1">
 
    <!-- &lt;!&ndash; mask here... &ndash;&gt;
-    <item android:id="@android:id/mask">
+    <item andrdvcIdd:id="@andrdvcIdd:id/mask">
         <color android:color="@color/black"/> &lt;!&ndash; any color will do &ndash;&gt;
     </item>
 

@@ -1,4 +1,4 @@
-package com.netcommlabs.greencontroller.utilities;
+package com.netcommlabs.greencontroller.Dialogs;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 /**
  * Created by Netcomm on 9/16/2016.
@@ -40,6 +42,8 @@ public class AppAlertDialog {
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
 
     }
 
@@ -62,6 +66,8 @@ public class AppAlertDialog {
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
     public static void dialogBLENotConnected(final MainActivity mContext, final Fragment myRequestedFrag, final BLEAppLevel bleAppLevel) {

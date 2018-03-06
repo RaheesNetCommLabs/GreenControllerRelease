@@ -9,7 +9,7 @@
     tools:context="com.netcommlabs.greencontroller.Fragments.FragAddEditSesnPlan">
 
     <!-- <LinearLayout
-         android:id="@+id/llScrnHeader"
+         andrdvcIdd:iddvcId@+id/llScrnHeader"
          android:layout_width="match_parent"
          android:layout_height="?android:attr/actionBarSize"
          android:gravity="center_vertical">
@@ -20,7 +20,7 @@
              android:src="@drawable/back_arrow_circle" />
 
          <TextView
-             android:id="@+id/tvTitleTop"
+             andrdvcIdd:iddvcId@+id/tvTitleTop"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:layout_marginLeft="@dimen/_5sdp"
@@ -28,7 +28,7 @@
              android:textSize="@dimen/_14sdp" />
 
          <TextView
-             android:id="@+id/tvClearEditData"
+             andrdvcIdd:iddvcId@+id/tvClearEditData"
              android:layout_width="@dimen/_90sdp"
              android:layout_height="@dimen/_30sdp"
              android:background="@drawable/round_back_shadow_small"

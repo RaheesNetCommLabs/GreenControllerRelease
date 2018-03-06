@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
@@ -21,7 +21,7 @@ import org.json.JSONObject;
  * Created by Netcomm on 2/24/2018.
  */
 
-public class ActvityCheckRegisteredMobileNo extends Activity implements View.OnClickListener,ResponseListener {
+public class ActvityCheckRegisteredMobileNo extends Activity implements View.OnClickListener,APIResponseListener {
     private TextView tvSubmiMobile;
     private ProjectWebRequest request;
     private EditText et_mobile_no;

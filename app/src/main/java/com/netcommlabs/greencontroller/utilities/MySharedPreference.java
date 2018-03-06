@@ -3,6 +3,7 @@ package com.netcommlabs.greencontroller.utilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 
 /**
@@ -25,6 +26,9 @@ public class MySharedPreference {
 
 
     private final String MOBILE = "mobile";
+
+
+    private final String ADDRESSID = "address_id";
 
     public static MySharedPreference getInstance(Context mContext) {
         if (object == null) {
@@ -92,7 +96,6 @@ public class MySharedPreference {
     }
 
 
-
     public PreferenceModel getsharedPreferenceData() {
         PreferenceModel data = new PreferenceModel();
         data.setEmail(sharedpreferences.getString(EMAIL, null));
@@ -114,13 +117,39 @@ public class MySharedPreference {
     }
 
 
-
     public String getMOBILE() {
-        return sharedpreferences.getString(MOBILE,null);
+        return sharedpreferences.getString(MOBILE, null);
     }
-    public void  setMOBILE(String data){
+
+    public void setMOBILE(String data) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(MOBILE, data);
+        editor.commit();
+    }
+
+
+ /*   public String getADDRESSID() {
+        return sharedpreferences.getString(ADDRESSID, null);
+    }
+
+    public void setADDRESSID(String data) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ADDRESSID, data);
+        editor.commit();
+    }*/
+
+
+    public ModalAddressModule getADDRESSID()
+    {
+        ModalAddressModule modalAddressModule=new ModalAddressModule();
+        modalAddressModule.setAddressUUID(sharedpreferences.getString(ADDRESSID, null));
+        return modalAddressModule;
+    }
+
+    public void  setADDRESSID( ModalAddressModule modalAddressModule){
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ADDRESSID, modalAddressModule.getAddressUUID());
         editor.commit();
     }
 

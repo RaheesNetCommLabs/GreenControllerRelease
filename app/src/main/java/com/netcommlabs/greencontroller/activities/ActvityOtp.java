@@ -22,7 +22,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -36,7 +37,7 @@ import org.json.JSONObject;
  * Created by Netcomm on 2/1/2018.
  */
 
-public class ActvityOtp extends Activity implements View.OnClickListener, ResponseListener {
+public class ActvityOtp extends Activity implements View.OnClickListener, APIResponseListener {
     private LinearLayout ll_resnd_otp;
     private LinearLayout ll_timer_otp;
     private LinearLayout ll_veryfyOtp;

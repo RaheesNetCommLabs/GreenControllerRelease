@@ -29,7 +29,7 @@
             android:scaleType="fitXY" />
 
       <!--  <com.jpardogo.android.googleprogressbar.library.GoogleProgressBar
-             android:id="@+id/google_progress"
+             andrdvcIdd:iddvcId@+id/google_progress"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:layout_gravity="center"

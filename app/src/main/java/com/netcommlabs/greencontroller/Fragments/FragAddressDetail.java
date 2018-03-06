@@ -9,31 +9,42 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.model.PreferenceModel;
+import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+
+import org.json.JSONObject;
 
 /**
  * Created by Netcomm on 1/22/2018.
  */
 
-public class FragAddressDetail extends Fragment {
+public class FragAddressDetail extends Fragment implements APIResponseListener {
     private MainActivity mContext;
     private LinearLayout llBack, llEditAddress, llDelete;
-    public static final String ADDRESS_ID_KEY = "address_id_key";
-    private static int addressID;
+    public static final String ADDRESS_UUID_KEY = "address_uuid_key";
+    private static String addressUUID;
     private ModalAddressModule modalAddressModule;
     private ImageView ivAddressTypeIconAD;
     private TextView tvAddressTypeNameAD, tvFlatNum, tvStreetArea, tvLocalityLandmark, tvPincode, tvCity, tvState;
     private EditText et_flat_num, et_street_area, et_city, et_locality_landmark, et_pincode, et_state;
+    private ProjectWebRequest request;
+    private PreferenceModel preference;
+    private String AddressId;
 
     @Override
     public void onAttach(Context context) {
@@ -51,6 +62,7 @@ public class FragAddressDetail extends Fragment {
     }
 
     private void findView(View view) {
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
         ivAddressTypeIconAD = view.findViewById(R.id.ivAddressTypeIconAD);
         tvAddressTypeNameAD = view.findViewById(R.id.tvAddressTypeNameAD);
         tvFlatNum = view.findViewById(R.id.tvFlatNum);
@@ -65,8 +77,10 @@ public class FragAddressDetail extends Fragment {
     }
 
     private void initBaseNdListeners() {
-        addressID = getArguments().getInt(ADDRESS_ID_KEY, 0);
-        modalAddressModule = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressID);
+        addressUUID = getArguments().getString(ADDRESS_UUID_KEY, "");
+        modalAddressModule = MySharedPreference.getInstance(mContext).getADDRESSID();
+        //  AddressId=MySharedPreference.getInstance(mContext).getADDRESSID();
+        modalAddressModule = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
         updateUIUsingFetchedData();
 
         llBack.setOnClickListener(new View.OnClickListener() {
@@ -124,16 +138,13 @@ public class FragAddressDetail extends Fragment {
 
     public void dialogConfirmAddressDelete() {
         AlertDialog.Builder alBui = new AlertDialog.Builder(mContext);
-        alBui.setTitle("Confirm delete");
+        alBui.setTitle("Confirm Delete");
         alBui.setMessage("Sure to delete address permanently?");
         alBui.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteAddress(addressID);
-                if (deleteConfirm > 0) {
-                    Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
-                    mContext.onBackPressed();
-                }
+             /*   */
+                hitApiforDeleteAdd();
                 dialog.dismiss();
             }
         });
@@ -143,6 +154,73 @@ public class FragAddressDetail extends Fragment {
                 dialog.dismiss();
             }
         });
-        alBui.create().show();
+
+
+        AlertDialog alert = alBui.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(alert.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        alert.getWindow().setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
+
+    }
+
+    private void hitApiforDeleteAdd() {
+        try {
+            request = new ProjectWebRequest(mContext, getParam(), UrlConstants.ADD_ADDRESS, this, UrlConstants.ADD_ADDRESS_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private void clearRef() {
+        if (request != null) {
+            request = null;
+        }
+    }
+
+    private JSONObject getParam() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("userID", preference.getUser_id());
+            object.put("add_edit", "delete");
+            object.put("addressID", modalAddressModule.getAddressUUID());
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    @Override
+    public void onSuccess(JSONObject call, int Tag) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+
+            int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteAddress(addressUUID);
+            if (deleteConfirm > 0) {
+                Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
+                mContext.onBackPressed();
+            }
+
+            Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @Override
+    public void onFailure(String error, int Tag, String erroMsg) {
+
+    }
+
+    @Override
+    public void doRetryNow() {
+
     }
 }

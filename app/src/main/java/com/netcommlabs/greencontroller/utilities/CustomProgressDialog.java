@@ -37,14 +37,14 @@ public class CustomProgressDialog {
         dialog.setCancelable(false);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.loader_layout);
-       GifImageView img_load=(GifImageView)dialog.findViewById(R.id.img_load);
+        GifImageView img_load = (GifImageView) dialog.findViewById(R.id.img_load);
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.getWindow().setAttributes(lp);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-       Glide.with(mContext).load(R.mipmap.ic_launcher_round) .thumbnail(Glide.with(mContext).load(R.mipmap.ic_launcher_round)).crossFade().into(img_load);
+        Glide.with(mContext).load(R.mipmap.ic_launcher_round).thumbnail(Glide.with(mContext).load(R.mipmap.ic_launcher_round)).crossFade().into(img_load);
         dialog.show();
 
     }

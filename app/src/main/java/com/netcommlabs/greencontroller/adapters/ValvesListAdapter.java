@@ -12,11 +12,10 @@ import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
 import com.netcommlabs.greencontroller.R;
-import com.netcommlabs.greencontroller.model.MdlValveNameStateNdSelect;
-import com.netcommlabs.greencontroller.model.ModalValveBirth;
+import com.netcommlabs.greencontroller.model.ModalValveMaster;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Android on 11/1/2017.
@@ -29,18 +28,18 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
     private Context mContext;
     //private List<View> listViewsCollection;
     private DatabaseHandler databaseHandler;
-    private String dvcMacAdd;
-    private ModalValveBirth modalBLEValve;
+    //private String dvcMacAdd;
+    private ModalValveMaster modalBLEValve;
     private FragDeviceDetails fragDeviceDetails;
     //private int posiViewHolder = 0;
     //MdlValveNameStateNdSelect modalVlNameSelect1;
-    private ArrayList<MdlValveNameStateNdSelect> listMdlValveNameStateNdSelect;
+    private List<ModalValveMaster> listModalValveMaster;
 
-    public ValvesListAdapter(Context mContext, FragDeviceDetails fragDeviceDetails, String dvcMacAdd, ArrayList<MdlValveNameStateNdSelect> listMdlValveNameStateNdSelect) {
+    public ValvesListAdapter(Context mContext, FragDeviceDetails fragDeviceDetails, List<ModalValveMaster> listModalValveMaster) {
         this.mContext = mContext;
-        this.dvcMacAdd = dvcMacAdd;
+        //this.dvcMacAdd = dvcMacAdd;
         this.fragDeviceDetails = fragDeviceDetails;
-        this.listMdlValveNameStateNdSelect = listMdlValveNameStateNdSelect;
+        this.listModalValveMaster = listModalValveMaster;
         databaseHandler = DatabaseHandler.getInstance(mContext);
     }
 
@@ -65,28 +64,28 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        final MdlValveNameStateNdSelect mdlValveNameStateNdSelect = listMdlValveNameStateNdSelect.get(position);
+        final ModalValveMaster modalValveMaster = listModalValveMaster.get(position);
 
-        String vlvName = mdlValveNameStateNdSelect.getValveName();
-        String vlvSelected = mdlValveNameStateNdSelect.getValveSelected();
-        String vlvState = mdlValveNameStateNdSelect.getValveState();
+        String vlvName = modalValveMaster.getValveName();
+        int vlvSelected = modalValveMaster.getValveSelectStatus();
+        String valveOpTpSPP = modalValveMaster.getValveOpTpSPP();
 
         holder.tvValveName.setText(vlvName);
-        //modalBLEValve = databaseHandler.getValveDataAndProperties(dvcMacAdd, vlvName);
+        //modalBLEValve = databaseHandler.getValveSessionData(dvcMacAdd, vlvName);
 
-        //final boolean isValveSelected = mdlValveNameStateNdSelect.getValveSelected();
+        //final boolean isValveSelected = modalValveMaster.getValveSelected();
 
-        if (vlvSelected.equals("TRUE")) {
+        if (vlvSelected == 1) {
             holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow_select);
         } else {
             holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow);
         }
 
-        if (vlvState.equals("PLAY")) {
+        if (valveOpTpSPP.equals("PLAY")) {
             holder.ivColorDot.setBackgroundResource(R.drawable.circle_green);
-        } else if (vlvState.equals("PAUSE")) {
+        } else if (valveOpTpSPP.equals("PAUSE")) {
             holder.ivColorDot.setBackgroundResource(R.drawable.circle_yellow);
-        } else if (vlvState.equals("ERROR")) {
+        } else if (valveOpTpSPP.equals("ERROR")) {
             //holder.ivColorDot.setBackgroundResource(R.drawable.circle_red);
             Toast.makeText(mContext, "Dot color should be red", Toast.LENGTH_SHORT).show();
         } else {
@@ -98,27 +97,28 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
             @Override
             public void onClick(View v) {
                 //MdlValveNameStateNdSelect modalVlNameSelectClicked = FragDeviceDetails.listModalValveProperties.get(position);
-                String clickedVlvName = mdlValveNameStateNdSelect.getValveName();
+                //String clickedVlvName = modalValveMaster.getValveName();
                 //Converting all views FALSE
-                for (int i = 0; i < listMdlValveNameStateNdSelect.size(); i++) {
-                    listMdlValveNameStateNdSelect.get(i).setValveSelected("FALSE");
-                    databaseHandler.updateValveSelectStatus(dvcMacAdd, listMdlValveNameStateNdSelect.get(i).getValveName(), "FALSE");
+                for (int i = 0; i < listModalValveMaster.size(); i++) {
+                    listModalValveMaster.get(i).setValveSelectStatus(0);
+                    databaseHandler.updateValveSelectStatus(listModalValveMaster.get(i).getValveUUID(), 0);
                     //FragDeviceDetails.listModalValveProperties.get(i).setValveSelected(false);
                     //modalVlNameSelectFrEch.setValveSelected(false);
                     holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow);
                 }
                 //Item showing as selected
                 //modalVlNameSelect1 = listModalValveProperties.get(position);
-                String isValveSelected = mdlValveNameStateNdSelect.getValveSelected();
-                if (isValveSelected.equals("FALSE")) {
-                    listMdlValveNameStateNdSelect.get(position).setValveSelected("TRUE");
-                    databaseHandler.updateValveSelectStatus(dvcMacAdd, mdlValveNameStateNdSelect.getValveName(), "TRUE");
+                int isValveSelected = modalValveMaster.getValveSelectStatus();
+                if (isValveSelected == 0) {
+                    listModalValveMaster.get(position).setValveSelectStatus(1);
+                    databaseHandler.updateValveSelectStatus(listModalValveMaster.get(position).getValveUUID(), 1);
                 }
                 holder.llValveNameColor.setBackgroundResource(R.drawable.volve_bg_shadow_select);
                 notifyDataSetChanged();
                 //DB work for valve selection
-                modalBLEValve = databaseHandler.getValveDataAndProperties(dvcMacAdd, clickedVlvName);
-                fragDeviceDetails.clickedPassDataToParent(modalBLEValve, clickedVlvName);
+                //modalBLEValve = databaseHandler.getValveSessionData(dvcMacAdd, clickedVlvName);
+                //fragDeviceDetails.clickedPassDataToParent(modalBLEValve, clickedVlvName);
+                fragDeviceDetails.checkValveOPTYAndGOFurther(position);
 
             }
         });
@@ -133,7 +133,7 @@ public class ValvesListAdapter extends RecyclerView.Adapter<ValvesListAdapter.My
 
     @Override
     public int getItemCount() {
-        return listMdlValveNameStateNdSelect.size();
+        return listModalValveMaster.size();
     }
 
 }

@@ -9,7 +9,7 @@
     tools:context="com.netcommlabs.greencontroller.activities.AvailableDevices">
 
   <!--  <LinearLayout
-        android:id="@+id/llScrnHeader"
+        andrdvcIdd:iddvcId@+id/llScrnHeader"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:gravity="center_vertical">

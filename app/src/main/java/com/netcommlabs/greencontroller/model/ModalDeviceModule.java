@@ -7,7 +7,7 @@ package com.netcommlabs.greencontroller.model;
 public class ModalDeviceModule {
 
     //private variables
-    int id;
+    String dvcUUID;
     String dvcName;
     String dvcMacAddress;
     ModalAddressModule modalAddressModule;
@@ -21,15 +21,16 @@ public class ModalDeviceModule {
         this.valveNum = valveNum;
     }
 
-    public ModalDeviceModule(String dvcName, String dvcMacAddress, int valveNum) {
+    public ModalDeviceModule(String dvcUUID, String dvcName, String dvcMacAddress, int valveNum) {
+        this.dvcUUID = dvcUUID;
         this.dvcName = dvcName;
         this.dvcMacAddress = dvcMacAddress;
         this.valveNum = valveNum;
     }
 
     // constructor
-    public ModalDeviceModule(int id, String dvcName, String dvcMacAddress, ModalAddressModule modalAddressModule, int valveNum) {
-        this.id = id;
+    public ModalDeviceModule(String dvcUUID, String dvcName, String dvcMacAddress, ModalAddressModule modalAddressModule, int valveNum) {
+        this.dvcUUID = dvcUUID;
         this.dvcName = dvcName;
         this.dvcMacAddress = dvcMacAddress;
         this.modalAddressModule = modalAddressModule;
@@ -45,13 +46,13 @@ public class ModalDeviceModule {
     }
 
     // getting ID
-    public int getID() {
-        return this.id;
+    public String getDvcUUID() {
+        return this.dvcUUID;
     }
 
-    // setting id
-    public void setID(int id) {
-        this.id = id;
+    // setting dvcUUID
+    public void setDvcUUID(String dvcUUID) {
+        this.dvcUUID = dvcUUID;
     }
 
     // getting dvcName

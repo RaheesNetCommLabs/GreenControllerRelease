@@ -8,12 +8,16 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -40,6 +44,16 @@ import android.widget.Toast;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.netcommlabs.greencontroller.Fragments.FragAddEditAddress;
 import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.FragDashboardPebbleHome;
@@ -47,25 +61,25 @@ import com.netcommlabs.greencontroller.Fragments.FragDeviceDetails;
 import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
-import com.netcommlabs.greencontroller.Interfaces.LocationDecetor;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.adapters.NavListAdapter;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.CommonUtilities;
 import com.netcommlabs.greencontroller.utilities.Constant;
-import com.netcommlabs.greencontroller.utilities.GeocodingLocation;
-import com.netcommlabs.greencontroller.utilities.LocationUtils;
+import com.netcommlabs.greencontroller.utilities.InternetAvailability;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 import com.netcommlabs.greencontroller.utilities.RowDataArrays;
+import com.netcommlabs.greencontroller.utilities.TelephonyInfo;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.netcommlabs.greencontroller.utilities.Constant.ADDRESS_BOOK;
 import static com.netcommlabs.greencontroller.utilities.Constant.AVAILABLE_DEVICE;
@@ -73,7 +87,7 @@ import static com.netcommlabs.greencontroller.utilities.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.utilities.Constant.DEVICE_MAP;
 
-public class MainActivity extends AppCompatActivity implements LocationDecetor {
+public class MainActivity extends AppCompatActivity implements  GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 200;
     private MainActivity mContext;
@@ -105,9 +119,18 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
     public LinearLayout llAddNewAddress;
     private ImageView circularIVNav;
     private LinearLayout nav_header;
-   private PreferenceModel preference;
-   private TextView username_header;
+    private PreferenceModel preference;
+    private TextView username_header;
+    private String imeiSIM1,imeiSIM2;
+    public static final int RESOLUTION_REQUEST_LOCATION = 59;
+    public static final int PLACE_AC_REQUEST_CODE = 60;
+    private GoogleApiClient mGoogleApiClient;
+    private Location myLocation;
+    private LocationRequest mLocationRequest;
+    private ProgressDialog proDialog;
+    public double myLatitude, myLongitude;
 
+    private boolean checkNetStatus = false;
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,12 +138,16 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         setContentView(R.layout.activity_main);
 
         findLocalViews();
+
         initBase();
         initListeners();
+        gettingLocationWithProgressBar();
+        getIMEIRunAsync();
     }
 
     private void findLocalViews() {
         preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
+        proDialog=new ProgressDialog(MainActivity.this);
         frm_lyt_container_int = R.id.frm_lyt_container;
         rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
         llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
@@ -146,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         }
 
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
+
+
     }
 
     /* @Override public void onResume() {
@@ -194,7 +223,11 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         databaseHandler = DatabaseHandler.getInstance(mContext);
         //    databaseHandler.createActiveUser();
 
+
      /*   List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
+=======
+        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap("");
+>>>>>>> 9bf5698b060d935659284bafe1b6462fb0803ed1
         if (listAllDevices.size() > 0) {
             dvcMacAddress = listAllDevices.get(0).getDvcMacAddress();
             //myFragment = new Fragment();
@@ -243,52 +276,16 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
         //Adding first Fragment(FragDashboardPebbleHome)
         MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
-    }
-
-    void build() {
-        //msg.setText("");
-        if (mLastLocation != null) {
-            if (NetworkUtils.isConnected(this)) {
-                GeocodingLocation.getAddressFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), this, new GeocoderHandler());
-            } else {
-                AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-            }
-        } else
-            Toast.makeText(this, "Unable To get Location", Toast.LENGTH_SHORT).show();
 
 
-//        getAddressNow();
-    }
-
-    public void getLocation() {
-        if (checkGooglePlayServiceAvailability(this)) {
-            //buildProgress();
-            LocationUtils.getInstance(this, this);
-        }
     }
 
 
-    @Override
-    public void OnLocationChange(Location location) {
-      /*  if (progressDoalog.isShowing()) {
-            progressDoalog.dismiss();
-        }*/
-        mLastLocation = location;
-    }
+  
 
-    @Override
-    public void onErrors(String msg) {
-        if (progressDoalog != null) {
-            progressDoalog.dismiss();
-        }
-        //AppAlertDialog.showDialogSelfFinish(this, "Error", msg);
-    }
+  
 
-    @Override
-    protected void onStop() {
-        LocationUtils.getInstance(this, this).onStop();
-        super.onStop();
-    }
+
 
     public boolean checkGooglePlayServiceAvailability(Context context) {
         int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
@@ -313,12 +310,12 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         if (ContextCompat.checkSelfPermission(mContext,
                 Manifest.permission.ACCESS_FINE_LOCATION) + ContextCompat
                 .checkSelfPermission(mContext,
-                        Manifest.permission.CAMERA)
+                        Manifest.permission.CAMERA)+ContextCompat.checkSelfPermission(mContext,Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(mContext,
                     new String[]{Manifest.permission
-                            .ACCESS_FINE_LOCATION, Manifest.permission.CAMERA},
+                            .ACCESS_FINE_LOCATION, Manifest.permission.CAMERA,Manifest.permission.READ_PHONE_STATE},
                     PERMISSIONS_MULTIPLE_REQUEST);
         } else {
             //Toast.makeText(mContext, "All permissions already granted", Toast.LENGTH_SHORT).show();
@@ -342,12 +339,17 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 if (grantResults.length > 0) {
                     boolean fineLocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean phoneReadState=grantResults[2]==PackageManager.PERMISSION_GRANTED;
 
-                    if (fineLocation && cameraPermission) {
+                    if (fineLocation && cameraPermission && phoneReadState) {
                         //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
                         if (NetworkUtils.isConnected(this)) {
                             //Bluetooth work starts
                             startBTWork();
+
+
+                          /*  TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+                            getDeviceID(telephonyManager);*/
                         } else {
                             AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
                         }
@@ -361,6 +363,74 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
     }
 
+    private void gettingLocationWithProgressBar() {
+      /*  proDialog.setMessage("Please wait...");
+        proDialog.setCancelable(false);
+        proDialog.show();*/
+        //customProDia.showProgressBar();
+        if (checkGooglePlayServiceAvailability(MainActivity.this)) {
+            buildGoogleApiClient();
+        }
+    }
+
+    private void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+
+    private void getIMEIRunAsync() {
+        TelephonyInfo telephonyInfo = TelephonyInfo.getInstance(mContext);
+     imeiSIM1 = telephonyInfo.getImsiSIM1();
+        imeiSIM2 = telephonyInfo.getImsiSIM2();
+        if (imeiSIM2 == null) {
+            imeiSIM2 = "";
+        }
+        Log.v("IMEI STATUS\n", " IMEI-1 : " + imeiSIM1 + "\n" +
+                " IMEI-2 : " + imeiSIM2);
+
+    }
+
+/*
+    private String getDeviceID(TelephonyManager telephonyManager) {
+        String id = telephonyManager.getDeviceId(0);
+        String id2=telephonyManager.getDeviceId(1);
+
+
+
+     // String imsi=telephonyManager.getSubscriberId().toString();
+        if (id == null){
+            id = "not available";
+        }
+
+        int phoneType = telephonyManager.getPhoneType();
+        switch(phoneType){
+            case TelephonyManager.PHONE_TYPE_NONE:
+                return "NONE: " + id;
+
+            case TelephonyManager.PHONE_TYPE_GSM:
+                return "GSM: IMEI=" + id;
+
+            case TelephonyManager.PHONE_TYPE_CDMA:
+                return "CDMA: MEID/ESN=" + id;
+
+ *//*
+  *  for API Level 11 or above
+  *  case TelephonyManager.PHONE_TYPE_SIP:
+  *   return "SIP";
+  *//*
+
+            default:
+                return "UNKNOWN: ID=" + id;
+        }
+
+
+    }*/
+
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void startBTWork() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -370,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
         } else {
             if (mBluetoothAdapter.isEnabled()) {
                 //Now starts Location work
-                getLocation();
+              //  getLocation();
                 //startDvcDiscovery();
                 //Toast.makeText(mContext, "Bluetooth is enabled", Toast.LENGTH_SHORT).show();
                 return;
@@ -397,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             if (resultCode == Activity.RESULT_OK) {
                 Log.e("GGG ", "Bluetooth is enabled...");
                 //Now starts Location work
-                getLocation();
+           
                 //Toast.makeText(mContext, "Bluetooth is enabled...", Toast.LENGTH_SHORT).show();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(mContext, "Bluetooth enabling is mandatory", Toast.LENGTH_SHORT).show();
@@ -405,24 +475,20 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
             }
         }
 
-        if (requestCode == LocationUtils.LocationTag) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.e("GGG ", "GPS is enabled...");
-                //Toast.makeText(mContext, "GPS Enabled", Toast.LENGTH_SHORT).show();
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(mContext, "GPS enabling is mandatory", Toast.LENGTH_SHORT).show();
-                finish();
+        if (requestCode == RESOLUTION_REQUEST_LOCATION) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    startGettingLocation();
+                    break;
+                case Activity.RESULT_CANCELED:
+                    Toast.makeText(this, "Enabling GPS is mandatory", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
             }
         }
     }
 
-    void buildProgress() {
-        progressDoalog = new ProgressDialog(MainActivity.this);
-        progressDoalog.setMessage("Please wait....");
-        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDoalog.setCancelable(false);
-        progressDoalog.show();
-    }
+
 
     public void MainActBLEgotDisconnected() {
         currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
@@ -469,34 +535,133 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
 
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest().create();
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, listener);
+        checkResolutionAndProceed();
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+    private void checkResolutionAndProceed() {
+        checkNetStatus = InternetAvailability.getInstance(this).isOnline();
+        if (!checkNetStatus) {
+            Toast.makeText(this, "Kindly check your network connectivity", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
+        builder.setAlwaysShow(true);
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        startGettingLocation();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            status.startResolutionForResult(MainActivity.this, RESOLUTION_REQUEST_LOCATION);
+                        } catch (IntentSender.SendIntentException e) {
+                        }
+                        break;
+                }
+            }
+        });
+    }
+
+    private void startGettingLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener);
+        startServices();
+    }
+
+    LocationListener listener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            myLocation = location;
+
+            Log.v("@LOCCHANGED", "YES");
+        }
+    };
+
+    void startServices() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (myLocation != null) {
+                    myLatitude = myLocation.getLatitude();
+                    myLongitude = myLocation.getLongitude();
+                    latLongToAddress(myLatitude, myLongitude);
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                        mGoogleApiClient.disconnect();
+                        buildGoogleApiClient();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private String latLongToAddress(double lat, double lng) {
+        myLatitude = lat;
+        myLongitude = lng;
+
+        Geocoder geocoder;
+        List<Address> addresses;
+        String addressUserFriendly = "", city = "", area = "";
+
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+
+        try {
+            // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+            addresses = geocoder.getFromLocation(myLatitude, myLongitude, 1);
+
+            city = addresses.get(0).getLocality();
+            area = addresses.get(0).getSubLocality();
+            addressUserFriendly = area + " " + city;
+
+            Toast.makeText(mContext, ""+addressUserFriendly, Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+          //  new CustomProgressDialog(MainActivity.this, e, "No Location Found", "Please check internet stability or move to different place and retry").show();
+            mGoogleApiClient.disconnect();
+            //gettingLocationWithProgressBar();
+            e.printStackTrace();
+            //Toast.makeText(this, "Something went wrong, try again later, IOException", Toast.LENGTH_SHORT).show();
+        } finally {
+           /* if (proDialog.isShowing()) {
+                proDialog.dismiss();
+            }*/
+        }
+        return addressUserFriendly;
+
+    }
 
     /* public void CallBackForProfile() {
          MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
      }
  */
-    private class GeocoderHandler extends Handler {
-        @Override
-        public void handleMessage(Message message) {
-            String locationAddress;
-            switch (message.what) {
-                case 1:
-                    Bundle bundle = message.getData();
-                    locationAddress = bundle.getString("address");
-                    break;
-                default:
-                    locationAddress = null;
-            }
-            usersAddress = locationAddress;
-//            Toast.makeText(MainActivity.this,usersAddress,Toast.LENGTH_LONG).show();
-            Log.e("ADdRESSSSSS", usersAddress);
-            //markdayOffOrPunchIn();
-
-            if (progressDoalog != null) {
-                progressDoalog.dismiss();
-            }
-        }
-    }
-
+   
 
     public String getActiveFragment() {
         if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
@@ -604,6 +769,7 @@ public class MainActivity extends AppCompatActivity implements LocationDecetor {
                 break;
         }
     }
+
 
 
    /* @Override

@@ -31,9 +31,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+
+
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
+
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
@@ -59,7 +63,7 @@ import static android.app.Activity.RESULT_OK;
  * Created by Android on 12/7/2017.
  */
 
-public class FragMyProfile extends Fragment implements View.OnClickListener, ResponseListener {
+public class FragMyProfile extends Fragment implements View.OnClickListener, APIResponseListener {
     private ProjectWebRequest request;
     private MainActivity mContext;
     private View view;

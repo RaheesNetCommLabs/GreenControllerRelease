@@ -31,9 +31,9 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
     //private DatabaseHandler databaseHandler;
     private ModalAddressModule modalAddressModule;
 
-    public AdapterAddressBook(MainActivity mContext,List<ModalAddressModule> listModalAddressModule) {
+    public AdapterAddressBook(MainActivity mContext, List<ModalAddressModule> listModalAddressModule) {
         this.mContext = mContext;
-        this.listModalAddressModule=listModalAddressModule;
+        this.listModalAddressModule = listModalAddressModule;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -62,7 +62,7 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
     @Override
     public void onBindViewHolder(final AdapterAddressBook.MyViewHolder holder, final int position) {
         modalAddressModule = listModalAddressModule.get(position);
-        ModalDeviceModule modalDeviceModule = DatabaseHandler.getInstance(mContext).getDeviceNdValveNumAtAddress(modalAddressModule.getAddressID());
+        ModalDeviceModule modalDeviceModule = DatabaseHandler.getInstance(mContext).getDeviceNdValveNumAtAddress(modalAddressModule.getAddressUUID());
 
         String addressRadioName = modalAddressModule.getAddressRadioName();
         if (addressRadioName.equalsIgnoreCase("Home")) {
@@ -91,7 +91,7 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
             public void onClick(View v) {
                 FragAddressDetail fragAddressDetail = new FragAddressDetail();
                 Bundle bundle = new Bundle();
-                bundle.putInt(FragAddressDetail.ADDRESS_ID_KEY, listModalAddressModule.get(position).getAddressID());
+                bundle.putString(FragAddressDetail.ADDRESS_UUID_KEY, listModalAddressModule.get(position).getAddressUUID());
                 fragAddressDetail.setArguments(bundle);
                 MyFragmentTransactions.replaceFragment(mContext, fragAddressDetail, Constant.ADDRESS_DETAIL, mContext.frm_lyt_container_int, true);
             }

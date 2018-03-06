@@ -13,37 +13,51 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
+    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
     <application
         android:name="com.netcommlabs.greencontroller.utilities.AppController"
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+
         android:theme="@style/FullScreen">
+
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize|keyboard"
             android:screenOrientation="landscape">
+
             <!--  <intent-filter>
                    <action android:name="android.intent.action.MAIN" />
 
                    <category android:name="android.intent.category.LAUNCHER" />
-               </intent-filter>-->
+
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+>
         </activity>
         <activity
             android:name=".activities.LoginAct"
             android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+           -->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
         <activity
-            android:name=".activities.ActvityOtp"
-            android:screenOrientation="landscape"></activity>
+            android:name=".activities.LoginAct"
+            android:screenOrientation="landscape">
+   <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
         <activity
             android:name=".activities.AddAddressActivity"
             android:screenOrientation="landscape"></activity>

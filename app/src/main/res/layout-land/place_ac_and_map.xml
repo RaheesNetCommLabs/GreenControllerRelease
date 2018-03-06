@@ -6,7 +6,7 @@
     tools:context="com.netcommlabs.greencontroller.activities.PlaceACTandMap">
 
     <!--<Button
-        android:id="@+id/btnACACT"
+        andrdvcIdd:iddvcId@+id/btnACACT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Trigger AU Act" />-->

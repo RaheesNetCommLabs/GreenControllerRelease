@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-import com.netcommlabs.greencontroller.Interfaces.ResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -25,7 +25,7 @@ import org.json.JSONObject;
  * Created by Netcomm on 2/15/2018.
  */
 
-public class RegistraionActivity extends Activity implements View.OnClickListener, ResponseListener {
+public class RegistraionActivity extends Activity implements View.OnClickListener, APIResponseListener {
     private EditText edtName;
     private EditText edtPhoneNo;
     private EditText edtEmail;
@@ -113,11 +113,10 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
             return;
         }
 
-        hitApiForSignup();
+        hitApiForRegistration();
     }
 
-    private void hitApiForSignup() {
-
+    private void hitApiForRegistration() {
         try {
             request = new ProjectWebRequest(this, getParamForSignup(), UrlConstants.REGISTERATION, this, UrlConstants.REGISTERATION_TAG);
             request.execute();
@@ -156,8 +155,8 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
                 i.putExtra("mobile",edtPhoneNo.getText().toString());
                 startActivity(i);
 
-            }else {
-                Toast.makeText(this, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "" + obj.optString("message"), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -175,7 +174,7 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
     @Override
     public void doRetryNow() {
         clearRef();
-        hitApiForSignup();
+        hitApiForRegistration();
     }
 
 

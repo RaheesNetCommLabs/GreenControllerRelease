@@ -20,12 +20,12 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.ValvesListAdapter;
-import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.model.MdlValveNameStateNdSelect;
-import com.netcommlabs.greencontroller.model.ModalValveBirth;
+import com.netcommlabs.greencontroller.model.ModalValveMaster;
+import com.netcommlabs.greencontroller.model.ModalValveSessionData;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
@@ -36,7 +36,7 @@ import java.util.List;
  * Created by Android on 12/6/2017.
  */
 
-public class FragDeviceDetails extends Fragment{
+public class FragDeviceDetails extends Fragment {
 
     private MainActivity mContext;
     private View view;
@@ -49,13 +49,15 @@ public class FragDeviceDetails extends Fragment{
     private LinearLayout llEditValve, llStopValve, llPausePlayValve, llFlushValve, llHelpValve;
     private TextView tvDeviceName, tvDesc_txt, tvAddNewSesnPlan;
     private DatabaseHandler databaseHandler;
-    private ArrayList<DataTransferModel> listAddEditValveData;
+    private ArrayList<ModalValveSessionData> listValveSessionData;
+    public static final String EXTRA_ADDRESS_ID = "address_id";
+    public static final String EXTRA_DVC_ID = "dvc_id";
     public static final String EXTRA_DVC_NAME = "dvc_name";
     public static final String EXTRA_DVC_MAC = "dvc_mac";
     public static final String EXTRA_DVC_VALVE_COUNT = "dvc_count";
     private String dvcName;
-    private String dvcMacAdd;
-    private int dvcValveCount;
+    private String dvcMacAdd, dvcUUID;
+    private int dvcValveCount, addressID;
     private String valveConctName, clickedValveName;
     private TextView tvSunFirst, tvSunSecond, tvSunThird, tvSunFourth, tvMonFirst, tvMonSecond, tvMonThird, tvMonFourth, tvTueFirst, tvTueSecond, tvTueThird, tvTueFourth, tvWedFirst, tvWedSecond, tvWedThird, tvWedFourth, tvThuFirst, tvThuSecond, tvThuThird, tvThuFourth, tvFriFirst, tvFriSecond, tvFriThird, tvFriFourth, tvSatFirst, tvSatSecond, tvSatThird, tvSatFourth;
     private TextView tvDischargePnts, tvDuration, tvQuantity, tvPauseText;
@@ -69,7 +71,12 @@ public class FragDeviceDetails extends Fragment{
     private boolean isValveSelected = true;
     BLEAppLevel bleAppLevel;
     private Fragment myRequestedFrag;
-    private ModalValveBirth modalBLEValve;
+    private ModalValveMaster modalBLEValve;
+    private List<ModalValveMaster> listValveMaster;
+    private int scrlToSelectedPosi;
+    private String clickedVlvUUID;
+    private String valveOpTpSPP = "";
+    private String flushOnOffStatus = "";
 
     @Override
     public void onAttach(Context context) {
@@ -142,12 +149,15 @@ public class FragDeviceDetails extends Fragment{
     }
 
     private void initBase() {
-        databaseHandler=DatabaseHandler.getInstance(mContext);
-        //Getting sent intent
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        //Getting sent Bundle
         Bundle bundle = getArguments();
+        addressID = bundle.getInt(EXTRA_ADDRESS_ID);
+        dvcUUID = bundle.getString(EXTRA_DVC_ID);
         dvcName = bundle.getString(EXTRA_DVC_NAME);
         dvcMacAdd = bundle.getString(EXTRA_DVC_MAC);
         dvcValveCount = bundle.getInt(EXTRA_DVC_VALVE_COUNT);
+
         myRequestedFrag = FragDeviceDetails.this;
         tvDeviceName = mContext.tvToolbar_title;
         tvDesc_txt = mContext.tvDesc_txt;
@@ -162,24 +172,30 @@ public class FragDeviceDetails extends Fragment{
         dvcValveCount = 8;*/
         tvDeviceName.setText(dvcName);
 
-        //Adding valve name,MAC, and valve data to DB
-        List<ModalValveBirth> listGotModalBLEValvesNdData = databaseHandler.getAllValvesNdData();
-
-        if (listGotModalBLEValvesNdData.size() == 0) {
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        //List<ModalValveMaster> listValveMaster = databaseHandler.getAllValvesNdData();
+        listValveMaster = databaseHandler.getValveMaster();
+        if (listValveMaster.size() == 0) {
             for (int i = 1; i <= dvcValveCount; i++) {
                 valveConctName = "Valve " + i;
                 //Birth of valves one after one
                 if (valveConctName.equals("Valve 1")) {
                     //On birth first valve would be selected
-                    databaseHandler.setValveDataNdPropertiesBirth(new ModalValveBirth(dvcMacAdd, valveConctName, listAddEditValveData, "TRUE", "STOP", "FALSE"));
+                    databaseHandler.insertValveMaster(dvcUUID, new ModalValveMaster(valveConctName, 1, "STOP", "FLUSH OFF", 1));
+                    //databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "TRUE", "STOP", "FALSE"));
                 } else {
-                    databaseHandler.setValveDataNdPropertiesBirth(new ModalValveBirth(dvcMacAdd, valveConctName, listAddEditValveData, "FALSE", "STOP", "FALSE"));
+                    //databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "FALSE", "STOP", "FALSE"));
+                    databaseHandler.insertValveMaster(dvcUUID, new ModalValveMaster(valveConctName, 0, "STOP", "FLUSH OFF", 1));
                 }
             }
             initValveListAdapter();
             //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
         } else {
-            for (ModalValveBirth modalBLEValve : listGotModalBLEValvesNdData) {
+            //list(Table) Valve Master contains data
+            initValveListAdapter();
+        }
+            /*else {
+            for (ModalValveMaster modalBLEValve : listValveMaster) {
                 if (modalBLEValve.getDvcMacAddrs().equalsIgnoreCase(dvcMacAdd)) {
                     //List for Valve RecyclerView to show valves
                     initValveListAdapter();
@@ -191,9 +207,9 @@ public class FragDeviceDetails extends Fragment{
                         //Birth of valves one after one
                         if (valveConctName.equals("Valve 1")) {
                             //On birth first valve would be selected
-                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveBirth(dvcMacAdd, valveConctName, listAddEditValveData, "TRUE", "STOP", "FALSE"));
+                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "TRUE", "STOP", "FALSE"));
                         } else {
-                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveBirth(dvcMacAdd, valveConctName, listAddEditValveData, "FALSE", "STOP", "FALSE"));
+                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "FALSE", "STOP", "FALSE"));
                         }
                     }
                     initValveListAdapter();
@@ -201,7 +217,8 @@ public class FragDeviceDetails extends Fragment{
                     break;
                 }
             }
-        }
+        }*/
+    }
 
        /* if (FragDeviceDetails.listModalValveProperties != null && FragDeviceDetails.listModalValveProperties.size() > 0) {
             LinearLayoutManager gridLayoutManager = new LinearLayoutManager(mContext);
@@ -209,12 +226,12 @@ public class FragDeviceDetails extends Fragment{
             valveListAdp = new ValvesListAdapter(mContext, FragDeviceDetails.this, dvcMacAdd, position);
             reviValvesList.setAdapter(valveListAdp);
         } else {*/
-        initValveListAdapter();
-        //}
+    //initValveListAdapter();
+    //}
 
 
-        //databasHandler.deleteAllRecordFromTable();
-        //listDataTransferModels = databasHandler.getListDataTM();
+    //databasHandler.deleteAllRecordFromTable();
+    //listDataTransferModels = databasHandler.getListDataTM();
 
        /* if (listDataTransferModels != null && listDataTransferModels.size() > 0) {
             llNoSesnPlan.setVisibility(View.GONE);
@@ -223,77 +240,62 @@ public class FragDeviceDetails extends Fragment{
             llNoSesnPlan.setVisibility(View.VISIBLE);
             llSesnPlanDetails.setVisibility(View.GONE);
         }*/
-        modalBLEValve = databaseHandler.getValveDataAndProperties(dvcMacAdd, clickedValveName);
-        //if (modalBLEValve != null) {
-        checkValveDataUpdtUIFrmDB();
-        //}
+    //modalBLEValve = databaseHandler.getValveSessionData(dvcMacAdd, clickedValveName);
+    //if (modalBLEValve != null) {
+       /* String valveOpTpSPP = listValveMaster.get(scrlToSelectedPosi).getValveOpTpSPP();
+        if (valveOpTpSPP.equals("STOP")) {
+            llNoSesnPlan.setVisibility(View.VISIBLE);
+            llSesnPlanDetails.setVisibility(View.GONE);
+        } else {
+            llNoSesnPlan.setVisibility(View.GONE);
+            llSesnPlanDetails.setVisibility(View.VISIBLE);
+            checkValveDataUpdtUIFrmDB();
+        }*/
 
-        //initController();
-    }
+    //}
+
+    //initController();
+
 
     private void initListeners() {
-        llEditValve.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragAddEditSesnPlan fragAddEditSesnPlan = new FragAddEditSesnPlan();
-                Bundle bundle = new Bundle();
-                bundle.putString(FragAddEditSesnPlan.EXTRA_NAME, dvcName);
-                bundle.putString(FragAddEditSesnPlan.EXTRA_ID, dvcMacAdd);
-                bundle.putString(FragAddEditSesnPlan.EXTRA_VALVE_NAME_DB, clickedValveName);
-                bundle.putSerializable(FragAddEditSesnPlan.EXTRA_VALVE_EDITABLE_DATA, listAddEditValveData);
-                bundle.putString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE, "Edit");
-                //bundle.putString(AddEditSessionPlan.EXTRA_NAME, dvcName);
-                fragAddEditSesnPlan.setArguments(bundle);
-                fragAddEditSesnPlan.setTargetFragment(FragDeviceDetails.this, 101);
-                //Adding Fragment(FragAddEditSesnPlan)
-                titleDynamicAddEdit = "Edit ".concat("Plane (").concat(clickedValveName).concat(")");
-                MyFragmentTransactions.replaceFragment(mContext, fragAddEditSesnPlan, titleDynamicAddEdit, mContext.frm_lyt_container_int, true);
-
-                /*Intent intentAddNewSesnPln = new Intent(mContext, AddEditSessionPlan.class);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_NAME, dvcName);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_ID, dvcMacAdd);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_VALVE_NAME_DB, clickedValveName);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_VALVE_EDITABLE_DATA, listAddEditValveData);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_OPERATION_TYPE, "Edit");
-                startActivityForResult(intentAddNewSesnPln, REQUEST_CODE_SESN_PLAN);*/
-            }
-        });
-
         tvAddNewSesnPlan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragAddEditSesnPlan fragAddEditSesnPlan = new FragAddEditSesnPlan();
+
                 Bundle bundle = new Bundle();
                 bundle.putString(FragAddEditSesnPlan.EXTRA_NAME, dvcName);
                 bundle.putString(FragAddEditSesnPlan.EXTRA_ID, dvcMacAdd);
                 bundle.putString(FragAddEditSesnPlan.EXTRA_VALVE_NAME_DB, clickedValveName);
-                //bundle.putSerializable(AddEditSessionPlan.EXTRA_VALVE_EDITABLE_DATA, listAddEditValveData);
+                bundle.putString(FragAddEditSesnPlan.EXTRA_VALVE_UUID, clickedVlvUUID);
                 bundle.putString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE, "Add");
-                //bundle.putString(AddEditSessionPlan.EXTRA_NAME, dvcName);
                 fragAddEditSesnPlan.setArguments(bundle);
                 fragAddEditSesnPlan.setTargetFragment(FragDeviceDetails.this, 101);
                 titleDynamicAddEdit = "Add ".concat("Plane (").concat(clickedValveName).concat(")");
                 //Adding Fragment(FragAvailableDevices)
                 MyFragmentTransactions.replaceFragment(mContext, fragAddEditSesnPlan, titleDynamicAddEdit, mContext.frm_lyt_container_int, true);
+            }
+        });
 
-              /*  Intent intentAddNewSesnPln = new Intent(mContext, AddEditSessionPlan.class);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_NAME, dvcName);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_ID, dvcMacAdd);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_VALVE_NAME_DB, clickedValveName);
-                intentAddNewSesnPln.putExtra(AddEditSessionPlan.EXTRA_OPERATION_TYPE, "Add");
-                startActivityForResult(intentAddNewSesnPln, REQUEST_CODE_SESN_PLAN);*/
+        llEditValve.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragAddEditSesnPlan fragAddEditSesnPlan = new FragAddEditSesnPlan();
 
-               /* if (bluetooth_le_adapter.isConnected()) {
-                    try {
-                        bluetooth_le_adapter.disconnect();
-                    } catch (Exception e) {
-                    }
-                }
-                unbindService(service_connection);
-                bluetooth_le_adapter = null;*/
-                //super.onDestroy();
-                //startActivity(intentAddNewSesnPln);
-                //finish();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragAddEditSesnPlan.EXTRA_NAME, dvcName);
+                bundle.putString(FragAddEditSesnPlan.EXTRA_ID, dvcMacAdd);
+                bundle.putString(FragAddEditSesnPlan.EXTRA_VALVE_NAME_DB, clickedValveName);
+                bundle.putString(FragAddEditSesnPlan.EXTRA_VALVE_UUID, clickedVlvUUID);
+                bundle.putSerializable(FragAddEditSesnPlan.EXTRA_VALVE_EDITABLE_DATA, listValveSessionData);
+                bundle.putString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE, "Edit");
+
+                fragAddEditSesnPlan.setArguments(bundle);
+                fragAddEditSesnPlan.setTargetFragment(FragDeviceDetails.this, 101);
+                //Adding Fragment(FragAddEditSesnPlan)
+                titleDynamicAddEdit = "Edit ".concat("Plane (").concat(clickedValveName).concat(")");
+
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditSesnPlan, titleDynamicAddEdit, mContext.frm_lyt_container_int, true);
             }
         });
 
@@ -339,104 +341,268 @@ public class FragDeviceDetails extends Fragment{
     }
 
     private void initValveListAdapter() {
-        int scrlToSelectedPosi = 0;
-        listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
+        if (listValveMaster.size() == 0) {
+            listValveMaster = databaseHandler.getValveMaster();
+        }
+        scrlToSelectedPosi = 0;
+        //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
         //Getting selected valve on page load
-        for (int i = 0; i < listMdlValveNameStateNdSelect.size(); i++) {
-            if (listMdlValveNameStateNdSelect.get(i).getValveSelected().equals("TRUE")) {
-                clickedValveName = listMdlValveNameStateNdSelect.get(i).getValveName();
+        for (int i = 0; i < listValveMaster.size(); i++) {
+            if (listValveMaster.get(i).getValveSelectStatus() == 1) {
+                //clickedValveName = listValveMaster.get(i).getValveName();
+                //clickedVlvUUID = listValveMaster.get(i).getValveUUID();
+                //valveOpTpSPP = listValveMaster.get(i).getValveOpTpSPP();
                 scrlToSelectedPosi = i;
                 break;
             }
         }
 
-        if (listMdlValveNameStateNdSelect != null && listMdlValveNameStateNdSelect.size() > 0) {
+        if (listValveMaster != null && listValveMaster.size() > 0) {
             LinearLayoutManager gridLayoutManager = new LinearLayoutManager(mContext);
             reviValvesList.setLayoutManager(gridLayoutManager);
-            valveListAdp = new ValvesListAdapter(mContext, FragDeviceDetails.this, dvcMacAdd, listMdlValveNameStateNdSelect);
+            valveListAdp = new ValvesListAdapter(mContext, FragDeviceDetails.this, listValveMaster);
             reviValvesList.setAdapter(valveListAdp);
+
+            //Scroll to selected position
+            reviValvesList.smoothScrollToPosition(scrlToSelectedPosi);
+            checkValveOPTYAndGOFurther(scrlToSelectedPosi);
         }
-        //Scroll to selected position
-        reviValvesList.smoothScrollToPosition(scrlToSelectedPosi);
     }
 
-    private void checkValveDataUpdtUIFrmDB() {
+    public void checkValveOPTYAndGOFurther(int selectedValvePosition) {
+        clickedVlvUUID = listValveMaster.get(selectedValvePosition).getValveUUID();
+        clickedValveName = listValveMaster.get(selectedValvePosition).getValveName();
+        valveOpTpSPP = listValveMaster.get(selectedValvePosition).getValveOpTpSPP();
+        flushOnOffStatus = listValveMaster.get(selectedValvePosition).getValveOpTpFlushONOFF();
+
+        if (valveOpTpSPP.equals("STOP")) {
+            llNoSesnPlan.setVisibility(View.VISIBLE);
+            llSesnPlanDetails.setVisibility(View.GONE);
+        } else {
+            llNoSesnPlan.setVisibility(View.GONE);
+            llSesnPlanDetails.setVisibility(View.VISIBLE);
+            clickedVlvUUID = listValveMaster.get(selectedValvePosition).getValveUUID();
+            //checkValveDataUpdtUIFrmDB();
+            setValveAndItsSesnDataToUI();
+        }
+    }
+
+   /* private void checkValveDataUpdtUIFrmDB() {
         if (modalBLEValve != null && modalBLEValve.getListValveData() != null && modalBLEValve.getListValveData().size() > 0) {
             llNoSesnPlan.setVisibility(View.GONE);
-            setValveDataToUI();
+            setValveAndItsSesnDataToUI();
         } else {
             llNoSesnPlan.setVisibility(View.VISIBLE);
             llSesnPlanDetails.setVisibility(View.GONE);
         }
-    }
+    }*/
 
-    private void setValveDataToUI() {
-        setTimePntsVisibilityGONE();
-        llSesnPlanDetails.setVisibility(View.VISIBLE);
+    private void setValveAndItsSesnDataToUI() {
+        //llSesnPlanDetails.setVisibility(View.VISIBLE);
         //initListeners();
-        String valveState = modalBLEValve.getValveState();
-        String flushStatus = modalBLEValve.getFlushStatus();
+        //String valveOpTpSPP = modalBLEValve.getValveOpTpSPP();
+        //String flushStatus = modalBLEValve.getFlushStatus();
         //PLAY-PAUSE & FLUSH effect for valve load on UI
-        if (valveState.equals("PLAY")) {
+        if (valveOpTpSPP.equals("PLAY")) {
             tvPauseText.setText("Pause");
             llEditValve.setEnabled(true);
             this.cmdName = "PAUSE";
-        } else if (valveState.equals("PAUSE")) {
+        } else if (valveOpTpSPP.equals("PAUSE")) {
             tvPauseText.setText("Play");
             llEditValve.setEnabled(false);
             this.cmdName = "PLAY";
         }
-        if (flushStatus.equals("TRUE")) {
+        if (flushOnOffStatus.equals("FLUSH ON")) {
             Toast.makeText(mContext, "This valve FLUSH is activated", Toast.LENGTH_SHORT).show();
         }
+        setTimePntsVisibilityGONE();
+        listValveSessionData = databaseHandler.getValveSessionData(clickedVlvUUID);
+        //listValveSessionData = modalBLEValve.getListValveData();
+        /*if (listValveSessionData == null || listValveSessionData.size() == 0) {
+            return;
+        }*/
 
-        DataTransferModel dataTransferModel;
-        listTimePntsSun = new ArrayList<>();
+        //ModalValveSessionData modalValveSessionData;
+       /* listTimePntsSun = new ArrayList<>();
         listTimePntsMon = new ArrayList<>();
         listTimePntsTue = new ArrayList<>();
         listTimePntsWed = new ArrayList<>();
         listTimePntsThu = new ArrayList<>();
         listTimePntsFri = new ArrayList<>();
-        listTimePntsSat = new ArrayList<>();
+        listTimePntsSat = new ArrayList<>();*/
         int dischargePnts = 0, duration = 0, quantity = 0;
 
-        listAddEditValveData = modalBLEValve.getListValveData();
-        if (listAddEditValveData == null || listAddEditValveData.size() == 0) {
-            return;
-        }
+        for (int i = 0; i < listValveSessionData.size(); i++) {
+            ModalValveSessionData mvsd = listValveSessionData.get(i);
 
-        for (int i = 0; i < listAddEditValveData.size(); i++) {
-            dataTransferModel = listAddEditValveData.get(i);
+            dischargePnts = mvsd.getSessionDP();
+            duration = mvsd.getSessionDuration();
+            quantity = mvsd.getSessionQuantity();
 
-            dischargePnts = dataTransferModel.getDischarge();
-            duration = dataTransferModel.getDuration();
-            if (dischargePnts!=0){
-                quantity = dataTransferModel.getQty()/dischargePnts;
-            }else {
-                quantity = dataTransferModel.getQty();
+            tvDischargePnts.setText(dischargePnts + " Unit");
+            tvDuration.setText(duration + " Min");
+            tvQuantity.setText(quantity + " ML");
+
+            if (mvsd.getSesnSlotNum() == 1) {
+                //String sungTP=mvsd.getSunTP();
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunFirst.setVisibility(View.VISIBLE);
+                    tvSunFirst.setText(mvsd.getSunTP());
+                }
+                //String monTP=mvsd.getMonTP();
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonFirst.setVisibility(View.VISIBLE);
+                    tvMonFirst.setText(mvsd.getMonTP());
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueFirst.setVisibility(View.VISIBLE);
+                    tvTueFirst.setText(mvsd.getTueTP());
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedFirst.setVisibility(View.VISIBLE);
+                    tvWedFirst.setText(mvsd.getWedTP());
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuFirst.setVisibility(View.VISIBLE);
+                    tvThuFirst.setText(mvsd.getThuTP());
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriFirst.setVisibility(View.VISIBLE);
+                    tvFriFirst.setText(mvsd.getFriTP());
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatFirst.setVisibility(View.VISIBLE);
+                    tvSatFirst.setText(mvsd.getSatTP());
+                }
+                continue;
+            }
+
+            if (mvsd.getSesnSlotNum() == 2) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunSecond.setVisibility(View.VISIBLE);
+                    tvSunSecond.setText(mvsd.getSunTP());
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonSecond.setVisibility(View.VISIBLE);
+                    tvMonSecond.setText(mvsd.getMonTP());
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueSecond.setVisibility(View.VISIBLE);
+                    tvTueSecond.setText(mvsd.getTueTP());
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedSecond.setVisibility(View.VISIBLE);
+                    tvWedSecond.setText(mvsd.getWedTP());
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuSecond.setVisibility(View.VISIBLE);
+                    tvThuSecond.setText(mvsd.getThuTP());
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriSecond.setVisibility(View.VISIBLE);
+                    tvFriSecond.setText(mvsd.getFriTP());
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatSecond.setVisibility(View.VISIBLE);
+                    tvSatSecond.setText(mvsd.getSatTP());
+                }
+                continue;
+            }
+
+
+            if (mvsd.getSesnSlotNum() == 3) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunThird.setVisibility(View.VISIBLE);
+                    tvSunThird.setText(mvsd.getSunTP());
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonThird.setVisibility(View.VISIBLE);
+                    tvMonThird.setText(mvsd.getMonTP());
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueThird.setVisibility(View.VISIBLE);
+                    tvTueThird.setText(mvsd.getTueTP());
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedThird.setVisibility(View.VISIBLE);
+                    tvWedThird.setText(mvsd.getWedTP());
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuThird.setVisibility(View.VISIBLE);
+                    tvThuThird.setText(mvsd.getThuTP());
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriThird.setVisibility(View.VISIBLE);
+                    tvFriThird.setText(mvsd.getFriTP());
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatThird.setVisibility(View.VISIBLE);
+                    tvSatThird.setText(mvsd.getSatTP());
+                }
+                continue;
+            }
+
+
+            if (mvsd.getSesnSlotNum() == 4) {
+                if (!mvsd.getSunTP().isEmpty()) {
+                    tvSunFourth.setVisibility(View.VISIBLE);
+                    tvSunFourth.setText(mvsd.getSunTP());
+                }
+                if (!mvsd.getMonTP().isEmpty()) {
+                    tvMonFourth.setVisibility(View.VISIBLE);
+                    tvMonFourth.setText(mvsd.getMonTP());
+                }
+                if (!mvsd.getTueTP().isEmpty()) {
+                    tvTueFourth.setVisibility(View.VISIBLE);
+                    tvTueFourth.setText(mvsd.getTueTP());
+                }
+                if (!mvsd.getWedTP().isEmpty()) {
+                    tvWedFourth.setVisibility(View.VISIBLE);
+                    tvWedFourth.setText(mvsd.getWedTP());
+                }
+                if (!mvsd.getThuTP().isEmpty()) {
+                    tvThuFourth.setVisibility(View.VISIBLE);
+                    tvThuFourth.setText(mvsd.getThuTP());
+                }
+                if (!mvsd.getFriTP().isEmpty()) {
+                    tvFriFourth.setVisibility(View.VISIBLE);
+                    tvFriFourth.setText(mvsd.getFriTP());
+                }
+                if (!mvsd.getSatTP().isEmpty()) {
+                    tvSatFourth.setVisibility(View.VISIBLE);
+                    tvSatFourth.setText(mvsd.getSatTP());
+                }
+            }
+
+           /* dischargePnts = modalValveSessionData.getDischarge();
+            duration = modalValveSessionData.getDuration();
+            if (dischargePnts != 0) {
+                quantity = modalValveSessionData.getQty() / dischargePnts;
+            } else {
+                quantity = modalValveSessionData.getQty();
             }
 
             //For Sunday
-            if (dataTransferModel.getDayOfTheWeek() == 1) {
-                listTimePntsSun.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 1) {
+                listTimePntsSun.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 2) {
-                listTimePntsMon.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 2) {
+                listTimePntsMon.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 3) {
-                listTimePntsTue.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 3) {
+                listTimePntsTue.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 4) {
-                listTimePntsWed.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 4) {
+                listTimePntsWed.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 5) {
-                listTimePntsThu.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 5) {
+                listTimePntsThu.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 6) {
-                listTimePntsFri.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 6) {
+                listTimePntsFri.add(modalValveSessionData.getHourOfDay());
             }
-            if (dataTransferModel.getDayOfTheWeek() == 7) {
-                listTimePntsSat.add(dataTransferModel.getHours());
+            if (modalValveSessionData.getDayOfWeek() == 7) {
+                listTimePntsSat.add(modalValveSessionData.getHourOfDay());
             }
 
         }
@@ -446,16 +612,17 @@ public class FragDeviceDetails extends Fragment{
         tvQuantity.setText(quantity + " ML");
         String timePntsUserFriendly = "";
 
-        if (llEditValve.getVisibility() != View.VISIBLE) {
+       *//* if (llEditValve.getVisibility() != View.VISIBLE) {
             llEditValve.setVisibility(View.VISIBLE);
             llStopValve.setVisibility(View.VISIBLE);
             llPausePlayValve.setVisibility(View.VISIBLE);
             llFlushValve.setVisibility(View.VISIBLE);
             llHelpValve.setVisibility(View.VISIBLE);
-        }
+        }*//*
 
         if (listTimePntsSun.size() > 0) {
             for (int i = 0; i < listTimePntsSun.size(); i++) {
+
                 if (tvSunFirst.getVisibility() != View.VISIBLE) {
                     tvSunFirst.setVisibility(View.VISIBLE);
                     String timePntString = listTimePntsSun.get(i).toString();
@@ -794,7 +961,7 @@ public class FragDeviceDetails extends Fragment{
                     tvSatFourth.setText(timePntsUserFriendly);
                     continue;
                 }
-            }
+            }*/
         }
 
 
@@ -967,7 +1134,7 @@ public class FragDeviceDetails extends Fragment{
 
     public void cmdButtonACK(String cmdNameLocalACK) {
         if (cmdNameLocalACK.equals("STOP")) {
-            initSTOPbtnEffectes();
+            //initSTOPbtnEffectes();
         } else if (cmdNameLocalACK.equals("PAUSE")) {
             tvPauseText.setText("Play");
             llEditValve.setEnabled(false);
@@ -976,7 +1143,7 @@ public class FragDeviceDetails extends Fragment{
                 Toast.makeText(mContext, clickedValveName + " session paused", Toast.LENGTH_LONG).show();
                 initValveListAdapter();
             }
-        } else if(cmdNameLocalACK.equals("PLAY")) {
+        } else if (cmdNameLocalACK.equals("PLAY")) {
             tvPauseText.setText("Pause");
             llEditValve.setEnabled(true);
             this.cmdName = "PAUSE";
@@ -992,32 +1159,36 @@ public class FragDeviceDetails extends Fragment{
     }
 
 
-    public void clickedPassDataToParent(ModalValveBirth modalBLEValve, String clickedValveName) {
+    /*public void clickedPassDataToParent(ModalValveMaster modalBLEValve, String clickedValveName) {
         this.modalBLEValve = modalBLEValve;
         this.clickedValveName = clickedValveName;
         //this.position = position;
         checkValveDataUpdtUIFrmDB();
-    }
+    }*/
 
-    private void initSTOPbtnEffectes() {
-        listAddEditValveData = null;
-        if (databaseHandler.updateValveDataAndState(dvcMacAdd, clickedValveName, listAddEditValveData, "STOP") == 1) {
+   /* private void initSTOPbtnEffectes() {
+        listValveSessionData = null;
+        if (databaseHandler.updateValveDataAndState(dvcMacAdd, clickedValveName, listValveSessionData, "STOP") == 1) {
             llNoSesnPlan.setVisibility(View.VISIBLE);
             llSesnPlanDetails.setVisibility(View.GONE);
-            databaseHandler.updateFlushStatus(dvcMacAdd,clickedValveName,"FALSE");
+            databaseHandler.updateFlushStatus(dvcMacAdd, clickedValveName, "FALSE");
             Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
 
             initValveListAdapter();
         }
 
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
             if (data.getExtras().getString("dataKey").equals("Success")) {
-                modalBLEValve = databaseHandler.getValveDataAndProperties(dvcMacAdd, clickedValveName);
-                checkValveDataUpdtUIFrmDB();
+                Toast.makeText(mContext, clickedValveName + " Session Activated", Toast.LENGTH_SHORT).show();
+
+                //setValveAndItsSesnDataToUI();
+
+                //modalBLEValve = databaseHandler.getValveSessionData(clickedVlvUUID);
+                //checkValveDataUpdtUIFrmDB();
                /* reviValvesList = null;
                 valveListAdp = null;
                 listMdlValveNameStateNdSelect.clear();
@@ -1027,4 +1198,5 @@ public class FragDeviceDetails extends Fragment{
             }
         }
     }
+
 }

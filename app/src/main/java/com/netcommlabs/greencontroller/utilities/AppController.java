@@ -12,33 +12,47 @@ import com.android.volley.toolbox.Volley;
  * Created by Netcomm on 1/10/2017.
  */
 
- public class AppController extends Application {
+public class AppController extends Application {
 
-public static final String TAG = AppController.class
+    public static final String TAG = AppController.class
             .getSimpleName();
 
-private RequestQueue mRequestQueue;
-private ImageLoader mImageLoader;
+    private RequestQueue mRequestQueue;
+    private ImageLoader mImageLoader;
 
-private static AppController mInstance;
+    private static AppController mInstance;
 
-@Override
-public void onCreate() {
+    @Override
+    public void onCreate() {
         super.onCreate();
         mInstance = this;
-        }
 
-public static synchronized AppController getInstance() {
+     /*   TelephonyManager mngr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mngr.getDeviceId();
+        Log.d(TAG, "getDevice Id: "+ mngr.getDeviceId());*/
+    }
+
+    public static synchronized AppController getInstance() {
         return mInstance;
-        }
+    }
 
-public RequestQueue getRequestQueue() {
+    public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
-        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
         return mRequestQueue;
-        }
+    }
 
 /*public ImageLoader getImageLoader() {
         getRequestQueue();
@@ -49,20 +63,20 @@ public RequestQueue getRequestQueue() {
         return this.mImageLoader;
         }*/
 
-public <T> void addToRequestQueue(Request<T> req, String tag) {
+    public <T> void addToRequestQueue(Request<T> req, String tag) {
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
         getRequestQueue().add(req);
-        }
+    }
 
-public <T> void addToRequestQueue(Request<T> req) {
+    public <T> void addToRequestQueue(Request<T> req) {
         req.setTag(TAG);
         getRequestQueue().add(req);
-        }
+    }
 
-public void cancelPendingRequests(Object tag) {
+    public void cancelPendingRequests(Object tag) {
         if (mRequestQueue != null) {
-        mRequestQueue.cancelAll(tag);
+            mRequestQueue.cancelAll(tag);
         }
-        }
-        }
+    }
+}
