@@ -456,7 +456,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     //This method will automatically followed by loading new time points method
                     bleAppLevel.eraseOldTimePoints(FragAddEditSesnPlan.this, etDisPntsInt, etDurationInt, etWaterQuantWithDPInt, listSingleValveData);
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
                 }
             }
         });
@@ -2485,18 +2485,18 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             //Updating DP, Duration and Quantity separately
             databaseHandler.updateValveDPDurationQuantTemp(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
 
-            databaseHandler.updateValveOpTpSPPStatus("",clkdVlvUUID, "PLAY");
+            databaseHandler.updateValveOpTpSPPStatus("", clkdVlvUUID, "PLAY");
 
             //Operation between Session Temp, Master and Log tables
             databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID);
 
             //if (rowAffected > 0) {
-                getTargetFragment().onActivityResult(
-                        getTargetRequestCode(),
-                        Activity.RESULT_OK,
-                        new Intent().putExtra("dataKey", "Success")
-                );
-                getActivity().onBackPressed();
+            getTargetFragment().onActivityResult(
+                    getTargetRequestCode(),
+                    Activity.RESULT_OK,
+                    new Intent().putExtra("dataKey", "Success")
+            );
+            getActivity().onBackPressed();
             //}
         }
     }

@@ -803,18 +803,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(CLM_VALVE_OP_TP_SPP_STRING, valveOpTpStatus);
-        int rowAffected=0;
+        int rowAffected = 0;
 
-        if (dvcUUID.equals("")) {
-            rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ?",
-                    new String[]{valveUUID});
-        } else {
+//        if (dvcUUID.equals("")) {
+//            rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ?",
+//                    new String[]{valveUUID});
+//        }
+        // Will effect all valves of given device ID
+        if (!dvcUUID.isEmpty()) {
             if (valveOpTpStatus.equals("PAUSE")) {
                 rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
                         new String[]{dvcUUID, "PLAY"});
             } else if (valveOpTpStatus.equals("PLAY")) {
                 rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
                         new String[]{dvcUUID, "PAUSE"});
+            } else if (valveOpTpStatus.equals("STOP")) {
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? OR " + CLM_VALVE_OP_TP_SPP_STRING + " = ?",
+                        new String[]{dvcUUID, "PLAY", "PAUSE"});
+            }
+        }
+        // Will effect only single valve
+        else if (!valveUUID.isEmpty()) {
+            if (valveOpTpStatus.equals("PAUSE")) {
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ? ",
+                        new String[]{valveUUID});
+
+            } else if (valveOpTpStatus.equals("PLAY")) {
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ? ",
+                        new String[]{valveUUID});
+
+            } else if (valveOpTpStatus.equals("STOP")) {
+                values.put(CLM_VALVE_OP_TP_FLASH_ON_OF_STRING, "FLASH OFF");
+                values.put(CLM_VALVE_OP_TP_INT, 2);
+                values.put(CLM_VALVE_UPDATED_DT, getDateTime());
+
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ? ",
+                        new String[]{valveUUID});
             }
         }
         return rowAffected;
@@ -832,17 +856,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Updating Play Pause
-    public int updateFlushStatus(String device_address, String clickedValveName, String flushStatus) {
+    public int updateValveFlushStatus(String valveUUID, String flushStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_FLUSH_CMD, flushStatus);
+        values.put(CLM_VALVE_OP_TP_FLASH_ON_OF_STRING, flushStatus);
 
-        int rowAffected = db.update(TABLE_BLE_VALVE, values, KEY_DVC_MAC + " = ? AND " + KEY_VALVE_NAME + " = ? ",
-                new String[]{device_address, clickedValveName});
-        Log.e("@@@ROW AFFECTED ", rowAffected + "");
-        // updating row
+        int rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ? ",
+                new String[]{valveUUID});
         return rowAffected;
-
     }
 
     public int deleteAddress(String addressUUID) {
@@ -1009,20 +1030,47 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public int getDvcTotalValvesPlayPauseCount(String dvcUUID, String checkOpTySPP) {
         SQLiteDatabase db = this.getReadableDatabase();
-        int playTotalCountDvc = 0;
+        int totalCounts = 0;
+        Cursor cursor = null;
 
-        Cursor cursor = db.query(TABLE_VALVE_MASTER, new String[]{CLM_VALVE_OP_TP_SPP_STRING}, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
-                new String[]{dvcUUID, checkOpTySPP}, null, null, null, null);
+        if (checkOpTySPP.equals("STOP")) {
+            cursor = db.query(TABLE_VALVE_MASTER, new String[]{CLM_VALVE_OP_TP_SPP_STRING}, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? OR " + CLM_VALVE_OP_TP_SPP_STRING + " = ?",
+                    new String[]{dvcUUID, "PLAY", "PAUSE"}, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_VALVE_MASTER, new String[]{CLM_VALVE_OP_TP_SPP_STRING}, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
+                    new String[]{dvcUUID, checkOpTySPP}, null, null, null, null);
+        }
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 //if (cursor.getString(0).equals("PLAY")) {
-                playTotalCountDvc++;
+                totalCounts++;
                 //}
             }
             while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
-        return playTotalCountDvc;
+        return totalCounts;
+    }
+
+    public int updateDvcDeleteStatus(String dvcUUID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CLM_DVC_OP_TP_APRD_STRING, "DELETE");
+        values.put(CLM_DVC_IS_SHOW_STATUS, 0);
+        values.put(CLM_DVC_UPDATED_DT, getDateTime());
+
+        int rowAffected = db.update(TABLE_DVC_MASTER, values, CLM_DVC_UUID + " = ? ",
+                new String[]{dvcUUID});
+
+        return rowAffected;
+    }
+
+    public int deleteStopedValveData(String clickedVlvUUID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int deletedRows = db.delete(TABLE_VALVE_SESN_MASTER, CLM_VALVE_UUID + " = ?",
+                new String[]{clickedVlvUUID});
+        db.close();
+        return deletedRows;
     }
 }

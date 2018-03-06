@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.ValvesListAdapter;
-import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.model.MdlValveNameStateNdSelect;
 import com.netcommlabs.greencontroller.model.ModalValveMaster;
 import com.netcommlabs.greencontroller.model.ModalValveSessionData;
@@ -66,7 +65,7 @@ public class FragDeviceDetails extends Fragment {
     private BleAdapterService bluetooth_le_adapter;
     private boolean back_requested = false;
     private int position = 0;
-    private String cmdName = "PAUSE";
+    private String currentPlPsCmdName = "";
     private String titleDynamicAddEdit;
     private ValvesListAdapter valveListAdp;
     private boolean isValveSelected = true;
@@ -75,9 +74,9 @@ public class FragDeviceDetails extends Fragment {
     private ModalValveMaster modalBLEValve;
     private List<ModalValveMaster> listValveMaster;
     private int scrlToSelectedPosi;
-    private String clickedVlvUUID;
+    private String clickedVlvUUID = "";
     private String valveOpTpSPP = "";
-    private String flushOnOffStatus = "";
+    private String flushOnOffStatusDB = "";
 
     @Override
     public void onAttach(Context context) {
@@ -305,9 +304,11 @@ public class FragDeviceDetails extends Fragment {
             public void onClick(View v) {
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                    dialogSTOPConfirm();
+                    dialogPlyPosFlshOnOffStop("Stop Valve", "This will delete valve saved data", "Stop");
+
+                    //dialogSTOPConfirm();
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
                 }
             }
         });
@@ -317,13 +318,13 @@ public class FragDeviceDetails extends Fragment {
             public void onClick(View v) {
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                    if (cmdName.equals("PAUSE")) {
-                        dialogPAUSEConfirm();
-                    } else if (cmdName.equals("PLAY")) {
-                        dialogPLAYConfirm();
+                    if (currentPlPsCmdName.equals("PAUSE")) {
+                        dialogPlyPosFlshOnOffStop("Play Valve", "This will enable valve effect", "Play");
+                    } else if (currentPlPsCmdName.equals("PLAY")) {
+                        dialogPlyPosFlshOnOffStop("Pause Valve", "This will disable valve effect", "Pause");
                     }
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
                 }
             }
         });
@@ -333,18 +334,22 @@ public class FragDeviceDetails extends Fragment {
             public void onClick(View v) {
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                    dialogFlushStart();
+                    if (flushOnOffStatusDB.equals("FLUSH ON")) {
+                        dialogPlyPosFlshOnOffStop("Turn Flush Off", "This will turn off the valve Flush", "Flush Off");
+                    } else if (flushOnOffStatusDB.equals("FLUSH OFF")) {
+                        dialogPlyPosFlshOnOffStop("Turn Flush On", "This will turn on the valve Flush", "Flush On");
+                    }
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
                 }
             }
         });
     }
 
     private void initValveListAdapter() {
-        if (listValveMaster.size() == 0) {
+        //if (listValveMaster.size() == 0) {
             listValveMaster = databaseHandler.getValveMaster();
-        }
+        //}
         scrlToSelectedPosi = 0;
         //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
         //Getting selected valve on page load
@@ -374,7 +379,7 @@ public class FragDeviceDetails extends Fragment {
         clickedVlvUUID = listValveMaster.get(selectedValvePosition).getValveUUID();
         clickedValveName = listValveMaster.get(selectedValvePosition).getValveName();
         valveOpTpSPP = listValveMaster.get(selectedValvePosition).getValveOpTpSPP();
-        flushOnOffStatus = listValveMaster.get(selectedValvePosition).getValveOpTpFlushONOFF();
+        flushOnOffStatusDB = listValveMaster.get(selectedValvePosition).getValveOpTpFlushONOFF();
 
         if (valveOpTpSPP.equals("STOP")) {
             llNoSesnPlan.setVisibility(View.VISIBLE);
@@ -407,14 +412,14 @@ public class FragDeviceDetails extends Fragment {
         if (valveOpTpSPP.equals("PLAY")) {
             tvPauseText.setText("Pause");
             llEditValve.setEnabled(true);
-            this.cmdName = "PAUSE";
+            this.currentPlPsCmdName = "PLAY";
         } else if (valveOpTpSPP.equals("PAUSE")) {
             tvPauseText.setText("Play");
             llEditValve.setEnabled(false);
-            this.cmdName = "PLAY";
+            this.currentPlPsCmdName = "PAUSE";
         }
-        if (flushOnOffStatus.equals("FLUSH ON")) {
-            Toast.makeText(mContext, "This valve FLUSH is activated", Toast.LENGTH_SHORT).show();
+        if (flushOnOffStatusDB.equals("FLUSH ON")) {
+            Toast.makeText(mContext, clickedValveName+" Flush is activated", Toast.LENGTH_SHORT).show();
         }
         setTimePntsVisibilityGONE();
         listValveSessionData = databaseHandler.getValveSessionData(clickedVlvUUID);
@@ -1005,15 +1010,15 @@ public class FragDeviceDetails extends Fragment {
         tvSatFourth.setVisibility(View.GONE);
     }
 
-    private void dialogSTOPConfirm() {
+    /*private void dialogSTOPConfirm() {
         String title, msg;
         title = "Stop Valve";
         msg = "This will delete valve saved data";
 
         AlertDialog.Builder builder;
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*/
+        } else {*//*
         builder = new AlertDialog.Builder(mContext);
         //}
         builder.setTitle(title)
@@ -1035,17 +1040,17 @@ public class FragDeviceDetails extends Fragment {
                     }
                 })
                 .show();
-    }
+    }*/
 
-    private void dialogPAUSEConfirm() {
+    /*private void dialogPAUSEConfirm() {
         String title, msg;
         title = "Pause Valve";
         msg = "This will disable valve effect";
 
         AlertDialog.Builder builder;
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*/
+        } else {*//*
         builder = new AlertDialog.Builder(mContext);
         //}
         builder.setTitle(title)
@@ -1067,17 +1072,17 @@ public class FragDeviceDetails extends Fragment {
                     }
                 })
                 .show();
-    }
+    }*/
 
-    private void dialogPLAYConfirm() {
+    /*private void dialogPLAYConfirm() {
         String title, msg;
         title = "Play Valve";
         msg = "This will enable valve effect";
 
         AlertDialog.Builder builder;
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*/
+        } else {*//*
         builder = new AlertDialog.Builder(mContext);
         //}
         builder.setTitle(title)
@@ -1099,27 +1104,31 @@ public class FragDeviceDetails extends Fragment {
                     }
                 })
                 .show();
-    }
+    }*/
 
 
-    private void dialogFlushStart() {
-        String title, msg;
-        title = "FLush Valve";
-        msg = "This will start valve Flush";
+    private void dialogPlyPosFlshOnOffStop(String title, String msg, final String positiveBtnName) {
         AlertDialog.Builder builder;
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*/
         builder = new AlertDialog.Builder(mContext);
-        //}
         builder.setTitle(title)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton("Flush", new DialogInterface.OnClickListener() {
+                .setPositiveButton(positiveBtnName, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+
                         BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
                         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                            bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "FLUSH");
+                            if (positiveBtnName.equals("Stop")) {
+                                bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "STOP");
+                            } else if (positiveBtnName.equals("Pause")) {
+                                bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "PAUSE");
+                            } else if (positiveBtnName.equals("Play")) {
+                                bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "PLAY");
+                            } else if (positiveBtnName.equals("Flush On")) {
+                                bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "FLUSH ON");
+                            } else if (positiveBtnName.equals("Flush Off")) {
+                                bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "FLUSH OFF");
+                            }
                         } else {
                             Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
                         }
@@ -1135,26 +1144,38 @@ public class FragDeviceDetails extends Fragment {
 
     public void cmdButtonACK(String cmdNameLocalACK) {
         if (cmdNameLocalACK.equals("STOP")) {
-            //initSTOPbtnEffectes();
+            if (databaseHandler.updateValveOpTpSPPStatus("", clickedVlvUUID, "STOP") == 1) {
+                if (databaseHandler.deleteStopedValveData(clickedVlvUUID) > 0) {
+                    Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
+                    initValveListAdapter();
+                }
+            }
         } else if (cmdNameLocalACK.equals("PAUSE")) {
             tvPauseText.setText("Play");
             llEditValve.setEnabled(false);
-            this.cmdName = "PLAY";
-            if (databaseHandler.updateValveState(dvcMacAdd, clickedValveName, "PAUSE") == 1) {
+            this.currentPlPsCmdName = "PAUSE";
+            if (databaseHandler.updateValveOpTpSPPStatus("", clickedVlvUUID, "PAUSE") == 1) {
                 Toast.makeText(mContext, clickedValveName + " session paused", Toast.LENGTH_LONG).show();
                 initValveListAdapter();
             }
         } else if (cmdNameLocalACK.equals("PLAY")) {
             tvPauseText.setText("Pause");
             llEditValve.setEnabled(true);
-            this.cmdName = "PAUSE";
-            if (databaseHandler.updateValveState(dvcMacAdd, clickedValveName, "PLAY") == 1) {
+            this.currentPlPsCmdName = "PLAY";
+
+            if (databaseHandler.updateValveOpTpSPPStatus("", clickedVlvUUID, "PLAY") == 1) {
                 Toast.makeText(mContext, clickedValveName + " session activated", Toast.LENGTH_LONG).show();
                 initValveListAdapter();
             }
-        } else if (cmdNameLocalACK.equals("FLUSH")) {
-            if (databaseHandler.updateFlushStatus(dvcMacAdd, clickedValveName, "TRUE") == 1) {
-                Toast.makeText(mContext, clickedValveName + " Flush started", Toast.LENGTH_SHORT).show();
+        } else if (cmdNameLocalACK.equals("FLUSH ON")) {
+            if (databaseHandler.updateValveFlushStatus(clickedVlvUUID, "FLUSH ON") == 1) {
+                //Toast.makeText(mContext, clickedValveName + " Flush started", Toast.LENGTH_SHORT).show();
+                initValveListAdapter();
+            }
+        } else if (cmdNameLocalACK.equals("FLUSH OFF")) {
+            if (databaseHandler.updateValveFlushStatus(clickedVlvUUID, "FLUSH OFF") == 1) {
+                Toast.makeText(mContext, clickedValveName + " Flush stopped", Toast.LENGTH_SHORT).show();
+                initValveListAdapter();
             }
         }
     }
@@ -1172,13 +1193,11 @@ public class FragDeviceDetails extends Fragment {
         if (databaseHandler.updateValveDataAndState(dvcMacAdd, clickedValveName, listValveSessionData, "STOP") == 1) {
             llNoSesnPlan.setVisibility(View.VISIBLE);
             llSesnPlanDetails.setVisibility(View.GONE);
-            databaseHandler.updateFlushStatus(dvcMacAdd, clickedValveName, "FALSE");
+            databaseHandler.updateValveFlushStatus(dvcMacAdd, clickedValveName, "FALSE");
             Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
 
-            initValveListAdapter();
-        }
-
-    }*/
+            initValveListAdapter();*/
+    //}
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

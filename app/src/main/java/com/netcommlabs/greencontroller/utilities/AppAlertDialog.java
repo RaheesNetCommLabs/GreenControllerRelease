@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 
 import java.util.logging.Handler;
@@ -53,7 +54,7 @@ public class AppAlertDialog {
         appAlertDialog.bleAppLevel = bleAppLevel;
         appAlertDialog.macAddressClassLevel = macAddress;
         String title, msg;
-        if (!macAddress.equals("")) {
+        if (myRequestedFrag instanceof FragDeviceMAP) {
             title = "Sure to connect Device";
             msg = "But first check device power, operating range and connect !";
         } else {
