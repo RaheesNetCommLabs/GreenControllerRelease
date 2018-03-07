@@ -26,7 +26,7 @@ import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import org.json.JSONObject;
@@ -53,6 +53,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     private static String dvcNameEdited = "", qrCodeEdited = "";
     ProjectWebRequest request;
     private PreferenceModel preference;
+    private LinearLayout address_selection_layout;
 
     @Override
     public void onAttach(Context context) {
@@ -81,6 +82,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
         etQRManually = view.findViewById(R.id.etQRManually);
         tvScanQREvent = view.findViewById(R.id.tvScanQREvent);
         tvNextConctdEvent = view.findViewById(R.id.tvNextConctdEvent);
+
     }
 
     private void initBase() {
@@ -127,6 +129,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                     Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //No device name should be duplicate
                 if (databaseHandler.getAllDeviceName().size() > 0) {
                     for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
                         if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(dvcNameEdited)) {

@@ -1,4 +1,4 @@
-package com.netcommlabs.greencontroller.utilities;
+package com.netcommlabs.greencontroller.constant;
 
 /**
  * Created by Android on 12/6/2017.

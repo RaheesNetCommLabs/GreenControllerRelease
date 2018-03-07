@@ -30,33 +30,20 @@
             android:configChanges="orientation|screenSize|keyboard"
             android:screenOrientation="landscape">
 
-            <!--  <intent-filter>
-                   <action android:name="android.intent.action.MAIN" />
 
-                   <category android:name="android.intent.category.LAUNCHER" />
+        </activity>
+        <activity android:name=".activities.ActivitySplash"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-             <intent-filter>
-                 <action android:name="android.intent.action.MAIN" />
-
-                 <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.LoginAct"
             android:screenOrientation="landscape">
-           -->
 
-
-        </activity>
-        <activity
-            android:name=".activities.LoginAct"
-            android:screenOrientation="landscape">
-   <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
         </activity>
         <activity
             android:name=".activities.AddAddressActivity"
@@ -97,6 +84,8 @@
             android:name=".services.BleAdapterService"
             android:enabled="true" />
 
+        <activity android:name=".activities.ActvityOtp"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

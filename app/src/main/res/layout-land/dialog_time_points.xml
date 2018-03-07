@@ -5,7 +5,10 @@
     android:layout_height="match_parent"
     android:gravity="center"
     tools:context="com.netcommlabs.greencontroller.activities.DialogActivity">
-
+<LinearLayout
+    android:layout_width="@dimen/_200sdp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
     <LinearLayout
         android:id="@+id/llHeaderTitle"
         android:layout_width="match_parent"
@@ -33,6 +36,7 @@
         android:layout_below="@+id/viewLine"
         android:layout_marginBottom="@dimen/_45sdp"
         android:gravity="center"
+        android:layout_marginTop="@dimen/_20sdp"
         android:orientation="vertical">
 
         <ImageView
@@ -90,5 +94,5 @@
             android:textSize="@dimen/_13sdp" />
 
     </LinearLayout>
-
+</LinearLayout>
 </RelativeLayout>

@@ -27,7 +27,7 @@ import com.netcommlabs.greencontroller.adapters.AdptrAvailableDVCs;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.ArrayList;
 import java.util.List;

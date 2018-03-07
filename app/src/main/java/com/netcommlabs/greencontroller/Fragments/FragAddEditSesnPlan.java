@@ -456,7 +456,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     //This method will automatically followed by loading new time points method
                     bleAppLevel.eraseOldTimePoints(FragAddEditSesnPlan.this, etDisPntsInt, etDurationInt, etWaterQuantWithDPInt, listSingleValveData);
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel);
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel,"");
                 }
             }
         });
@@ -1274,14 +1274,25 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             }
         });
         //Show dialog in Landscape mode
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+ /*       WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         Window windowAlDl = dialogChooseTmPnt.getWindow();
 
         layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
-        windowAlDl.setAttributes(layoutParams);
+        windowAlDl.setAttributes(layoutParams);*/
+
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = dialogChooseTmPnt.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width =700;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        dialogChooseTmPnt.getWindow().setBackgroundDrawableResource(R.color.theme_color);
         dialogChooseTmPnt.show();
+
 
     }
 
@@ -2162,8 +2173,19 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                })
-                .show();
+                });
+
+
+        android.support.v7.app.AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
    /* public void eraseOldTimePoints() {
@@ -2451,7 +2473,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }*/
 
     void saveValveDatatoDB() {
-        int numOfRowsAffected = databaseHandler.updateSesnTimePoints(clkdVlvUUID, 0, 0, 0);
+        int numOfRowsAffected = databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 0, 0, 0);
 
         if (numOfRowsAffected > 0) {
             for (int i = 0; i < listSingleValveData.size(); i++) {
@@ -2461,42 +2483,43 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 int dayOfWeekInt = dtm.getDayOfWeek();
                 switch (dayOfWeekInt) {
                     case 1:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 1, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 1, timePoint, timeSlot);
                         break;
                     case 2:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 2, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 2, timePoint, timeSlot);
                         break;
                     case 3:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 3, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 3, timePoint, timeSlot);
                         break;
                     case 4:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 4, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 4, timePoint, timeSlot);
                         break;
                     case 5:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 5, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 5, timePoint, timeSlot);
                         break;
                     case 6:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 6, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 6, timePoint, timeSlot);
                         break;
                     case 7:
-                        databaseHandler.updateSesnTimePoints(clkdVlvUUID, 7, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 7, timePoint, timeSlot);
                 }
             }
             //Updating DP, Duration and Quantity separately
-            databaseHandler.updateValveDPDurationQuant(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
-            int rowAffected = databaseHandler.updateValveOpTpSPPStatus(clkdVlvUUID, "PLAY");
+            databaseHandler.updateValveDPDurationQuantTemp(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
+
+            databaseHandler.updateValveOpTpSPPStatus("",clkdVlvUUID, "PLAY");
 
             //Operation between Session Temp, Master and Log tables
             databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID);
 
-            if (rowAffected > 0) {
+            //if (rowAffected > 0) {
                 getTargetFragment().onActivityResult(
                         getTargetRequestCode(),
                         Activity.RESULT_OK,
                         new Intent().putExtra("dataKey", "Success")
                 );
                 getActivity().onBackPressed();
-            }
+            //}
         }
     }
 

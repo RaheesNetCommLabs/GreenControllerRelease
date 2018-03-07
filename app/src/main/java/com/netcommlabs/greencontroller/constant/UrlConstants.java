@@ -20,6 +20,7 @@ public class UrlConstants {
     public static final String FORGOT_PASSWORD= BASE_URL + "forgot_password";
     public static final String VERIFY_OTP_FOR_FORGOT_PASS= BASE_URL + "verify_otp";
     public static final String ADD_ADDRESS= BASE_URL + "add_address";
+    public static final String SAVE_IMEI= BASE_URL + "save_imei";
 
 
 
@@ -37,4 +38,5 @@ public class UrlConstants {
     public static final int FORGOT_PASSWORD_TAG= 1010;
     public static final int VERIFY_OTP_FOR_FORGOT_PASS_TAG= 1011;
     public static final int ADD_ADDRESS_TAG= 1012;
+    public static final int SAVE_IMEI_TAG= 1013;
 }

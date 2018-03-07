@@ -24,6 +24,7 @@ public class AppAlertDialog {
     private Fragment myRequestedFrag;
     private BLEAppLevel bleAppLevel;
     private static AppAlertDialog appAlertDialog;
+    private String macAddressClassLevel = "";
 
     public static void showDialogSelfFinish(Context tmContext, String Title, String Msg) {
         builder = new AlertDialog.Builder(tmContext);
@@ -32,8 +33,8 @@ public class AppAlertDialog {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
-                })
-                .show();
+                });
+                //.show();
         AlertDialog alert = builder.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
@@ -55,8 +56,8 @@ public class AppAlertDialog {
                         dialog.cancel();
                         ((Activity) tmContext).finish();
                     }
-                })
-                .show();
+                });
+
 
         AlertDialog alert = builder.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -70,7 +71,7 @@ public class AppAlertDialog {
         alert.show();
     }
 
-    public static void dialogBLENotConnected(final MainActivity mContext, final Fragment myRequestedFrag, final BLEAppLevel bleAppLevel) {
+    public static void dialogBLENotConnected(final MainActivity mContext, final Fragment myRequestedFrag, final BLEAppLevel bleAppLevel, final String macAddress) {
         appAlertDialog = new AppAlertDialog();
         appAlertDialog.mContext = mContext;
         appAlertDialog.myRequestedFrag = myRequestedFrag;
@@ -96,8 +97,8 @@ public class AppAlertDialog {
                 dialog.dismiss();
             }
         });
-        alBui.create().show();
-        AlertDialog alert = builder.create();
+      //  alBui.create().show();
+        AlertDialog alert = alBui.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
         lp.copyFrom(window.getAttributes());
@@ -108,7 +109,6 @@ public class AppAlertDialog {
         alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
         alert.show();
     }
-
 
 
     public static void dialogConnectingBLE() {
@@ -126,7 +126,7 @@ public class AppAlertDialog {
                     Toast.makeText(appAlertDialog.mContext, "BLE got connected", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                dialogBLENotConnected(appAlertDialog.mContext, appAlertDialog.myRequestedFrag, appAlertDialog.bleAppLevel);
+                dialogBLENotConnected(appAlertDialog.mContext, appAlertDialog.myRequestedFrag, appAlertDialog.bleAppLevel, appAlertDialog.macAddressClassLevel);
 
             }
         }, 6000);

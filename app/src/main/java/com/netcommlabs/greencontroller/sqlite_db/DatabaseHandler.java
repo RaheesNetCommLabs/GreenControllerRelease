@@ -445,7 +445,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return insertedRowUniqueID;
     }*/
 
-    public int updateSesnTimePoints(String clkdVlvUUID, int dayInt, int timePoint, int timeSlotNum) {
+    public int updateSesnTimePointsTemp(String clkdVlvUUID, int dayInt, int timePoint, int timeSlotNum) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         String timePointString;
@@ -460,7 +460,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(CLM_VALVE_SESN_DAY_NUM_FRI_TP, "");
             values.put(CLM_VALVE_SESN_DAY_NUM_SAT_TP, "");
 
-            numOfRowsAffected = db.update(TABLE_VALVE_SESN_MASTER, values, CLM_VALVE_UUID + " =?",
+            numOfRowsAffected = db.update(TABLE_VALVE_SESN_TEMP, values, CLM_VALVE_UUID + " =?",
                     new String[]{clkdVlvUUID});
         } else {
             if (timePoint < 10) {
@@ -491,14 +491,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 case 7:
                     values.put(CLM_VALVE_SESN_DAY_NUM_SAT_TP, timePointString);
             }
-            db.update(TABLE_VALVE_SESN_MASTER, values, CLM_VALVE_SESN_SLOT_NUM + " = ? AND " + CLM_VALVE_UUID + " = ?",
+            db.update(TABLE_VALVE_SESN_TEMP, values, CLM_VALVE_SESN_SLOT_NUM + " = ? AND " + CLM_VALVE_UUID + " = ?",
                     new String[]{String.valueOf(timeSlotNum), clkdVlvUUID});
         }
         db.close();
         return numOfRowsAffected;
     }
 
-    public void updateValveDPDurationQuant(int etDisPntsInt, int etDurationInt, int etWaterQuantInt, String clkdVlvUUID) {
+    public void updateValveDPDurationQuantTemp(int etDisPntsInt, int etDurationInt, int etWaterQuantInt, String clkdVlvUUID) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -799,12 +799,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Updating valve status, SPP- STOP, PLAY and PAUSE
-    public int updateValveOpTpSPPStatus(String valveUUID, String valveOpTpStatus) {
+    public int updateValveOpTpSPPStatus(String dvcUUID, String valveUUID, String valveOpTpStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(CLM_VALVE_OP_TP_SPP_STRING, valveOpTpStatus);
-        int rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ?",
-                new String[]{valveUUID});
+        int rowAffected=0;
+
+        if (dvcUUID.equals("")) {
+            rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ?",
+                    new String[]{valveUUID});
+        } else {
+            if (valveOpTpStatus.equals("PAUSE")) {
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
+                        new String[]{dvcUUID, "PLAY"});
+            } else if (valveOpTpStatus.equals("PLAY")) {
+                rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
+                        new String[]{dvcUUID, "PAUSE"});
+            }
+        }
         return rowAffected;
     }
 
@@ -909,7 +921,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void dbOperationBWSesnTempMasterNdLog(String clickedVlvUUID) {
         SQLiteDatabase db = this.getWritableDatabase();
         ModalValveSessionData mvsd;
-        ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
+        //ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
 
         Cursor cursorTemp = db.query(TABLE_VALVE_SESN_TEMP, new String[]{CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
                 new String[]{clickedVlvUUID}, null, null, null, null);
@@ -925,10 +937,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         new String[]{clickedVlvUUID, String.valueOf(mvsd.getSessionDP()), String.valueOf(mvsd.getSessionDuration()), String.valueOf(mvsd.getSessionQuantity()), String.valueOf(mvsd.getSesnSlotNum()), mvsd.getSunTP(), mvsd.getMonTP(), mvsd.getTueTP(), mvsd.getWedTP(), mvsd.getThuTP(), mvsd.getFriTP(), mvsd.getSatTP()}, null, null, null, null);
 
                 if (cursorMaster.getCount() == 0) {
-                    Log.e("GGG ROW NOT MATCHED ","DUMMY");
-                    insertValveSesnLog(clickedVlvUUID, mvsd,db);
+                    Log.e("GGG ROW NOT MATCHED ", "DUMMY");
+                    insertValveSesnLog(clickedVlvUUID, mvsd, db);
                     db.delete(TABLE_VALVE_SESN_MASTER, CLM_VALVE_UUID + " =? AND " + CLM_VALVE_SESN_SLOT_NUM + " = ? ", new String[]{clickedVlvUUID, String.valueOf(mvsd.getSesnSlotNum())});
-                    insertValveSesnMaster(clickedVlvUUID, mvsd,db);
+                    insertValveSesnMaster(clickedVlvUUID, mvsd, db);
                 }
                 //listModalValveSessionData.add(mvsd);
             } while (cursorTemp.moveToNext());
@@ -962,7 +974,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public long insertValveSesnMaster(String valveUUID, ModalValveSessionData mvsd,SQLiteDatabase db) {
+    public long insertValveSesnMaster(String valveUUID, ModalValveSessionData mvsd, SQLiteDatabase db) {
         //SQLiteDatabase dbLocal = db;
         ContentValues values = new ContentValues();
 
@@ -984,5 +996,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         long insertedRowUniqueID = db.insert(TABLE_VALVE_SESN_MASTER, null, values);
         //db.close();
         return insertedRowUniqueID;
+    }
+
+    public void updateDvcNameOnly(String dvcUUID, String editedName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CLM_DVC_NAME, editedName);
+
+        int rowAffected = db.update(TABLE_DVC_MASTER, values, CLM_DVC_UUID + " = ? ",
+                new String[]{dvcUUID});
+    }
+
+    public int getDvcTotalValvesPlayPauseCount(String dvcUUID, String checkOpTySPP) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int playTotalCountDvc = 0;
+
+        Cursor cursor = db.query(TABLE_VALVE_MASTER, new String[]{CLM_VALVE_OP_TP_SPP_STRING}, CLM_DVC_UUID + " = ? AND " + CLM_VALVE_OP_TP_SPP_STRING + " = ? ",
+                new String[]{dvcUUID, checkOpTySPP}, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                //if (cursor.getString(0).equals("PLAY")) {
+                playTotalCountDvc++;
+                //}
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return playTotalCountDvc;
     }
 }
