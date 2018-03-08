@@ -25,9 +25,9 @@ import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.AdptrAvailableDVCs;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +80,7 @@ public class FragAvailableDevices extends Fragment implements BLEInterface {
         reViListAvailDvc = view.findViewById(R.id.reViListAvailDvc);
         //if (NetworkUtils.isConnected(mContext)) {
         //Location work starts
-        mContext.getLocation();
+       // mContext.getLocation();
         //Bluetooth work starts
         startBTWork();
         /*} else {

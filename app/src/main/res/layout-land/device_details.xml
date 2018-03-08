@@ -113,7 +113,7 @@
                                 <ImageView
                                     android:layout_width="@dimen/icon_size"
                                     android:layout_height="@dimen/icon_size"
-                                    android:src="@drawable/pause" />
+                                    android:src="@drawable/edit_one" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                                 <ImageView
                                     android:layout_width="@dimen/icon_size"
                                     android:layout_height="@dimen/icon_size"
-                                    android:src="@drawable/pause" />
+                                    android:src="@drawable/stop" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -347,7 +347,7 @@
                                     <ImageView
                                         android:layout_width="@dimen/icon_size"
                                         android:layout_height="@dimen/icon_size"
-                                        android:src="@drawable/pause" />
+                                        android:src="@drawable/help" />
 
                                     <TextView
                                         android:layout_width="wrap_content"

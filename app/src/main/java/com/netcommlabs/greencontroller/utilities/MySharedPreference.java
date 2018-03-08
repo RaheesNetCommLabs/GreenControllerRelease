@@ -3,6 +3,7 @@ package com.netcommlabs.greencontroller.utilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 
 /**
@@ -19,10 +20,15 @@ public class MySharedPreference {
 
     private String keyConnectedTime = "connTime";
     private final String Name = "name";
-    private final String User_img = "user_img";
+    private final String User_img = "image";
     private final String UID = "user_id";
     private final String EMAIL = "email";
+
+
     private final String MOBILE = "mobile";
+
+
+    private final String ADDRESSID = "address_id";
 
     public static MySharedPreference getInstance(Context mContext) {
         if (object == null) {
@@ -83,7 +89,6 @@ public class MySharedPreference {
     public void setUserDetail(PreferenceModel data) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(Name, data.getName());
-
         editor.putString(UID, data.getUser_id());
         editor.putString(EMAIL, data.getEmail());
         editor.putString(MOBILE, data.getMobile());
@@ -108,6 +113,43 @@ public class MySharedPreference {
     public void setUser_img(String data) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(User_img, data);
+        editor.commit();
+    }
+
+
+    public String getMOBILE() {
+        return sharedpreferences.getString(MOBILE, null);
+    }
+
+    public void setMOBILE(String data) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(MOBILE, data);
+        editor.commit();
+    }
+
+
+ /*   public String getADDRESSID() {
+        return sharedpreferences.getString(ADDRESSID, null);
+    }
+
+    public void setADDRESSID(String data) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ADDRESSID, data);
+        editor.commit();
+    }*/
+
+
+    public ModalAddressModule getADDRESSID()
+    {
+        ModalAddressModule modalAddressModule=new ModalAddressModule();
+        modalAddressModule.setAddressUUID(sharedpreferences.getString(ADDRESSID, null));
+        return modalAddressModule;
+    }
+
+    public void  setADDRESSID( ModalAddressModule modalAddressModule){
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(ADDRESSID, modalAddressModule.getAddressUUID());
         editor.commit();
     }
 

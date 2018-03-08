@@ -98,7 +98,7 @@ public class ProjectWebRequest {
                 progressDialog.hideProgressBar();
                 error.printStackTrace();
                 if (error instanceof NetworkError) {
-                    errorMsg = "Network error, please try again later";
+                    errorMsg = "Network error, please check your connection";
                 } else if (error instanceof ServerError) {
                     errorMsg = "Server error, please try again later";
                 } else if (error instanceof AuthFailureError) {

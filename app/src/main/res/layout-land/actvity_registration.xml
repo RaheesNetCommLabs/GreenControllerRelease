@@ -49,6 +49,7 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="true"
                         android:focusable="true"
+
                         android:gravity="center_vertical"
                         android:hint="Name"
                         android:imeOptions="flagNoExtractUi"
@@ -105,6 +106,7 @@
                             android:background="@android:color/transparent"
                             android:cursorVisible="true"
                             android:focusable="true"
+
                             android:gravity="center_vertical"
                             android:hint="Mobile No."
                             android:imeOptions="flagNoExtractUi"
@@ -148,6 +150,7 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="true"
                         android:focusable="true"
+
                         android:gravity="center_vertical"
                         android:hint="Email Address"
                         android:imeOptions="flagNoExtractUi"
@@ -179,6 +182,7 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="true"
                         android:focusable="true"
+
                         android:gravity="center_vertical"
                         android:hint="Password"
                         android:imeOptions="flagNoExtractUi"
@@ -218,6 +222,7 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="true"
                         android:focusable="true"
+
                         android:gravity="center_vertical"
                         android:hint="Confirm Password"
                         android:imeOptions="flagNoExtractUi"

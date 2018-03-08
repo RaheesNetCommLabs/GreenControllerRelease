@@ -1,4 +1,4 @@
-package com.netcommlabs.greencontroller.utilities;
+package com.netcommlabs.greencontroller.Dialogs;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -6,12 +6,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
-import com.netcommlabs.greencontroller.activities.MainActivity;
 
-import java.util.logging.Handler;
+import com.netcommlabs.greencontroller.R;
+
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
+
+import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 /**
  * Created by Netcomm on 9/16/2016.
@@ -31,8 +37,19 @@ public class AppAlertDialog {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
-                })
-                .show();
+                });
+                //.show();
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
+
     }
 
     public static void showDialogAndExitApp(final Context tmContext, String Title, String Msg) {
@@ -43,8 +60,19 @@ public class AppAlertDialog {
                         dialog.cancel();
                         ((Activity) tmContext).finish();
                     }
-                })
-                .show();
+                });
+
+
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
     public static void dialogBLENotConnected(final MainActivity mContext, final Fragment myRequestedFrag, final BLEAppLevel bleAppLevel, final String macAddress) {
@@ -52,6 +80,7 @@ public class AppAlertDialog {
         appAlertDialog.mContext = mContext;
         appAlertDialog.myRequestedFrag = myRequestedFrag;
         appAlertDialog.bleAppLevel = bleAppLevel;
+
         appAlertDialog.macAddressClassLevel = macAddress;
         String title, msg;
         if (myRequestedFrag instanceof FragDeviceMAP) {
@@ -61,20 +90,19 @@ public class AppAlertDialog {
             title = "BLE not connected";
             msg = "Check BLE power, operating range and connect again !";
         }
+
         AlertDialog.Builder alBui = new AlertDialog.Builder(mContext);
-        alBui.setTitle(title);
-        alBui.setMessage(msg);
+        alBui.setTitle("BLE not connected");
+        alBui.setMessage("Check BLE power, operating range and connect again !");
         alBui.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialogConnectingBLE();
-                if (appAlertDialog.macAddressClassLevel.equals("")) {
-                    appAlertDialog.macAddressClassLevel = MySharedPreference.getInstance(mContext).getConnectedDvcMacAdd();
-                }
+                String macAddress = MySharedPreference.getInstance(mContext).getConnectedDvcMacAdd();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     bleAppLevel.disconnectBLECompletely();
                 }
-                BLEAppLevel.getInstance(mContext, myRequestedFrag, appAlertDialog.macAddressClassLevel);
+                BLEAppLevel.getInstance(mContext, myRequestedFrag, macAddress);
             }
         });
         alBui.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -83,7 +111,17 @@ public class AppAlertDialog {
                 dialog.dismiss();
             }
         });
-        alBui.create().show();
+      //  alBui.create().show();
+        AlertDialog alert = alBui.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
 

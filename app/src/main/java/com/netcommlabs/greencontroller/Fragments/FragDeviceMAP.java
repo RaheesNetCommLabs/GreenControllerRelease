@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,15 +22,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.DeviceAddressAdapter;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
-import com.netcommlabs.greencontroller.utilities.Constant;
 
 import java.util.List;
 
@@ -394,7 +396,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                             if (databaseHandler.getAllDeviceName().size() > 0) {
                                 for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
                                     if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(userIPDvcName)) {
-                                        Toast.makeText(mContext, "This device name already exists with app", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mContext, "This device name " +
+                                                "already exists with app", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
                                 }
@@ -525,8 +528,18 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         /*llDialogLongPressDvc.setVisibility(View.GONE);
                         llIMWholeDesign.setVisibility(View.VISIBLE);*/
                     }
-                })
-                .show();
+                });
+                //.show();
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
     public void dvcLongPressBLEDone(String cmdTypeName) {

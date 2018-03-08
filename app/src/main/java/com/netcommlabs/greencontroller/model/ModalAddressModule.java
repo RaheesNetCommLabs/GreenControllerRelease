@@ -8,6 +8,10 @@ import java.io.Serializable;
 
 public class ModalAddressModule implements Serializable {
 
+    public void setAddressUUID(String addressUUID) {
+        this.addressUUID = addressUUID;
+    }
+
     private String addressUUID;
     private int addressSelectStatus;
 

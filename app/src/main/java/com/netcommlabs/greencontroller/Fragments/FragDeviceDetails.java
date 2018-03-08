@@ -13,10 +13,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.ValvesListAdapter;
@@ -25,7 +28,6 @@ import com.netcommlabs.greencontroller.model.ModalValveMaster;
 import com.netcommlabs.greencontroller.model.ModalValveSessionData;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
@@ -1038,9 +1040,25 @@ public class FragDeviceDetails extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
+<<<<<<< HEAD
+                });
+               // .show();
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
+    }
+=======
                 })
                 .show();
     }*/
+
 
     /*private void dialogPAUSEConfirm() {
         String title, msg;
@@ -1070,9 +1088,25 @@ public class FragDeviceDetails extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
+<<<<<<< HEAD
+                });
+               // .show();
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
+    }
+=======
                 })
                 .show();
     }*/
+
 
     /*private void dialogPLAYConfirm() {
         String title, msg;
@@ -1102,9 +1136,25 @@ public class FragDeviceDetails extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
+<<<<<<< HEAD
+                });
+               // .show();
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
+    }
+=======
                 })
                 .show();
     }*/
+
 
 
     private void dialogPlyPosFlshOnOffStop(String title, String msg, final String positiveBtnName) {
@@ -1138,8 +1188,18 @@ public class FragDeviceDetails extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                })
-                .show();
+                });
+
+        AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
     public void cmdButtonACK(String cmdNameLocalACK) {

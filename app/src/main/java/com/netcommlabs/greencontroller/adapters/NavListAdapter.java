@@ -19,7 +19,6 @@ import com.netcommlabs.greencontroller.Fragments.FragFAQHelp;
 import com.netcommlabs.greencontroller.Fragments.FragFeedback;
 import com.netcommlabs.greencontroller.Fragments.FragMeterDevice;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
-import com.netcommlabs.greencontroller.Fragments.FragOtp;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
@@ -28,7 +27,7 @@ import com.netcommlabs.greencontroller.activities.LoginAct;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 
@@ -120,11 +119,12 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             MySharedPreference.getInstance(mContext).clearAll();
                             mContext. startActivity(new Intent(mContext, LoginAct.class));
                             mContext.finish();
-                        case "Verify Otp":
+                            break;
+                      /*  case "Verify Otp":
                             //Replacing Fragment(FragOtp)
                             MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
                             break;
-
+*/
                     }
 
                     nav_drawer_layout.closeDrawers();

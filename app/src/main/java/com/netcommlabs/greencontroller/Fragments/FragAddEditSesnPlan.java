@@ -31,7 +31,7 @@ import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.model.ModalValveSessionData;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.AppAlertDialog;
+import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 
 import java.util.ArrayList;
@@ -1287,14 +1287,25 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             }
         });
         //Show dialog in Landscape mode
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+ /*       WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         Window windowAlDl = dialogChooseTmPnt.getWindow();
 
         layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
-        windowAlDl.setAttributes(layoutParams);
+        windowAlDl.setAttributes(layoutParams);*/
+
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = dialogChooseTmPnt.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width =700;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        dialogChooseTmPnt.getWindow().setBackgroundDrawableResource(R.color.theme_color);
         dialogChooseTmPnt.show();
+
 
     }
 
@@ -2175,8 +2186,19 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                })
-                .show();
+                });
+
+
+        android.support.v7.app.AlertDialog alert = builder.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
    /* public void eraseOldTimePoints() {

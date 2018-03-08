@@ -34,11 +34,19 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.model.PreferenceModel;
+import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +59,7 @@ import static android.app.Activity.RESULT_OK;
  * Created by Android on 12/6/2017.
  */
 
-public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, View.OnClickListener {
+public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, View.OnClickListener, APIResponseListener {
 
     private static final int PLACE_AC_REQUEST_CODE = 1;
     private MainActivity mContext;
@@ -91,8 +99,12 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
     private DatabaseHandler databaseHandler;
     private double latitudeLocation, longitudeLocation;
     private String landedHereFrom = "";
-
+    private ProjectWebRequest request;
+    private PreferenceModel preference;
+    private String strValue;
+    private String addAddressId;
     @Override
+
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = (MainActivity) context;
@@ -110,6 +122,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
     }
 
     private void initViews(View view) {
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
         mapFragment = (MapFragment) mContext.getFragmentManager().findFragmentById(R.id.map);
         AddAddressLayoutScrlV = view.findViewById(R.id.AddAddressLayoutScrlV);
         llSearchMAPok = view.findViewById(R.id.llSearchMAPok);
@@ -488,11 +501,16 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
                     if (landedHereFrom.equals("FragAddressDetail")) {
                         long updatedRowUniqueID = databaseHandler.updateAddressModule(modalAddressModule);
                         if (updatedRowUniqueID > 0) {
-                            Toast.makeText(mContext, "Address updated successfully", Toast.LENGTH_SHORT).show();
+                            strValue="edit";
+                            hitApiForSaveAddress(strValue);
+
+                        //    Toast.makeText(mContext, "Address updated successfully", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         databaseHandler.insertAddressModule(modalAddressModule);
-                        Toast.makeText(mContext, "New address added", Toast.LENGTH_SHORT).show();
+                        strValue="add";
+                        hitApiForSaveAddress(strValue);
+
                     }
                 } else {
                     getTargetFragment().onActivityResult(
@@ -513,6 +531,47 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
 
     }
 
+    private void hitApiForSaveAddress(String strValue) {
+        try {
+            request = new ProjectWebRequest(mContext, getParam(strValue), UrlConstants.ADD_ADDRESS, this, UrlConstants.ADD_ADDRESS_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject getParam(String strValue) {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("add_edit", strValue);
+            object.put("address_name", modalAddressModule.getAddressRadioName());
+            object.put("flat_house_building", modalAddressModule.getFlat_num());
+            object.put("tower_street", modalAddressModule.getStreetName());
+            object.put("area_land_loca", modalAddressModule.getLocality_landmark());
+            object.put("pin_code", modalAddressModule.getPinCode());
+            object.put("city", modalAddressModule.getCity());
+            object.put("state", modalAddressModule.getState());
+            object.put("place_lat", modalAddressModule.getLatitudeLocation());
+            object.put("place_longi", modalAddressModule.getLongitudeLocation());
+            object.put("place_well_known_name", modalAddressModule.getPlaceWellKnownName());
+            object.put("place_Address", modalAddressModule.getPlaceAddress());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    private void clearRef() {
+        if (request != null) {
+            request = null;
+        }
+    }
+
     //Removing nested MapFragment to avoid duplicacy to come in FragAddEditAddress again
     @Override
     public void onDestroyView() {
@@ -520,5 +579,28 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
         if (mapFragment != null) {
             mContext.getFragmentManager().beginTransaction().remove(mapFragment).commit();
         }
+    }
+
+    @Override
+    public void onSuccess(JSONObject call, int Tag) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            //addAddressId=call.optString("address_id");
+            ModalAddressModule model = new Gson().fromJson(call.toString(), ModalAddressModule.class);
+            MySharedPreference.getInstance(mContext).setADDRESSID(model);
+          //  MySharedPreference.getInstance(mContext).setADDRESSID(call.optString("address_id"));
+            Toast.makeText(mContext, ""+call.optString("message"), Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+
+    @Override
+    public void onFailure(String error, int Tag, String erroMsg) {
+
+    }
+
+    @Override
+    public void doRetryNow() {
+
     }
 }

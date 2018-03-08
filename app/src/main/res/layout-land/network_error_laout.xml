@@ -4,26 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!--  <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:background="@color/black" />-->
-
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-         />
-
-    <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/_300sdp"
         android:layout_height="wrap_content"
+       android:layout_marginBottom="@dimen/_30sdp"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="@dimen/_90sdp"
-            android:layout_height="@dimen/_90sdp"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="@dimen/_70sdp"
             android:background="@drawable/error_icon" />
 
         <TextView
@@ -32,7 +23,7 @@
             android:gravity="center"
             android:text="Error!"
             android:textColor="@color/text_color_white"
-            android:textSize="@dimen/_22sdp" />
+            android:textSize="@dimen/_20sdp" />
 
         <TextView
             android:id="@+id/error_msg"
@@ -42,7 +33,7 @@
             android:gravity="center"
             android:text="gfdgdfgddfgdfgdfsgfgsdfgsdfgdfjhgsdf"
             android:textColor="@color/text_color_white"
-            android:textSize="@dimen/_18sdp" />
+            android:textSize="@dimen/_12sdp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,7 +45,7 @@
 
             <TextView
                 android:id="@+id/tv_exit"
-                android:layout_width="@dimen/_150sdp"
+                android:layout_width="@dimen/_100sdp"
                 android:layout_height="@dimen/_45sdp"
                 android:background="@drawable/round_back_shadow_small"
                 android:gravity="center"
@@ -65,7 +56,7 @@
 
             <TextView
                 android:id="@+id/tv_retry"
-                android:layout_width="@dimen/_150sdp"
+                android:layout_width="@dimen/_100sdp"
                 android:layout_height="@dimen/_45sdp"
                 android:background="@drawable/round_back_shadow_small"
                 android:gravity="center"

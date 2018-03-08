@@ -152,6 +152,7 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
 
                 Intent i = new Intent(RegistraionActivity.this, ActvityOtp.class);
                 i.putExtra("userId", userIdForOtp);
+                i.putExtra("mobile",edtPhoneNo.getText().toString());
                 startActivity(i);
 
             } else {
@@ -172,7 +173,8 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
 
     @Override
     public void doRetryNow() {
-
+        clearRef();
+        hitApiForRegistration();
     }
 
 

@@ -18,17 +18,24 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
+import com.netcommlabs.greencontroller.model.PreferenceModel;
+import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+
+import org.json.JSONObject;
 
 /**
  * Created by Android on 12/6/2017.
  */
 
-public class FragConnectedQR extends Fragment {
+public class FragConnectedQR extends Fragment implements APIResponseListener {
 
     private MainActivity mContext;
     private View view;
@@ -44,6 +51,9 @@ public class FragConnectedQR extends Fragment {
     int valveNum;
     private ModalAddressModule modalAddressModule;
     private static String dvcNameEdited = "", qrCodeEdited = "";
+    ProjectWebRequest request;
+    private PreferenceModel preference;
+    private LinearLayout address_selection_layout;
 
     @Override
     public void onAttach(Context context) {
@@ -63,6 +73,7 @@ public class FragConnectedQR extends Fragment {
     }
 
     private void initViews(View view) {
+        preference = MySharedPreference.getInstance(mContext).getsharedPreferenceData();
         tvDvcName = view.findViewById(R.id.tvDvcName);
         ivEditDvcName = view.findViewById(R.id.ivEditDvcName);
         ivSaveDvcName = view.findViewById(R.id.ivSaveDvcName);
@@ -71,6 +82,7 @@ public class FragConnectedQR extends Fragment {
         etQRManually = view.findViewById(R.id.etQRManually);
         tvScanQREvent = view.findViewById(R.id.tvScanQREvent);
         tvNextConctdEvent = view.findViewById(R.id.tvNextConctdEvent);
+
     }
 
     private void initBase() {
@@ -217,18 +229,9 @@ public class FragConnectedQR extends Fragment {
                         }
                     }
                 }
+                hitApiForSaveAddress();
 
 
-                long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
-                if (insertedAddressUniqueID!=0){
-                    databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
-
-                    //Replacing current Fragment by (FragDeviceMAP)
-                    MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
-                    dvcNameEdited = "";
-                    qrCodeEdited = "";
-                    Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
-                }
                 /*long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
                 databaseHandler.insertDeviceModule(insertedAddressUniqueID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
                 //ModalDeviceModule modalBleDevice = new ModalDeviceModule(dvcNameEdited, dvc_mac_address, modalAddressModule, valveNum);
@@ -236,6 +239,49 @@ public class FragConnectedQR extends Fragment {
             }
 
         });
+    }
+
+    private void hitApiForSaveAddress() {
+
+        try {
+            request = new ProjectWebRequest(mContext, getParam(), UrlConstants.ADD_ADDRESS, this, UrlConstants.ADD_ADDRESS_TAG);
+            request.execute();
+        } catch (Exception e) {
+            clearRef();
+            e.printStackTrace();
+        }
+    }
+
+
+    private void clearRef() {
+        if (request != null) {
+            request = null;
+        }
+    }
+
+    private JSONObject getParam() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
+            object.put("add_edit", "add");
+            object.put("address_name", modalAddressModule.getAddressRadioName());
+            object.put("flat_house_building", modalAddressModule.getFlat_num());
+            object.put("tower_street", modalAddressModule.getStreetName());
+            object.put("area_land_loca", modalAddressModule.getLocality_landmark());
+            object.put("pin_code", modalAddressModule.getPinCode());
+            object.put("city", modalAddressModule.getCity());
+            object.put("state", modalAddressModule.getState());
+            object.put("place_lat", modalAddressModule.getLatitudeLocation());
+            object.put("place_longi", modalAddressModule.getLongitudeLocation());
+            object.put("place_well_known_name", modalAddressModule.getPlaceWellKnownName());
+            object.put("place_Address", modalAddressModule.getPlaceAddress());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
     @Override
@@ -260,4 +306,31 @@ public class FragConnectedQR extends Fragment {
         }
     }
 
+    @Override
+    public void onSuccess(JSONObject call, int Tag) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
+            if (insertedAddressUniqueID != 0) {
+                databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+
+                //Replacing current Fragment by (FragDeviceMAP)
+                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                dvcNameEdited = "";
+                qrCodeEdited = "";
+                Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onFailure(String error, int Tag, String erroMsg) {
+
+    }
+
+    @Override
+    public void doRetryNow() {
+
+    }
 }

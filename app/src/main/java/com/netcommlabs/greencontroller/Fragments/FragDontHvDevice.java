@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.utilities.Constant;
+import com.netcommlabs.greencontroller.constant.Constant;
 
 public class FragDontHvDevice extends Fragment {
 

@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:background="#0A635D"
     android:gravity="center"
+    android:id="@+id/nav_header"
     android:orientation="vertical">
 
     <LinearLayout
