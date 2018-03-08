@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         initBase();
         initListeners();
-        gettingLocationWithProgressBar();
+
 
     }
 
@@ -325,6 +325,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 //Bluetooth work starts
                 startBTWork();
                 getIMEIRunAsync();
+                gettingLocationWithProgressBar();
                 //  hitApiForSaveLocation();
             } else {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
@@ -344,17 +345,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     boolean fineLocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     boolean phoneReadState = grantResults[2] == PackageManager.PERMISSION_GRANTED;
-
                     if (fineLocation && cameraPermission && phoneReadState) {
                         //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
                         if (NetworkUtils.isConnected(this)) {
                             //Bluetooth work starts
                             startBTWork();
-
+                            gettingLocationWithProgressBar();
                             getIMEIRunAsync();
-                            //     hitApiForSaveLocation();
-                         /* TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-                            getDeviceID(telephonyManager);*/
                         } else {
                             AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
                         }
@@ -387,7 +384,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             object.put("user_id", preference.getUser_id());
             object.put("imei_primary", imeiSIM1);
             object.put("imei_secondary", imeiSIM2);
-            object.put("location", addressUserFriendly);
+            if (addressUserFriendly==""){
+                object.put("location", "");
+            }else {
+                object.put("location", addressUserFriendly);
+            }
+
         } catch (Exception e) {
         }
         return object;
@@ -400,10 +402,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void gettingLocationWithProgressBar() {
-      /*  proDialog.setMessage("Please wait...");
-        proDialog.setCancelable(false);
-        proDialog.show();*/
-        //customProDia.showProgressBar();
+
         if (checkGooglePlayServiceAvailability(MainActivity.this)) {
             buildGoogleApiClient();
         }
@@ -621,30 +620,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private String latLongToAddress(double lat, double lng) {
         myLatitude = lat;
         myLongitude = lng;
-
         Geocoder geocoder;
         List<Address> addresses;
-
-
         geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-
-
         try {
             // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             addresses = geocoder.getFromLocation(myLatitude, myLongitude, 1);
-
             city = addresses.get(0).getLocality();
             area = addresses.get(0).getSubLocality();
             addressUserFriendly = area + " " + city;
-
             //  Toast.makeText(mContext, "" + addressUserFriendly, Toast.LENGTH_SHORT).show();
             hitApiForSaveLocation();
         } catch (Exception e) {
             //  new CustomProgressDialog(MainActivity.this, e, "No Location Found", "Please check internet stability or move to different place and retry").show();
             mGoogleApiClient.disconnect();
-            //gettingLocationWithProgressBar();
+            hitApiForSaveLocation();
+
             e.printStackTrace();
-            //Toast.makeText(this, "Something went wrong, try again later, IOException", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Something went wrong, location not found", Toast.LENGTH_SHORT).show();
         } finally {
            /* if (proDialog.isShowing()) {
                 proDialog.dismiss();
