@@ -204,8 +204,13 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         try {
             object = new JSONObject();
             object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-            object.put("user_id", preference.getUser_id());
-            object.put("mobile",mobileNo);
+            if(tagValue.equals("My Profile")) {
+                object.put("user_id", preference.getUser_id());
+                object.put("mobile", mobileNo);
+            }else{
+                object.put("user_id", userId);
+                object.put("mobile", mobileNoFromRegs);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -397,6 +402,9 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                 startActivity(intentChangePass);
               finish();
 
+            }
+            else {
+                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
             }
         }
 

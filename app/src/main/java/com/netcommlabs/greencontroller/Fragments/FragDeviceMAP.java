@@ -373,6 +373,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     llDialogEditDvcName.setVisibility(View.VISIBLE);
                     etEditDvcName.setText(dvcName);
 
+
+
                     tvCancelEdit.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -469,6 +471,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
 
                 }
             });
+
+
         }
 
         /*Dialog dialog = null;

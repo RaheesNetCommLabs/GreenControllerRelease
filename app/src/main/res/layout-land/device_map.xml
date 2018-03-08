@@ -406,8 +406,176 @@
         android:id="@+id/llDialogLongPressDvc"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
+
+
         android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="@dimen/_300sdp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_30sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:background="@color/text_color_white"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
+
+                    android:background="@color/lighter_gray"
+                    android:padding="@dimen/_5sdp">
+
+                    <TextView
+                        android:id="@+id/textView14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/_10sdp"
+                        android:paddingLeft="@dimen/_10sdp"
+                        android:paddingTop="@dimen/_3sdp"
+                        android:text="Device Options"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_15sdp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvEditDvcName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Edit Name"
+                    android:textColor="@android:color/black" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="#1A000000" />
+
+                <TextView
+                    android:id="@+id/tvPauseDvc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Pause"
+                    android:textColor="@android:color/black" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="#1A000000" />
+
+                <TextView
+                    android:id="@+id/tvResumeDbc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Resume"
+                    android:textColor="@android:color/black" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="#1A000000" />
+
+                <TextView
+                    android:id="@+id/tvConnectDvc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Connect"
+                    android:textColor="@android:color/black" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="#1A000000" />
+
+                <TextView
+                    android:id="@+id/tvDisconnectDvc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Disconnect"
+                    android:textColor="@android:color/black" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="#1A000000" />
+
+                <TextView
+                    android:id="@+id/tvDeleteDvc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_10sdp"
+                    android:text="Delete"
+                    android:textColor="@android:color/black" />
+
+
+           <!--     <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:background="@color/text_color_white"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
+                    <TextView
+                        android:id="@+id/tv_submit_change_password"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="@dimen/_3sdp"
+                        android:layout_weight=".5"
+                        android:background="#0B9F7F"
+                        android:gravity="center"
+                        android:text="SUBMIT"
+                        android:textColor="@color/text_color_white"
+                        android:textSize="@dimen/_15sdp" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_3sdp"
+                        android:background="#73C59F"></View>
+
+                    <TextView
+                        android:id="@+id/tv_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="@dimen/_3sdp"
+                        android:layout_weight=".5"
+                        android:background="#0B9F7F"
+                        android:gravity="center"
+                        android:text="CANCEL"
+                        android:textColor="@color/text_color_white"
+                        android:textSize="@dimen/_15sdp" />
+                </LinearLayout>-->
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llDialogEditDvcName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="@dimen/_300sdp"
@@ -416,167 +584,6 @@
             android:layout_marginLeft="@dimen/_10sdp"
             android:layout_marginRight="@dimen/_10sdp"
             android:background="@color/text_color_white"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
-                android:background="@color/lighter_gray"
-
-                android:padding="@dimen/_5sdp">
-
-                <TextView
-                    android:id="@+id/textView14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/_10sdp"
-                    android:paddingLeft="@dimen/_10sdp"
-                    android:paddingTop="@dimen/_3sdp"
-                    android:text="Device Options"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_15sdp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvEditDvcName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Edit Name"
-                android:textColor="@android:color/black" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_1sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:background="#1A000000" />
-
-            <TextView
-                android:id="@+id/tvPauseDvc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Pause"
-                android:textColor="@android:color/black" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_1sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:background="#1A000000" />
-
-            <TextView
-                android:id="@+id/tvResumeDbc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Resume"
-                android:textColor="@android:color/black" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_1sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:background="#1A000000" />
-
-            <TextView
-                android:id="@+id/tvConnectDvc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Connect"
-                android:textColor="@android:color/black" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_1sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:background="#1A000000" />
-
-            <TextView
-                android:id="@+id/tvDisconnectDvc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Disconnect"
-                android:textColor="@android:color/black" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_1sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:background="#1A000000" />
-
-            <TextView
-                android:id="@+id/tvDeleteDvc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/_10sdp"
-                android:text="Delete"
-                android:textColor="@android:color/black" />
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:background="@color/text_color_white"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:weightSum="1">
-
-                <TextView
-                    android:id="@+id/tv_submit_change_password"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="@dimen/_3sdp"
-                    android:layout_weight=".5"
-                    android:background="#0B9F7F"
-                    android:gravity="center"
-                    android:text="SUBMIT"
-                    android:textColor="@color/text_color_white"
-                    android:textSize="@dimen/_15sdp" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_3sdp"
-                    android:background="#73C59F"></View>
-
-                <TextView
-                    android:id="@+id/tv_cancel_change_pass"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="@dimen/_3sdp"
-                    android:layout_weight=".5"
-                    android:background="#0B9F7F"
-                    android:gravity="center"
-                    android:text="CANCEL"
-                    android:textColor="@color/text_color_white"
-                    android:textSize="@dimen/_15sdp" />
-            </LinearLayout>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llDialogEditDvcName"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="@dimen/_300sdp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -600,12 +607,21 @@
             <EditText
                 android:id="@+id/etEditDvcName"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_50sdp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:hint="Enter device name"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@android:color/transparent"
                 android:cursorVisible="true"
                 android:focusable="true"
-                android:imeOptions="flagNoExtractUi"/>
+                android:hint="Enter device name"
+                android:imeOptions="flagNoExtractUi"
+
+                android:inputType="text"
+                android:padding="@dimen/_10sdp"
+
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_color_gray"
+                android:textSize="@dimen/_13sdp" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -650,6 +666,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
 
     <!--<include
         layout="@layout/dialog_dvc_long_press"

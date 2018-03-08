@@ -195,8 +195,6 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
             object.put("userID", preference.getUser_id());
             object.put("add_edit", "delete");
             object.put("addressID", modalAddressModule.getAddressUUID());
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
