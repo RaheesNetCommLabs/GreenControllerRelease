@@ -10,7 +10,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+
 import com.netcommlabs.greencontroller.R;
+
+import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
+
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
@@ -76,6 +80,16 @@ public class AppAlertDialog {
         appAlertDialog.mContext = mContext;
         appAlertDialog.myRequestedFrag = myRequestedFrag;
         appAlertDialog.bleAppLevel = bleAppLevel;
+
+        appAlertDialog.macAddressClassLevel = macAddress;
+        String title, msg;
+        if (myRequestedFrag instanceof FragDeviceMAP) {
+            title = "Sure to connect Device";
+            msg = "But first check device power, operating range and connect !";
+        } else {
+            title = "BLE not connected";
+            msg = "Check BLE power, operating range and connect again !";
+        }
 
         AlertDialog.Builder alBui = new AlertDialog.Builder(mContext);
         alBui.setTitle("BLE not connected");

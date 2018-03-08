@@ -173,6 +173,9 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                         if(tagValue.equals("My Profile")){
                             hitResendOtpForMobileNo();
 
+                        }
+                        else if(tagVarifyUser.equals("Register User Varification")){
+                            hitResendOtpForMobileNo();
                         }else{
                             hitApiforResendOtpRegister();
                         }

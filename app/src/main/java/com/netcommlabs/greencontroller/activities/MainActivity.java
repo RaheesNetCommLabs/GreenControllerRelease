@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         initBase();
         initListeners();
         gettingLocationWithProgressBar();
-        // getIMEIRunAsync();
 
     }
 
@@ -477,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             if (mBluetoothAdapter.isEnabled()) {
                 //Now starts Location work
-                //  getLocation();
+
                 //startDvcDiscovery();
                 //Toast.makeText(mContext, "Bluetooth is enabled", Toast.LENGTH_SHORT).show();
                 return;

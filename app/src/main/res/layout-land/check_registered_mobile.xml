@@ -20,7 +20,8 @@
             android:layout_gravity="center"
             android:layout_marginBottom="@dimen/_10sdp"
             android:gravity="center"
-            android:text="Input Your Number for change password" />
+            android:textSize="@dimen/_18sdp"
+            android:text="Input your phone number for change password" />
 
         <EditText
             android:id="@+id/et_mobile_no"

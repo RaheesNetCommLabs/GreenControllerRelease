@@ -44,7 +44,7 @@ public class BLEAppLevel {
     private Fragment myFragment;
     //private static Fragment myFragmentDD;
     private boolean isBLEConnected = false;
-    private int alert_level, totalPlayValvesCount = 0, totalPauseValvesCount = 0, pauseIndex = 1, playIndex = 1;
+    private int alert_level, totalPlayValvesCount = 0, totalPauseValvesCount = 0, totalPlayPauseValvesCount, pauseIndex = 1, playIndex = 1, stopIndex = 1;
     private String cmdTypeName;
     private static int dataSendingIndex = 0;
     private static boolean oldTimePointsErased = FALSE;
@@ -232,17 +232,29 @@ public class BLEAppLevel {
                             }
                         }
 
+                        if (myFragment instanceof FragDeviceMAP) {
+                            if (cmdTypeName.equals("STOP")) {
+                                stopIndex++;
+                                if (stopIndex <= totalPlayPauseValvesCount) {
+                                    cmdDvcStop(null, "", 0);
+                                } else {
+                                    ((FragDeviceMAP) myFragment).dvcLongPressBLEDone(cmdTypeName);
+                                }
+                            }
+                        }
+
 
                         if (myFragment instanceof FragDeviceDetails) {
-
                             if (cmdTypeName.equals("STOP")) {
                                 ((FragDeviceDetails) myFragment).cmdButtonACK("STOP");
                             } else if (cmdTypeName.equals("PAUSE")) {
                                 ((FragDeviceDetails) myFragment).cmdButtonACK("PAUSE");
                             } else if (cmdTypeName.equals("PLAY")) {
                                 ((FragDeviceDetails) myFragment).cmdButtonACK("PLAY");
-                            } else if (cmdTypeName.equals("FLUSH")) {
-                                ((FragDeviceDetails) myFragment).cmdButtonACK("FLUSH");
+                            } else if (cmdTypeName.equals("FLUSH ON")) {
+                                ((FragDeviceDetails) myFragment).cmdButtonACK("FLUSH ON");
+                            } else if (cmdTypeName.equals("FLUSH OFF")) {
+                                ((FragDeviceDetails) myFragment).cmdButtonACK("FLUSH OFF");
                             }
 
                         }
@@ -310,6 +322,20 @@ public class BLEAppLevel {
         }
         // Command for PLAY
         byte[] valveCommand = {2};
+        bluetooth_le_adapter.writeCharacteristic(
+                BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
+                BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
+        );
+    }
+
+    public void cmdDvcStop(FragDeviceMAP fragDeviceMAP, String cmdTypeName, int totalPlayPauseValvesCount) {
+        if (fragDeviceMAP != null) {
+            myFragment = fragDeviceMAP;
+            this.cmdTypeName = cmdTypeName;
+            this.totalPlayPauseValvesCount = totalPlayPauseValvesCount;
+        }
+        // Command for STOP
+        byte[] valveCommand = {3};
         bluetooth_le_adapter.writeCharacteristic(
                 BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
                 BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
@@ -423,8 +449,7 @@ public class BLEAppLevel {
                         BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
                 );
             }
-        }
-        if (cmdTypeName.equals("STOP")) {
+        } else if (cmdTypeName.equals("STOP")) {
             byte[] valveCommand = {3};
             if (bluetooth_le_adapter != null) {
                 bluetooth_le_adapter.writeCharacteristic(
@@ -438,8 +463,14 @@ public class BLEAppLevel {
                     BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
                     BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
             );
-        } else if (cmdTypeName.equals("FLUSH")) {
+        } else if (cmdTypeName.equals("FLUSH ON")) {
             byte[] valveCommand = {1};
+            bluetooth_le_adapter.writeCharacteristic(
+                    BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
+                    BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand
+            );
+        } else if (cmdTypeName.equals("FLUSH OFF")) {
+            byte[] valveCommand = {5};
             bluetooth_le_adapter.writeCharacteristic(
                     BleAdapterService.VALVE_CONTROLLER_SERVICE_UUID,
                     BleAdapterService.COMMAND_CHARACTERISTIC_UUID, valveCommand

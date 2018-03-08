@@ -417,7 +417,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 public void onClick(View v) {
                     bleAppLevel = BLEAppLevel.getInstanceOnly();
                     if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        dialogPauseResumeConfirm("Pause Device", "This will Pause device completely", "Pause");
+                        dialogPsRmDtConfirm("Pause Device", "This will Pause device completely", "Pause");
                     } else {
                         AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
                     }
@@ -428,7 +428,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 public void onClick(View v) {
                     bleAppLevel = BLEAppLevel.getInstanceOnly();
                     if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        dialogPauseResumeConfirm("Resume Device", "This will Resume device completely", "Resume");
+                        dialogPsRmDtConfirm("Resume Device", "This will Resume device completely", "Resume");
                     } else {
                         AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
                     }
@@ -460,7 +460,12 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             tvDeleteDvc.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "Delete", Toast.LENGTH_SHORT).show();
+                    bleAppLevel = BLEAppLevel.getInstanceOnly();
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        dialogPsRmDtConfirm("Delete Device", "This will Delete device permanently", "Delete");
+                    } else {
+                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                    }
 
                 }
             });
@@ -493,7 +498,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         }
     }*/
 
-    private void dialogPauseResumeConfirm(String title, String msg, final String positiveBtnName) {
+    private void dialogPsRmDtConfirm(String title, String msg, final String positiveBtnName) {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(mContext);
 
@@ -508,6 +513,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                                 bleAppLevel.cmdDvcPause(FragDeviceMAP.this, "PAUSE", totalPlayValvesCount);
                             } else if (positiveBtnName.equals("Resume")) {
                                 bleAppLevel.cmdDvcPlay(FragDeviceMAP.this, "PLAY", totalPauseValvesCount);
+                            } else if (positiveBtnName.equals("Delete")) {
+                                int totalPlayPauseValvesCount = databaseHandler.getDvcTotalValvesPlayPauseCount(dvcUUID, "STOP");
+                                bleAppLevel.cmdDvcStop(FragDeviceMAP.this, "STOP", totalPlayPauseValvesCount);
                             }
                         } else {
                             Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
@@ -541,6 +549,12 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         } else if (cmdTypeName.equals("PLAY")) {
             databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PLAY");
             Toast.makeText(mContext, "Device resumed successfully", Toast.LENGTH_SHORT).show();
+        } else if (cmdTypeName.equals("STOP")) {
+            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "STOP");
+            int rowAffected = databaseHandler.updateDvcDeleteStatus(dvcUUID);
+            if (rowAffected > 0) {
+                Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
+            }
         }
 
         llDialogLongPressDvc.setVisibility(View.GONE);
