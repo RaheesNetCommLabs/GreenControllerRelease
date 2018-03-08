@@ -5,6 +5,12 @@ package com.netcommlabs.greencontroller.model;
  */
 
 public class ModalValveSessionData {
+    private final String valveNameSession;
+
+    public String getValveNameSession() {
+        return valveNameSession;
+    }
+
     private int sessionDP;
     private int sessionDuration;
     private int sessionQuantity;
@@ -63,7 +69,8 @@ public class ModalValveSessionData {
     private String friTP;
     private String satTP;
 
-    public ModalValveSessionData(int sessionDP, int sessionDuration, int sessionQuantity, int sesnSlotNum,String sunTP, String monTP, String tueTP, String wedTP, String thuTP, String friTP, String satTP) {
+    public ModalValveSessionData(String valveNameSession,int sessionDP, int sessionDuration, int sessionQuantity, int sesnSlotNum,String sunTP, String monTP, String tueTP, String wedTP, String thuTP, String friTP, String satTP) {
+        this.valveNameSession=valveNameSession;
         this.sessionDP = sessionDP;
         this.sessionDuration = sessionDuration;
         this.sessionQuantity = sessionQuantity;
