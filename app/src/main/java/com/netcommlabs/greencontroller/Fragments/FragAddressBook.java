@@ -27,6 +27,7 @@ import java.util.List;
 
 public class FragAddressBook extends Fragment {
 
+    public static final String KEY_ADDRESS_TRANSFER = "key_address_transfer";
     private MainActivity mContext;
     private RecyclerView gridRecyclerView;
     private AdapterAddressBook adapterAddressBook;
@@ -59,19 +60,29 @@ public class FragAddressBook extends Fragment {
     private void initViewsAndListeners() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, 2);
         gridRecyclerView.setLayoutManager(gridLayoutManager);
-
         databaseHandler = DatabaseHandler.getInstance(mContext);
-        listModalAddressModule = databaseHandler.getAddressListFormData("");
-        if (listModalAddressModule.size() > 0) {
+
+        Fragment fragment = getTargetFragment();
+        if (fragment instanceof FragConnectedQR) {
             tvNoAddressAvailable.setVisibility(View.GONE);
             gridRecyclerView.setVisibility(View.VISIBLE);
-            adapterAddressBook = new AdapterAddressBook(mContext, listModalAddressModule);
+            listModalAddressModule = databaseHandler.getAddressWithLocation("");
+            adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
             gridRecyclerView.setAdapter(adapterAddressBook);
         } else {
-            //In case of no address available
-            tvNoAddressAvailable.setVisibility(View.VISIBLE);
-            gridRecyclerView.setVisibility(View.GONE);
+            listModalAddressModule = databaseHandler.getAddressWithLocation("");
+            if (listModalAddressModule.size() > 0) {
+                tvNoAddressAvailable.setVisibility(View.GONE);
+                gridRecyclerView.setVisibility(View.VISIBLE);
+                adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
+                gridRecyclerView.setAdapter(adapterAddressBook);
+            } else {
+                //In case of no address available
+                tvNoAddressAvailable.setVisibility(View.VISIBLE);
+                gridRecyclerView.setVisibility(View.GONE);
+            }
         }
+
 
         llAddNewAddress.setVisibility(View.VISIBLE);
         llAddNewAddress.setOnClickListener(new View.OnClickListener() {

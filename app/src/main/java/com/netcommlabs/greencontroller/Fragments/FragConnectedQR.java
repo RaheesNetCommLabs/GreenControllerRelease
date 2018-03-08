@@ -28,8 +28,11 @@ import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by Android on 12/6/2017.
@@ -37,6 +40,7 @@ import org.json.JSONObject;
 
 public class FragConnectedQR extends Fragment implements APIResponseListener {
 
+    private static final int REQUEST_CODE_FOR_ADDRESS_BOOK = 1001;
     private MainActivity mContext;
     private View view;
     private LinearLayout llAddDeviceAddressConctd;
@@ -54,6 +58,8 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     ProjectWebRequest request;
     private PreferenceModel preference;
     private LinearLayout address_selection_layout;
+    private List<ModalAddressModule> listMdalAddressModules;
+    private String selectedAddressID;
 
     @Override
     public void onAttach(Context context) {
@@ -155,16 +161,35 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                     Toast.makeText(mContext, "Please save device name", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
-                if (modalAddressModule != null) {
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(FragAddEditAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
-                    fragAddEditAddress.setArguments(bundle);
+                if (!NetworkUtils.isConnected(mContext)) {
+                    Toast.makeText(mContext, "Please check your Network Connection", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                //First child---then parent
-                fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
-                //Adding Fragment(FragAddEditAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                listMdalAddressModules = databaseHandler.getAddressWithLocation("");
+                if (listMdalAddressModules.size() > 0) {
+                    FragAddressBook fragAddressBook = new FragAddressBook();
+//                    if (modalAddressModule != null) {
+//                        Bundle bundle = new Bundle();
+//                        bundle.putString(FragAddressBook.KEY_ADDRESS_TRANSFER, "userSelectedAddress");
+//                        fragAddressBook.setArguments(bundle);
+//                    }
+                    //First child---then parent
+                    fragAddressBook.setTargetFragment(FragConnectedQR.this, REQUEST_CODE_FOR_ADDRESS_BOOK);
+                    //Adding Fragment(FragAddressBook)
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddressBook, Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
+
+                } else {
+                    FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
+                   /* if (modalAddressModule != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(FragAddEditAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
+                        fragAddEditAddress.setArguments(bundle);
+                    }*/
+                    //First child---then parent
+                    fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
+                    //Adding Fragment(FragAddEditAddress)
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                }
             }
         });
 
@@ -286,6 +311,15 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_FOR_ADDRESS_BOOK && resultCode == Activity.RESULT_OK) {
+            if (data.getStringExtra("KEY_selected_Address_ID") != null) {
+                selectedAddressID = data.getStringExtra("KEY_selected_Address_ID");
+                Toast.makeText(mContext, "Existing address selected", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(mContext, "Selected address not copied, try again", Toast.LENGTH_SHORT).show();
+            }
+        }
+
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
             if (data.getSerializableExtra("mdlAddressLocation") != null) {
                 modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
@@ -309,7 +343,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     @Override
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
-            long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
+            long insertedAddressUniqueID = databaseHandler.insertAddressModule(call.optString("addressID"), modalAddressModule);
             if (insertedAddressUniqueID != 0) {
                 databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
 

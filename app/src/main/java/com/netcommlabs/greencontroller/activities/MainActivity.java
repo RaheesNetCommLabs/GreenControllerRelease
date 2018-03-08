@@ -245,14 +245,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermission();
         } else {
-            //Toast.makeText(mContext, "No need to ask runtime permissions", Toast.LENGTH_SHORT).show();
             if (NetworkUtils.isConnected(this)) {
                 //Bluetooth work starts
                 startBTWork();
 
-            } else {
+            } /*else {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-            }
+            }*/
         }
         llAddNewAddress = findViewById(R.id.llAddNewAddress);
         frm_lyt_container_int = R.id.frm_lyt_container;
@@ -327,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 getIMEIRunAsync();
                 //  hitApiForSaveLocation();
             } else {
-                AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
+                //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }
 
         }
@@ -356,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                          /* TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
                             getDeviceID(telephonyManager);*/
                         } else {
-                            AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
+                            //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
                         }
                     } else {
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();

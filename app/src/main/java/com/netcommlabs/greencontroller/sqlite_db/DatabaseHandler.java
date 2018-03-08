@@ -69,7 +69,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String CLM_ADDRESS_PLACE_WELL_KNOWN_NAME = "place_well_known_name";
     private static final String CLM_ADDRESS_PLACE_ADDRESS = "place_Address";
     private static final String CLM_ADDRESS_DELETE_DT = "delete_dt";
-    private static final String CLM_ADDRESS_DELETE_STATUS = "adrs_dlt_stts";
+    private static final String CLM_ADDRESS_IS_SHOW_STATUS = "address_is_show_status";
+    //private static final String CLM_ADDRESS_DELETE_STATUS = "adrs_dlt_stts";
     private static final String CLM_ADDRESS_CREATED_AT = "addrs_crtd_at";
     private static final String CLM_ADDRESS_UPDATED_AT = "addrs_updtd_at";
 
@@ -195,7 +196,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //String CREATE_TABLE_ACTIVE_USER = "CREATE TABLE " + TABLE_ACTIVE_USER + " (" + CLM_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_USER_CREATED_AT + " TEXT )";
         String CREATE_TABLE_ACTIVE_USER = "CREATE TABLE " + TABLE_ACTIVE_USER + " (" + CLM_USER_ID + " TEXT," + CLM_USER_CREATED_AT + " TEXT )";
 
-        String CREATE_TABLE_ADDRESS_MASTER = "CREATE TABLE " + TABLE_ADDRESS_MASTER + " (" + CLM_ADDRESS_UUID + " TEXT PRIMARY KEY," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_SELECT_STATUS + " INTEGER," + CLM_ADDRESS_PLACE_LATITUDE + " REAL," + CLM_ADDRESS_PLACE_LONGITUDE + " REAL," + CLM_ADDRESS_PLACE_WELL_KNOWN_NAME + " TEXT," + CLM_ADDRESS_PLACE_ADDRESS + " TEXT," + CLM_ADDRESS_DELETE_STATUS + " INTEGER," + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
+        String CREATE_TABLE_ADDRESS_MASTER = "CREATE TABLE " + TABLE_ADDRESS_MASTER + " (" + CLM_ADDRESS_UUID + " TEXT PRIMARY KEY," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_IS_SHOW_STATUS + " INTEGER," + CLM_ADDRESS_SELECT_STATUS + " INTEGER," + CLM_ADDRESS_PLACE_LATITUDE + " REAL," + CLM_ADDRESS_PLACE_LONGITUDE + " REAL," + CLM_ADDRESS_PLACE_WELL_KNOWN_NAME + " TEXT," + CLM_ADDRESS_PLACE_ADDRESS + " TEXT," /*+ CLM_ADDRESS_DELETE_STATUS + " INTEGER,"*/ + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
 
         /*String CREATE_TABLE_ADDRESS_MODULE_LOG = "CREATE TABLE " + TABLE_ADDRESS_MODULE_LOG + " ("
                 + CLM_ADDRESS_USER_ID + " INTEGER," + CLM_ADDRESS_UUID + " INTEGER," + CLM_ADDRESS_UUID_LOG + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_RADIO_ADDRESS_NAME + " TEXT," + CLM_ADDRESS_FLAT_HOUSE_BUILDING + " TEXT," + CLM_ADDRESS_TOWER_STREET + " TEXT," + CLM_ADDRESS_AREA_LAND_LOCALITY + " TEXT," + CLM_ADDRESS_PIN_CODE + " TEXT," + CLM_ADDRESS_CITY + " TEXT," + CLM_ADDRESS_STATE + " TEXT," + CLM_ADDRESS_LOCATION_TAG + " TEXT," + CLM_ADDRESS_DELETE_STATUS + " INTEGER," + CLM_ADDRESS_DELETE_DT + " TEXT," + CLM_ADDRESS_CREATED_AT + " TEXT," + CLM_ADDRESS_UPDATED_AT + " TEXT )";
@@ -289,13 +290,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
-    public long insertAddressModule(ModalAddressModule modalAddressModule) {
+    public long insertAddressModule(String addressIDServer,ModalAddressModule modalAddressModule) {
         //addressUUID empty string means update for all address
         updateDeviceSelectStatus("", 0);
+
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(CLM_ADDRESS_UUID, generateUUID());
+        values.put(CLM_ADDRESS_UUID, addressIDServer);
         values.put(CLM_ADDRESS_FLAT_HOUSE_BUILDING, modalAddressModule.getFlat_num());
         values.put(CLM_ADDRESS_TOWER_STREET, modalAddressModule.getStreetName());
         values.put(CLM_ADDRESS_AREA_LAND_LOCALITY, modalAddressModule.getLocality_landmark());
@@ -308,7 +310,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(CLM_ADDRESS_PLACE_LONGITUDE, modalAddressModule.getLongitudeLocation());
         values.put(CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, modalAddressModule.getPlaceWellKnownName());
         values.put(CLM_ADDRESS_PLACE_ADDRESS, modalAddressModule.getPlaceAddress());
-        values.put(CLM_ADDRESS_DELETE_STATUS, 1);
+        values.put(CLM_ADDRESS_IS_SHOW_STATUS, 1);
         values.putNull(CLM_ADDRESS_DELETE_DT);
         values.put(CLM_ADDRESS_CREATED_AT, getDateTime());
         values.putNull(CLM_ADDRESS_UPDATED_AT);
@@ -542,18 +544,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return listAddressIDRadioNameSelectStatus;
     }
 
-    public ModalAddressModule getAddressWithLocation(String addressUUID) {
+    public List<ModalAddressModule> getAddressWithLocation(String addressUUID) {
         db = this.getReadableDatabase();
-        ModalAddressModule modalAddressModule = new ModalAddressModule();
-        //Get all Address with location
-        Cursor cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME, CLM_ADDRESS_PLACE_LATITUDE, CLM_ADDRESS_PLACE_LONGITUDE, CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, CLM_ADDRESS_PLACE_ADDRESS}, CLM_ADDRESS_UUID + " = ? ",
-                new String[]{addressUUID}, null, null, null, null);
+        List<ModalAddressModule> listModalAddressModule = new ArrayList<>();
+        Cursor cursor;
+
+        //Getting all addresses with location
+        if (addressUUID.isEmpty()) {
+            //Get all Address with location
+            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME, CLM_ADDRESS_PLACE_LATITUDE, CLM_ADDRESS_PLACE_LONGITUDE, CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, CLM_ADDRESS_PLACE_ADDRESS}, CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
+                    new String[]{String.valueOf(1)}, null, null, null, null);
+
+        } else {
+            //Getting single address with location using addressUUID
+            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME, CLM_ADDRESS_PLACE_LATITUDE, CLM_ADDRESS_PLACE_LONGITUDE, CLM_ADDRESS_PLACE_WELL_KNOWN_NAME, CLM_ADDRESS_PLACE_ADDRESS}, CLM_ADDRESS_UUID + " = ? AND " + CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
+                    new String[]{addressUUID, String.valueOf(1)}, null, null, null, null);
+
+        }
         if (cursor != null && cursor.moveToFirst()) {
-            modalAddressModule = new ModalAddressModule(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getDouble(8), cursor.getDouble(9), cursor.getString(10), cursor.getString(11));
+            do {
+                modalAddressModule = new ModalAddressModule(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getDouble(8), cursor.getDouble(9), cursor.getString(10), cursor.getString(11));
+                listModalAddressModule.add(modalAddressModule);
+            } while (cursor.moveToNext());
+
         }
         cursor.close();
         db.close();
-        return modalAddressModule;
+        return listModalAddressModule;
     }
 
     public List<ModalAddressModule> getAddressListFormData(String addressUUID) {
@@ -561,12 +578,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<ModalAddressModule> listModalAddressModule = new ArrayList<>();
         Cursor cursor;
         //Get all Address form data
-        if (addressUUID.equals("")) {
-            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, null,
-                    null, null, null, null, null);
+        if (addressUUID.isEmpty()) {
+            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
+                    new String[]{String.valueOf(1)}, null, null, null, null);
         } else {
-            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_UUID + " = ? ",
-                    new String[]{String.valueOf(addressUUID)}, null, null, null, null);
+            cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_UUID + " = ? AND " + CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
+                    new String[]{addressUUID, String.valueOf(1)}, null, null, null, null);
         }
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -581,7 +598,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public List<ModalDeviceModule> getDeviceDataForIMap(String addressUUID) {
-        db = this.getReadableDatabase();
+        db = this.getWritableDatabase();
         Cursor cursor;
         List<ModalDeviceModule> listModalDeviceModule = new ArrayList();
         if (addressUUID.equals("")) {

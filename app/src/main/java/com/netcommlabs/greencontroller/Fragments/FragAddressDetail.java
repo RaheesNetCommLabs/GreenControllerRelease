@@ -29,6 +29,8 @@ import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import org.json.JSONObject;
 
+import java.util.List;
+
 /**
  * Created by Netcomm on 1/22/2018.
  */
@@ -39,6 +41,7 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     public static final String ADDRESS_UUID_KEY = "address_uuid_key";
     private static String addressUUID;
     private ModalAddressModule modalAddressModule;
+    private List<ModalAddressModule> listModalAddressModules;
     private ImageView ivAddressTypeIconAD;
     private TextView tvAddressTypeNameAD, tvFlatNum, tvStreetArea, tvLocalityLandmark, tvPincode, tvCity, tvState;
     private EditText et_flat_num, et_street_area, et_city, et_locality_landmark, et_pincode, et_state;
@@ -78,9 +81,10 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
 
     private void initBaseNdListeners() {
         addressUUID = getArguments().getString(ADDRESS_UUID_KEY, "");
-        modalAddressModule = MySharedPreference.getInstance(mContext).getADDRESSID();
+        //modalAddressModule = MySharedPreference.getInstance(mContext).getADDRESSID();
         //  AddressId=MySharedPreference.getInstance(mContext).getADDRESSID();
-        modalAddressModule = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
+        listModalAddressModules = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
+        modalAddressModule=listModalAddressModules.get(0);
         updateUIUsingFetchedData();
 
         llBack.setOnClickListener(new View.OnClickListener() {
