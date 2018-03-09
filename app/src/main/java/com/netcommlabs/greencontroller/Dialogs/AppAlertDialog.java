@@ -38,7 +38,7 @@ public class AppAlertDialog {
                         dialog.cancel();
                     }
                 });
-                //.show();
+        //.show();
         AlertDialog alert = builder.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
@@ -80,7 +80,6 @@ public class AppAlertDialog {
         appAlertDialog.mContext = mContext;
         appAlertDialog.myRequestedFrag = myRequestedFrag;
         appAlertDialog.bleAppLevel = bleAppLevel;
-
         appAlertDialog.macAddressClassLevel = macAddress;
         String title, msg;
         if (myRequestedFrag instanceof FragDeviceMAP) {
@@ -111,7 +110,7 @@ public class AppAlertDialog {
                 dialog.dismiss();
             }
         });
-      //  alBui.create().show();
+        //  alBui.create().show();
         AlertDialog alert = alBui.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
@@ -126,7 +125,7 @@ public class AppAlertDialog {
 
 
     public static void dialogConnectingBLE() {
-        final ProgressDialog pdConnectingBLE = new ProgressDialog(appAlertDialog.mContext);
+        final ProgressDialog pdConnectingBLE = new ProgressDialog(appAlertDialog.mContext, R.style.MyAlertDialogStyle);
         pdConnectingBLE.setMessage("Connecting...");
         pdConnectingBLE.setCancelable(false);
         pdConnectingBLE.setIndeterminate(true);

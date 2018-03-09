@@ -143,13 +143,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         findLocalViews();
-
         initBase();
         initListeners();
-
-
     }
 
     private void findLocalViews() {
@@ -178,10 +174,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .load(MySharedPreference.getInstance(MainActivity.this).getUser_img()).skipMemoryCache().placeholder(R.drawable.user_profile_icon)
                     .into(circularIVNav);
         }
-
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
-
-
     }
 
     /* @Override public void onResume() {
@@ -249,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (NetworkUtils.isConnected(this)) {
                 //Bluetooth work starts
                 startBTWork();
+                getIMEIRunAsync();
+                gettingLocationWithProgressBar();
 
             } else {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
@@ -324,8 +319,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (NetworkUtils.isConnected(this)) {
                 //Bluetooth work starts
                 startBTWork();
-                getIMEIRunAsync();
-                gettingLocationWithProgressBar();
+            /*    getIMEIRunAsync();
+                gettingLocationWithProgressBar();*/
                 //  hitApiForSaveLocation();
             } else {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
@@ -350,8 +345,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (NetworkUtils.isConnected(this)) {
                             //Bluetooth work starts
                             startBTWork();
-                            gettingLocationWithProgressBar();
-                            getIMEIRunAsync();
+                          /*  gettingLocationWithProgressBar();
+                            getIMEIRunAsync();*/
                         } else {
                             AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
                         }
@@ -384,9 +379,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             object.put("user_id", preference.getUser_id());
             object.put("imei_primary", imeiSIM1);
             object.put("imei_secondary", imeiSIM2);
-            if (addressUserFriendly==""){
+            if (addressUserFriendly == "") {
                 object.put("location", "");
-            }else {
+            } else {
                 object.put("location", addressUserFriendly);
             }
 
@@ -475,7 +470,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             if (mBluetoothAdapter.isEnabled()) {
                 //Now starts Location work
-
+                getIMEIRunAsync();
+                gettingLocationWithProgressBar();
                 //startDvcDiscovery();
                 //Toast.makeText(mContext, "Bluetooth is enabled", Toast.LENGTH_SHORT).show();
                 return;
@@ -502,7 +498,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (resultCode == Activity.RESULT_OK) {
                 Log.e("GGG ", "Bluetooth is enabled...");
                 //Now starts Location work
-
+                getIMEIRunAsync();
+                gettingLocationWithProgressBar();
                 //Toast.makeText(mContext, "Bluetooth is enabled...", Toast.LENGTH_SHORT).show();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(mContext, "Bluetooth enabling is mandatory", Toast.LENGTH_SHORT).show();
@@ -823,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.SAVE_IMEI_TAG) {
             if (call.optString("status").equals("success")) {
-                Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
             }
         }
 

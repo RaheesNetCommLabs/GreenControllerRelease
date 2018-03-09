@@ -607,6 +607,8 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             if(obj.optString("status").equals("success")){
                 change_password_dialog.setVisibility(View.GONE);
                 tv_pass.setText(et_new_pass.getText().toString());
+
+            }else {
                 Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
 
@@ -624,7 +626,6 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
 
                 PreferenceModel model = new Gson().fromJson(obj.toString(), PreferenceModel.class);
                 MySharedPreference.getInstance(mContext).setUserDetail(model);
-
                 MySharedPreference.getInstance(mContext).setUser_img(obj.optString("image"));
               //  userImageCallback.userImage(obj.optString("Image"));
 

@@ -82,6 +82,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNo);
         }else {
             tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNoFromRegs);
+
         }
 
         if (ContextCompat.checkSelfPermission(ActvityOtp.this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -117,7 +118,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                                     if (tagValue.equals("My Profile")) {
                                         hitOtpApiForMobile();
 
-                                    }else if(tagVarifyUser.equals("Register User Varification")){
+                                    }else if(tagValue.equals("Register User Varification")){
                                         hitApiForvarifyuUser();
                                     }
 
@@ -174,7 +175,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                             hitResendOtpForMobileNo();
 
                         }
-                        else if(tagVarifyUser.equals("Register User Varification")){
+                        else if(tagValue.equals("Register User Varification")){
                             hitResendOtpForMobileNo();
                         }else{
                             hitApiforResendOtpRegister();
@@ -239,7 +240,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                 if (tagValue.equals("My Profile")) {
                     hitOtpApiForMobile();
 
-                }else if(tagVarifyUser.equals("Register User Varification")){
+                }else if(tagValue.equals("Register User Varification")){
                     hitApiForvarifyuUser();
                 }
 
@@ -345,7 +346,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             object.put("user_id_for_otp", userId);
             object.put("otp", et_otp_value.getText().toString());
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -434,6 +434,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     }
 
     public static void getTagVarificationUser(String s) {
-        tagVarifyUser =s;
+        tagValue =s;
     }
 }

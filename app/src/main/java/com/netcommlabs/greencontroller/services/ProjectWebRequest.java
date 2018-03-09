@@ -61,7 +61,11 @@ public class ProjectWebRequest {
     synchronized public void execute() {
         if (NetworkUtils.isConnected(mContext)) {
             errorMsg=null;
-            progressDialog.showProgressBar();
+         if(Tag==1013){
+             progressDialog.hideProgressBar();
+         }
+         else
+             progressDialog.showProgressBar();
             if (url.contains("https")) {
                 Log.e("@@@@@@@@@@","HTTPS REQUEST");
                 showRequest();
