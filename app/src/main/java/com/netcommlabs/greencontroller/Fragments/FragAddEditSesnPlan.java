@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +72,8 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     private TextView tvORText/*, tvTitleTop, tvClearEditData*/, tvClearEditData;
     private Fragment myRequestedFrag;
     private DatabaseHandler databaseHandler;
+    private ProgressBar progrsBarIndetmnt;
+    //private ModalValveSessionData mvsd;
 
     //Mr. Vijay
     public static final String EXTRA_NAME = "name";
@@ -170,6 +173,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         llDuration = view.findViewById(R.id.llDuration);
         tvORText = view.findViewById(R.id.tvORText);
         llWaterQuantity = view.findViewById(R.id.llWaterQuantity);
+        progrsBarIndetmnt = view.findViewById(R.id.progrsBarIndetmnt);
     }
 
     private void initBase() {
@@ -191,13 +195,21 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         clkdVlvName = bundle.getString(EXTRA_VALVE_NAME_DB);
         clkdVlvUUID = bundle.getString(EXTRA_VALVE_UUID);
         operationType = bundle.getString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE);
+
+        //long isDataAddedForThisValve = databaseHandler.valveSessionMasterTotalRowsCount(clkdVlvUUID);
+        //if (isDataAddedForThisValve <= 0) {
+        for (int i = 1; i <= 4; i++) {
+            databaseHandler.insertValveSesnTemp(clkdVlvUUID,clkdVlvName, i);
+        }
+        //}
+
         if (operationType.equals("Add")) {
-            long isDataAddedForThisValve = databaseHandler.valveSesnAddedRowsCount(clkdVlvUUID);
+           /* long isDataAddedForThisValve = databaseHandler.valveSessionMasterTotalRowsCount(clkdVlvUUID);
             if (isDataAddedForThisValve <= 0) {
                 for (int i = 1; i <= 4; i++) {
                     databaseHandler.insertValveSesnTemp(clkdVlvUUID, i);
                 }
-            }
+            }*/
         } else {
             tvClearEditData = mContext.tvClearEditData;
             listValveSessionData = (ArrayList<ModalValveSessionData>) bundle.getSerializable(FragAddEditSesnPlan.EXTRA_VALVE_EDITABLE_DATA);
@@ -409,6 +421,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         tvLoadSesnPlan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progrsBarIndetmnt.setVisibility(View.VISIBLE);
                 etDisPntsInput = etDischargePoints.getText().toString();
                 if (etDisPntsInput.isEmpty()) {
                     Toast.makeText(mContext, "Please enter Discharge points", Toast.LENGTH_SHORT).show();
@@ -2510,7 +2523,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             databaseHandler.updateValveOpTpSPPStatus("", clkdVlvUUID, "PLAY");
 
             //Operation between Session Temp, Master and Log tables
-            databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID);
+            databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID,clkdVlvName);
 
             //if (rowAffected > 0) {
             getTargetFragment().onActivityResult(
@@ -2535,5 +2548,12 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             timePointInt = Integer.parseInt(timePoint.substring(0, 2));
         }
         return timePointInt;
+    }
+
+    @Override
+    public void onDestroyView() {
+        databaseHandler.deleteValveSesnTEMP();
+        progrsBarIndetmnt.setVisibility(View.GONE);
+        super.onDestroyView();
     }
 }

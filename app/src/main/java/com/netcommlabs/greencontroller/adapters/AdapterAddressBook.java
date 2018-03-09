@@ -1,6 +1,8 @@
 package com.netcommlabs.greencontroller.adapters;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.Fragments.FragAddressDetail;
+import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -19,6 +22,8 @@ import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Netcomm on 1/22/2018.
@@ -30,10 +35,12 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
     private List<ModalAddressModule> listModalAddressModule;
     //private DatabaseHandler databaseHandler;
     private ModalAddressModule modalAddressModule;
+    private Fragment fragment;
 
-    public AdapterAddressBook(MainActivity mContext, List<ModalAddressModule> listModalAddressModule) {
+    public AdapterAddressBook(MainActivity mContext, Fragment fragment, List<ModalAddressModule> listModalAddressModule) {
         this.mContext = mContext;
         this.listModalAddressModule = listModalAddressModule;
+        this.fragment = fragment;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -89,11 +96,16 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
         holder.llRowComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragAddressDetail fragAddressDetail = new FragAddressDetail();
-                Bundle bundle = new Bundle();
-                bundle.putString(FragAddressDetail.ADDRESS_UUID_KEY, listModalAddressModule.get(position).getAddressUUID());
-                fragAddressDetail.setArguments(bundle);
-                MyFragmentTransactions.replaceFragment(mContext, fragAddressDetail, Constant.ADDRESS_DETAIL, mContext.frm_lyt_container_int, true);
+                if (fragment instanceof FragConnectedQR) {
+                    String selectedAddressID = listModalAddressModule.get(position).getAddressUUID();
+                    ((FragConnectedQR) fragment).addressBookChosen(selectedAddressID);
+                } else {
+                    FragAddressDetail fragAddressDetail = new FragAddressDetail();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FragAddressDetail.ADDRESS_UUID_KEY, listModalAddressModule.get(position).getAddressUUID());
+                    fragAddressDetail.setArguments(bundle);
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddressDetail, Constant.ADDRESS_DETAIL, mContext.frm_lyt_container_int, true);
+                }
             }
         });
     }

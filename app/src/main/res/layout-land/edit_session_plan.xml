@@ -38,6 +38,14 @@
              android:visibility="gone"/>
      </LinearLayout>-->
 
+    <ProgressBar
+        android:id="@+id/progrsBarIndetmnt"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_4sdp"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

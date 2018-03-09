@@ -199,14 +199,14 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     public void setUIForAddressNdDeviceMap(String addressUUID) {
-        listModalAddressModule = DatabaseHandler.getInstance(mContext).getAddressListFormData(addressUUID);
-        modalAddressModule = listModalAddressModule.get(0);
-
+        listModalAddressModule = databaseHandler.getAddressListFormData(addressUUID);
         listModalDeviceModule = databaseHandler.getDeviceDataForIMap(addressUUID);
+
+        modalAddressModule = listModalAddressModule.get(0);
         addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
         tvAddressTop.setText(addressComplete);
 
-        if (listModalDeviceModule.size() == 1) {
+        if (listModalDeviceModule.size()>0) {
             dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
             dvcName = listModalDeviceModule.get(0).getName();
             dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
@@ -520,6 +520,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                             } else if (positiveBtnName.equals("Delete")) {
                                 int totalPlayPauseValvesCount = databaseHandler.getDvcTotalValvesPlayPauseCount(dvcUUID, "STOP");
                                 bleAppLevel.cmdDvcStop(FragDeviceMAP.this, "STOP", totalPlayPauseValvesCount);
+
+                                //databaseHandler.deleteUpdateDevice()
                             }
                         } else {
                             Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
@@ -555,9 +557,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             Toast.makeText(mContext, "Device resumed successfully", Toast.LENGTH_SHORT).show();
         } else if (cmdTypeName.equals("STOP")) {
             databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "STOP");
-            int rowAffected = databaseHandler.updateDvcDeleteStatus(dvcUUID);
+            int rowAffected = databaseHandler.deleteUpdateDevice(dvcUUID);
             if (rowAffected > 0) {
-                Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
+                mContext.dvcDeleteUpdateSuccess();
             }
         }
 

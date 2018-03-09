@@ -96,25 +96,25 @@
                 android:layout_weight="2"
                 android:gravity="center">
 
-                <View
+               <!-- <View
 
                     android:layout_width="@dimen/_90sdp"
                     android:layout_height="2dp"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:background="@drawable/doted_line_horizontal"
-                    android:layerType="software"></View>
+                    android:layerType="software"></View>-->
 
                 <ImageView
                     android:layout_width="@dimen/_50sdp"
                     android:layout_height="@dimen/_50sdp"
                     android:src="@drawable/home_icon_imap" />
 
-                <View
+               <!-- <View
                     android:layout_width="@dimen/_70sdp"
                     android:layout_height="17dp"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:background="@drawable/doted_line_horizontal"
-                    android:layerType="software"></View>
+                    android:layerType="software"></View>-->
             </LinearLayout>
 
             <LinearLayout

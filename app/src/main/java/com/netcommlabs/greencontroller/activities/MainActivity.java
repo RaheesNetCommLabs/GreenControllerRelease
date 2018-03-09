@@ -238,16 +238,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermission();
         } else {
-            //Toast.makeText(mContext, "No need to ask runtime permissions", Toast.LENGTH_SHORT).show();
             if (NetworkUtils.isConnected(this)) {
                 //Bluetooth work starts
                 startBTWork();
                 getIMEIRunAsync();
                 gettingLocationWithProgressBar();
 
-            } else {
+            } /*else {
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-            }
+            }*/
         }
         llAddNewAddress = findViewById(R.id.llAddNewAddress);
         frm_lyt_container_int = R.id.frm_lyt_container;
@@ -323,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 gettingLocationWithProgressBar();*/
                 //  hitApiForSaveLocation();
             } else {
-                AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
+                //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }
 
         }
@@ -348,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                           /*  gettingLocationWithProgressBar();
                             getIMEIRunAsync();*/
                         } else {
-                            AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
+                            //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
                         }
                     } else {
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
@@ -674,6 +673,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         ((FragDeviceMAP) currentFragment).llIMWholeDesign.setVisibility(View.VISIBLE);
                         return;
                     } else if (((FragDeviceMAP) currentFragment).llDialogEditDvcName.getVisibility() == View.VISIBLE) {
+                        Log.e("", "");
                         return;
                     }
                 }
@@ -834,6 +834,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void doRetryNow() {
 
+    }
+
+    public void dvcDeleteUpdateSuccess() {
+        Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
+        onBackPressed();
+        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
     }
 
 
