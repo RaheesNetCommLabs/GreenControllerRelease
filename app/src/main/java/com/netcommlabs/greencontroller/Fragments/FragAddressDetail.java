@@ -84,7 +84,7 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
         //modalAddressModule = MySharedPreference.getInstance(mContext).getADDRESSID();
         //  AddressId=MySharedPreference.getInstance(mContext).getADDRESSID();
         listModalAddressModules = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
-        modalAddressModule=listModalAddressModules.get(0);
+        modalAddressModule = listModalAddressModules.get(0);
         updateUIUsingFetchedData();
 
         llBack.setOnClickListener(new View.OnClickListener() {
@@ -194,7 +194,7 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
             object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
             object.put("userID", preference.getUser_id());
             object.put("add_edit", "delete");
-            object.put("addressID", modalAddressModule.getAddressUUID());
+            object.put("address_id", addressUUID);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,15 +204,17 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     @Override
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
-
-            int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteAddress(addressUUID);
-            if (deleteConfirm > 0) {
-                Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
+            if (call.optString("status").equals("success")) {
+                //int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteUpdateAddress(addressUUID);
+                //if (deleteConfirm > 0) {
+                //Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
+                DatabaseHandler.getInstance(mContext).deleteUpdateAddress(addressUUID);
                 mContext.onBackPressed();
+            } else {
+                Toast.makeText(mContext, call.optString("message"), Toast.LENGTH_SHORT).show();
             }
-
-            Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
-
+            //}
         }
     }
 

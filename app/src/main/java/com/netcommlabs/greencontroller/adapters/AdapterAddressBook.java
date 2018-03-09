@@ -98,13 +98,7 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
             public void onClick(View v) {
                 if (fragment instanceof FragConnectedQR) {
                     String selectedAddressID = listModalAddressModule.get(position).getAddressUUID();
-
-                    fragment.onActivityResult(
-                            fragment.getTargetRequestCode(),
-                            RESULT_OK,
-                            new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
-                    );
-                    mContext.onBackPressed();
+                    ((FragConnectedQR) fragment).addressBookChosen(selectedAddressID);
                 } else {
                     FragAddressDetail fragAddressDetail = new FragAddressDetail();
                     Bundle bundle = new Bundle();

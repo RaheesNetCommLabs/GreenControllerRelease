@@ -34,6 +34,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by Android on 12/6/2017.
  */
@@ -41,6 +43,7 @@ import java.util.List;
 public class FragConnectedQR extends Fragment implements APIResponseListener {
 
     private static final int REQUEST_CODE_FOR_ADDRESS_BOOK = 1001;
+    private static final int REQUEST_ADDADDRESS_QRCONNECT = 101;
     private MainActivity mContext;
     private View view;
     private LinearLayout llAddDeviceAddressConctd;
@@ -186,7 +189,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                         fragAddEditAddress.setArguments(bundle);
                     }*/
                     //First child---then parent
-                    fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
+                    fragAddEditAddress.setTargetFragment(FragConnectedQR.this, REQUEST_ADDADDRESS_QRCONNECT);
                     //Adding Fragment(FragAddEditAddress)
                     MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 }
@@ -309,6 +312,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
         return object;
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_FOR_ADDRESS_BOOK && resultCode == Activity.RESULT_OK) {
@@ -320,7 +324,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
             }
         }
 
-        if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_ADDADDRESS_QRCONNECT && resultCode == Activity.RESULT_OK) {
             if (data.getSerializableExtra("mdlAddressLocation") != null) {
                 modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
                 Toast.makeText(mContext, "Address Saved", Toast.LENGTH_SHORT).show();
@@ -343,7 +347,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     @Override
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
-            long insertedAddressUniqueID = databaseHandler.insertAddressModule(call.optString("addressID"), modalAddressModule);
+            long insertedAddressUniqueID = databaseHandler.insertAddressModule(call.optString("address_id"), modalAddressModule);
             if (insertedAddressUniqueID != 0) {
                 databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
 
@@ -366,5 +370,14 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     @Override
     public void doRetryNow() {
 
+    }
+
+    public void addressBookChosen(String selectedAddressID) {
+        getTargetFragment().onActivityResult(
+                getTargetRequestCode(),
+                RESULT_OK,
+                new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
+        );
+        mContext.onBackPressed();
     }
 }

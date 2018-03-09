@@ -290,7 +290,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
-    public long insertAddressModule(String addressIDServer,ModalAddressModule modalAddressModule) {
+    public long insertAddressModule(String addressIDServer, ModalAddressModule modalAddressModule) {
         //addressUUID empty string means update for all address
         updateDeviceSelectStatus("", 0);
 
@@ -530,8 +530,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<ModalAddressModule> getAlladdressUUIDRadioNameSelectStatus() {
         db = this.getReadableDatabase();
         ArrayList<ModalAddressModule> listAddressIDRadioNameSelectStatus = new ArrayList<>();
-        String selectQuery = "SELECT " + CLM_ADDRESS_UUID + "," + CLM_RADIO_ADDRESS_NAME + "," + CLM_ADDRESS_SELECT_STATUS + " FROM " + TABLE_ADDRESS_MASTER;
-        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        //String selectQuery = "SELECT " + CLM_ADDRESS_UUID + "," + CLM_RADIO_ADDRESS_NAME + "," + CLM_ADDRESS_SELECT_STATUS + " FROM " + TABLE_ADDRESS_MASTER;
+        Cursor cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_RADIO_ADDRESS_NAME, CLM_ADDRESS_SELECT_STATUS}, CLM_ADDRESS_IS_SHOW_STATUS + " = ? ", new String[]{String.valueOf(1)}, null, null, null);
         // looping through all cursor rows and adding to list
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -585,6 +586,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID, CLM_ADDRESS_FLAT_HOUSE_BUILDING, CLM_ADDRESS_TOWER_STREET, CLM_ADDRESS_AREA_LAND_LOCALITY, CLM_ADDRESS_PIN_CODE, CLM_ADDRESS_CITY, CLM_ADDRESS_STATE, CLM_RADIO_ADDRESS_NAME}, CLM_ADDRESS_UUID + " = ? AND " + CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
                     new String[]{addressUUID, String.valueOf(1)}, null, null, null, null);
         }
+
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 modalAddressModule = new ModalAddressModule(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7));
@@ -862,12 +864,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return rowAffected;
     }
 
-    public int deleteAddress(String addressUUID) {
+    public int deleteUpdateAddress(String addressUUID) {
         db = this.getWritableDatabase();
-        int deleteConfirm = db.delete(TABLE_ADDRESS_MASTER, CLM_ADDRESS_UUID + " = ?",
+        ContentValues cv = new ContentValues();
+        cv.put(CLM_ADDRESS_IS_SHOW_STATUS, 0);
+        cv.put(CLM_ADDRESS_UPDATED_AT, getDateTime());
+        int deleteUpdateConfirm = db.update(TABLE_ADDRESS_MASTER, cv, CLM_ADDRESS_UUID + " = ?",
                 new String[]{addressUUID});
         db.close();
-        return deleteConfirm;
+        return deleteUpdateConfirm;
     }
 
     private String getDateTime() {
@@ -1075,9 +1080,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return totalCounts;
     }
 
-    public int updateDvcDeleteStatus(String dvcUUID) {
+    public int deleteUpdateDevice(String dvcUUID) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+
         values.put(CLM_DVC_OP_TP_APRD_STRING, "DELETE");
         values.put(CLM_DVC_IS_SHOW_STATUS, 0);
         values.put(CLM_DVC_UPDATED_DT, getDateTime());

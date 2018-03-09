@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -62,25 +63,24 @@ public class FragAddressBook extends Fragment {
         gridRecyclerView.setLayoutManager(gridLayoutManager);
         databaseHandler = DatabaseHandler.getInstance(mContext);
 
-        Fragment fragment = getTargetFragment();
-        if (fragment instanceof FragConnectedQR) {
-            tvNoAddressAvailable.setVisibility(View.GONE);
-            gridRecyclerView.setVisibility(View.VISIBLE);
-            listModalAddressModule = databaseHandler.getAddressWithLocation("");
-            adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
-            gridRecyclerView.setAdapter(adapterAddressBook);
-        } else {
-            listModalAddressModule = databaseHandler.getAddressWithLocation("");
-            if (listModalAddressModule.size() > 0) {
-                tvNoAddressAvailable.setVisibility(View.GONE);
-                gridRecyclerView.setVisibility(View.VISIBLE);
+        listModalAddressModule = databaseHandler.getAddressListFormData("");
+        tvNoAddressAvailable.setVisibility(View.GONE);
+        gridRecyclerView.setVisibility(View.VISIBLE);
+
+        if (listModalAddressModule.size() > 0) {
+            Fragment fragment = getTargetFragment();
+            if (fragment instanceof FragConnectedQR) {
+                Toast.makeText(mContext, "Choose any of the existing addresses for device installation", Toast.LENGTH_LONG).show();
                 adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
                 gridRecyclerView.setAdapter(adapterAddressBook);
             } else {
-                //In case of no address available
-                tvNoAddressAvailable.setVisibility(View.VISIBLE);
-                gridRecyclerView.setVisibility(View.GONE);
+                adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
+                gridRecyclerView.setAdapter(adapterAddressBook);
             }
+        } else {
+            //In case of no address available
+            tvNoAddressAvailable.setVisibility(View.VISIBLE);
+            gridRecyclerView.setVisibility(View.GONE);
         }
 
 

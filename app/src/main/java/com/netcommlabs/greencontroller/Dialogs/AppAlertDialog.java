@@ -38,7 +38,7 @@ public class AppAlertDialog {
                         dialog.cancel();
                     }
                 });
-                //.show();
+        //.show();
         AlertDialog alert = builder.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
@@ -92,8 +92,8 @@ public class AppAlertDialog {
         }
 
         AlertDialog.Builder alBui = new AlertDialog.Builder(mContext);
-        alBui.setTitle("BLE not connected");
-        alBui.setMessage("Check BLE power, operating range and connect again !");
+        alBui.setTitle(title);
+        alBui.setMessage(msg);
         alBui.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -111,7 +111,7 @@ public class AppAlertDialog {
                 dialog.dismiss();
             }
         });
-      //  alBui.create().show();
+        //  alBui.create().show();
         AlertDialog alert = alBui.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();

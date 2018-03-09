@@ -383,9 +383,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             object.put("user_id", preference.getUser_id());
             object.put("imei_primary", imeiSIM1);
             object.put("imei_secondary", imeiSIM2);
-            if (addressUserFriendly==""){
+            if (addressUserFriendly == "") {
                 object.put("location", "");
-            }else {
+            } else {
                 object.put("location", addressUserFriendly);
             }
 
@@ -676,6 +676,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         ((FragDeviceMAP) currentFragment).llIMWholeDesign.setVisibility(View.VISIBLE);
                         return;
                     } else if (((FragDeviceMAP) currentFragment).llDialogEditDvcName.getVisibility() == View.VISIBLE) {
+                        Log.e("", "");
                         return;
                     }
                 }
@@ -836,6 +837,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void doRetryNow() {
 
+    }
+
+    public void dvcDeleteUpdateSuccess() {
+        Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
+        onBackPressed();
+        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
     }
 
 
