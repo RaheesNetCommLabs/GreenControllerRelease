@@ -34,8 +34,6 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
  * Created by Android on 12/6/2017.
  */
@@ -62,7 +60,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     private PreferenceModel preference;
     private LinearLayout address_selection_layout;
     private List<ModalAddressModule> listMdalAddressModules;
-    private String selectedAddressID;
+    private String selectedExistingAddressID = "";
 
     @Override
     public void onAttach(Context context) {
@@ -183,11 +181,11 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
 
                 } else {
                     FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
-                   /* if (modalAddressModule != null) {
+                    if (modalAddressModule != null) {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(FragAddEditAddress.KEY_ADDRESS_TRANSFER, modalAddressModule);
                         fragAddEditAddress.setArguments(bundle);
-                    }*/
+                    }
                     //First child---then parent
                     fragAddEditAddress.setTargetFragment(FragConnectedQR.this, REQUEST_ADDADDRESS_QRCONNECT);
                     //Adding Fragment(FragAddEditAddress)
@@ -230,7 +228,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                     Toast.makeText(mContext, "Please save device name", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (modalAddressModule == null) {
+                if (modalAddressModule == null && selectedExistingAddressID.isEmpty()) {
                     Toast.makeText(mContext, "Please provide Device Installation Address", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -257,8 +255,20 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                         }
                     }
                 }
-                hitApiForSaveAddress();
 
+                if (!selectedExistingAddressID.isEmpty()) {
+                    //long insertedAddressUniqueID = databaseHandler.insertAddressModule(selectedExistingAddressID, modalAddressModule);
+                    //if (insertedAddressUniqueID != 0) {
+                    databaseHandler.insertDeviceModule(selectedExistingAddressID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+                    //Replacing current Fragment by (FragDeviceMAP)
+                    MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                    dvcNameEdited = "";
+                    qrCodeEdited = "";
+                    Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                    //}
+                } else {
+                    hitApiForSaveAddress();
+                }
 
                 /*long insertedAddressUniqueID = databaseHandler.insertAddressModule(modalAddressModule);
                 databaseHandler.insertDeviceModule(insertedAddressUniqueID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
@@ -317,7 +327,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_FOR_ADDRESS_BOOK && resultCode == Activity.RESULT_OK) {
             if (data.getStringExtra("KEY_selected_Address_ID") != null) {
-                selectedAddressID = data.getStringExtra("KEY_selected_Address_ID");
+                selectedExistingAddressID = data.getStringExtra("KEY_selected_Address_ID");
                 Toast.makeText(mContext, "Existing address selected", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(mContext, "Selected address not copied, try again", Toast.LENGTH_SHORT).show();
@@ -372,12 +382,4 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
 
     }
 
-    public void addressBookChosen(String selectedAddressID) {
-        getTargetFragment().onActivityResult(
-                getTargetRequestCode(),
-                RESULT_OK,
-                new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
-        );
-        mContext.onBackPressed();
-    }
 }

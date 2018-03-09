@@ -843,6 +843,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
         onBackPressed();
         MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+        //MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
+
     }
 
 

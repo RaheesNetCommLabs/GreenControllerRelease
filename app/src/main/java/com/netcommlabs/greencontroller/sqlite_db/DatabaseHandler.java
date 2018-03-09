@@ -604,11 +604,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor;
         List<ModalDeviceModule> listModalDeviceModule = new ArrayList();
         if (addressUUID.equals("")) {
-            cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, null,
-                    null, null, null, null, null);
+            cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, CLM_DVC_IS_SHOW_STATUS + " = ? ",
+                    new String[]{String.valueOf(1)}, null, null, null, null);
         } else {
-            cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, CLM_ADDRESS_UUID + " = ? ",
-                    new String[]{String.valueOf(addressUUID)}, null, null, null, null);
+            cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_NAME, CLM_DVC_MAC, CLM_DVC_VALVE_NUM}, CLM_ADDRESS_UUID + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ",
+                    new String[]{String.valueOf(addressUUID), String.valueOf(1)}, null, null, null, null);
         }
 
         if (cursor != null && cursor.moveToFirst()) {

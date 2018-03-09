@@ -19,7 +19,7 @@ public class Constant {
 
 
     //Fragment titles
-    public static final String DASHBOARD_PEBBLE_HOME = "V 1.5";
+    public static final String DASHBOARD_PEBBLE_HOME = "V 1.6";
     public static final String DO_NOT_HAVE_DEVICE = "Don't have Device";
     public static final String DEVICE_MAP = "My Devices";
     //public static final String AVAILABLE_DEVICES="Add New Device";

@@ -1,6 +1,7 @@
 package com.netcommlabs.greencontroller.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,8 @@ import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by Android on 12/7/2017.
  */
@@ -36,6 +39,7 @@ public class FragAddressBook extends Fragment {
     private List<ModalAddressModule> listModalAddressModule;
     private DatabaseHandler databaseHandler;
     private LinearLayout llAddNewAddress;
+    private Fragment fragment;
 
     @Override
     public void onAttach(Context context) {
@@ -68,13 +72,13 @@ public class FragAddressBook extends Fragment {
         gridRecyclerView.setVisibility(View.VISIBLE);
 
         if (listModalAddressModule.size() > 0) {
-            Fragment fragment = getTargetFragment();
+            fragment = getTargetFragment();
             if (fragment instanceof FragConnectedQR) {
                 Toast.makeText(mContext, "Choose any of the existing addresses for device installation", Toast.LENGTH_LONG).show();
-                adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
+                adapterAddressBook = new AdapterAddressBook(FragAddressBook.this, mContext, fragment, listModalAddressModule);
                 gridRecyclerView.setAdapter(adapterAddressBook);
             } else {
-                adapterAddressBook = new AdapterAddressBook(mContext, fragment, listModalAddressModule);
+                adapterAddressBook = new AdapterAddressBook(FragAddressBook.this, mContext, fragment, listModalAddressModule);
                 gridRecyclerView.setAdapter(adapterAddressBook);
             }
         } else {
@@ -92,4 +96,13 @@ public class FragAddressBook extends Fragment {
             }
         });
     }
+
+    /*public void addressBookChosen(String selectedAddressID) {
+        getTargetFragment().onActivityResult(
+                getTargetRequestCode(),
+                RESULT_OK,
+                new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
+        );
+        mContext.onBackPressed();
+    }*/
 }

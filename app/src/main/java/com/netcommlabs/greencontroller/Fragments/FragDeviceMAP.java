@@ -206,7 +206,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
         tvAddressTop.setText(addressComplete);
 
-        if (listModalDeviceModule.size()>0) {
+        if (listModalDeviceModule.size() > 0) {
             dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
             dvcName = listModalDeviceModule.get(0).getName();
             dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
@@ -374,7 +374,6 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     etEditDvcName.setText(dvcName);
 
 
-
                     tvCancelEdit.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -535,7 +534,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         llIMWholeDesign.setVisibility(View.VISIBLE);*/
                     }
                 });
-                //.show();
+        //.show();
         AlertDialog alert = builder.create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = alert.getWindow();
