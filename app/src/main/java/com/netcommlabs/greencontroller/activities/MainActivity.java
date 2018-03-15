@@ -93,7 +93,7 @@ import static com.netcommlabs.greencontroller.constant.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_MAP;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, APIResponseListener,OpendialogCallback {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, APIResponseListener, OpendialogCallback {
 
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 200;
     private MainActivity mContext;
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             ));
         }
-        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout,this));
+        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout, this));
         //MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
 
         //Adding first Fragment(FragDashboardPebbleHome)
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (ContextCompat.checkSelfPermission(mContext,
                 Manifest.permission.ACCESS_FINE_LOCATION)/* + ContextCompat
                 .checkSelfPermission(mContext,
-                        Manifest.permission.CAMERA) */+ ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
+                        Manifest.permission.CAMERA) */ + ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(mContext,
@@ -339,9 +339,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0) {
                     boolean fineLocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                 //   boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    //   boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     boolean phoneReadState = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (fineLocation /*&& cameraPermission */&& phoneReadState) {
+                    if (fineLocation /*&& cameraPermission */ && phoneReadState) {
                         //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
                         if (NetworkUtils.isConnected(this)) {
                             //Bluetooth work starts
@@ -356,18 +356,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         mContext.finish();
                     }
 
-            }
-            break;
+                }
+                break;
 
             case FragMyProfile.TAG_FOR_CAPTURE_IMAGE:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0) {
                     boolean cameraPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeExternalStorage= grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (cameraPermission && writeExternalStorage ) {
+                    boolean writeExternalStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if (cameraPermission && writeExternalStorage) {
                         //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
-                      if(fragMyProfile!=null)
-                          fragMyProfile.openDailog();
+                        if (fragMyProfile != null)
+                            fragMyProfile.openDailog();
 
                     } else {
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
@@ -685,7 +685,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = new LocationRequest().create();
@@ -859,28 +858,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onDestroy();
     }
 
+    @Override
+    public void getFragment(Fragment fragment) {
+        if (fragment instanceof FragMyProfile) {
+            fragMyProfile = (FragMyProfile) fragment;
+        }
 
-
-
+    }
 
     public void dvcDeleteUpdateSuccess() {
         Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
         onBackPressed();
         MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+        //MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }
 
-    @Override
-    public void getFragment(Fragment fragment) {
-        if(fragment instanceof FragMyProfile){
-            fragMyProfile=(FragMyProfile)fragment;
-        }
-
-    }
     void clearRef() {
         if (request != null) {
             request = null;
         }
-    }
 
    /* @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -896,4 +892,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             tvToolbar_title.setText(DASHBOARD_PEBBLE_HOME);
         }
     }*/
+    }
+
 }

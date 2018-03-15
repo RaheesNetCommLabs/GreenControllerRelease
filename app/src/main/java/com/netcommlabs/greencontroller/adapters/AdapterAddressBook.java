@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragAddressDetail;
 import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
@@ -36,11 +37,13 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
     //private DatabaseHandler databaseHandler;
     private ModalAddressModule modalAddressModule;
     private Fragment fragment;
+    private FragAddressBook fragAddressBook;
 
-    public AdapterAddressBook(MainActivity mContext, Fragment fragment, List<ModalAddressModule> listModalAddressModule) {
+    public AdapterAddressBook(FragAddressBook fragAddressBook, MainActivity mContext, Fragment fragment, List<ModalAddressModule> listModalAddressModule) {
         this.mContext = mContext;
         this.listModalAddressModule = listModalAddressModule;
         this.fragment = fragment;
+        this.fragAddressBook = fragAddressBook;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -98,7 +101,13 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
             public void onClick(View v) {
                 if (fragment instanceof FragConnectedQR) {
                     String selectedAddressID = listModalAddressModule.get(position).getAddressUUID();
-                    ((FragConnectedQR) fragment).addressBookChosen(selectedAddressID);
+                    //((FragAddressBook) mContext).addressBookChosen(selectedAddressID);
+                    fragAddressBook.getTargetFragment().onActivityResult(
+                            fragAddressBook.getTargetRequestCode(),
+                            RESULT_OK,
+                            new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
+                    );
+                    mContext.onBackPressed();
                 } else {
                     FragAddressDetail fragAddressDetail = new FragAddressDetail();
                     Bundle bundle = new Bundle();
