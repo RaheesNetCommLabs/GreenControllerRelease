@@ -22,10 +22,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
-import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
@@ -82,6 +80,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNo);
         }else {
             tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNoFromRegs);
+
         }
 
         if (ContextCompat.checkSelfPermission(ActvityOtp.this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -115,9 +114,9 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                                     String otp = msgBody.substring(35, 41);*/
                                     et_otp_value.setText(msgBody);
                                     if (tagValue.equals("My Profile")) {
-                                        hitOtpApiForMobile();
+                                        hitOtpApiForMobileNoChange();
 
-                                    }else if(tagVarifyUser.equals("Register User Varification")){
+                                    }else if(tagValue.equals("Register User Varification")){
                                         hitApiForvarifyuUser();
                                     }
 
@@ -174,10 +173,11 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                             hitResendOtpForMobileNo();
 
                         }
-                        else if(tagVarifyUser.equals("Register User Varification")){
+                        else if(tagValue.equals("Register User Varification")){
                             hitResendOtpForMobileNo();
+
                         }else{
-                            hitApiforResendOtpRegister();
+                            hitApiforResendOtpRegistrationPage();
                         }
 
 
@@ -237,9 +237,9 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                 break;
             case R.id.ll_veryfyOtp:
                 if (tagValue.equals("My Profile")) {
-                    hitOtpApiForMobile();
+                    hitOtpApiForMobileNoChange();
 
-                }else if(tagVarifyUser.equals("Register User Varification")){
+                }else if(tagValue.equals("Register User Varification")){
                     hitApiForvarifyuUser();
                 }
 
@@ -277,7 +277,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         return object;
     }
 
-    private void hitOtpApiForMobile() {
+    private void hitOtpApiForMobileNoChange() {
         try {
             request = new ProjectWebRequest(this, getParamChangeMobileOtp(), UrlConstants.CHANGE_MOBILE_VERIFY_OTP, this, UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG);
             request.execute();
@@ -303,7 +303,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         return object;
     }
 
-    private void hitApiforResendOtpRegister() {
+    private void hitApiforResendOtpRegistrationPage() {
         try {
             request = new ProjectWebRequest(this, getParamResendOtp(), UrlConstants.RESENDOTP, this, UrlConstants.RESENDOTP_TAG);
             request.execute();
@@ -344,7 +344,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
             object.put("user_id_for_otp", userId);
             object.put("otp", et_otp_value.getText().toString());
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -390,7 +389,9 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             }
         }else if (Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
             if(object.optString("status").equals("success")){
-
+                ll_timer_otp.setVisibility(View.VISIBLE);
+                ll_resnd_otp.setVisibility(View.GONE);
+                timerOTP();
                 Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
@@ -411,9 +412,49 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
 
     }
 
-
+    @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        if(Tag==UrlConstants.OTP_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }  if(Tag==UrlConstants.RESENDOTP_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }  if(Tag==UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }  if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        } if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }
+    }
 
     @Override
+    public void doRetryNow(int Tag) {
+        if(Tag==UrlConstants.OTP_TAG){
+            hitApiforOtp();
+        }else if(Tag==UrlConstants.RESENDOTP_TAG){
+            hitApiforResendOtpRegistrationPage();
+        }else if(Tag==UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG){
+            if (tagValue.equals("My Profile")) {
+                hitOtpApiForMobileNoChange();
+
+            }
+
+        }else  if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+            if(tagValue.equals("My Profile")) {
+                hitResendOtpForMobileNo();
+            }else if(tagValue.equals("Register User Varification")){
+                hitResendOtpForMobileNo();
+            }
+        }else  if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
+             if(tagValue.equals("Register User Varification")){
+                hitApiForvarifyuUser();
+            }
+        }
+
+    }
+
+
+  /*  @Override
     public void onFailure(String error, int Tag, String erroMsg) {
         clearRef();
         if (Tag == MessageConstants.NO_NETWORK_TAG) {
@@ -425,7 +466,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     public void doRetryNow() {
         clearRef();
         hitApiforOtp();
-    }
+    }*/
 
     public static String getTagData(String s1, String s) {
         tagValue = s1;
@@ -434,6 +475,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     }
 
     public static void getTagVarificationUser(String s) {
-        tagVarifyUser =s;
+        tagValue =s;
     }
 }

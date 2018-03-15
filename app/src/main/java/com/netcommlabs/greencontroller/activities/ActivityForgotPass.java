@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -132,6 +133,18 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
     }
 
     @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+        hitApi();
+    }
+
+/*    @Override
     public void onFailure(String error, int Tag, String erroMsg) {
 
     }
@@ -139,5 +152,5 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
     @Override
     public void doRetryNow() {
 
-    }
+    }*/
 }

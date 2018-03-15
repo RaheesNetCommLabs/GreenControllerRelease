@@ -5,8 +5,8 @@ package com.netcommlabs.greencontroller.constant;
  */
 
 public class UrlConstants {
-    //public static final String BASE_URL = "http://myvicinity.netcommlabs.net/api/";
-    public static final String BASE_URL = "http://192.168.0.34/vicinityapi/api/";
+    public static final String BASE_URL = "http://myvicinity.netcommlabs.net/api/";
+  //  public static final String BASE_URL = "http://192.168.0.34/vicinityapi/api/";
 
     public static final String LOGIN = BASE_URL + "login";
     public static final String REGISTERATION = BASE_URL + "register";
@@ -21,9 +21,6 @@ public class UrlConstants {
     public static final String VERIFY_OTP_FOR_FORGOT_PASS= BASE_URL + "verify_otp";
     public static final String ADD_ADDRESS= BASE_URL + "add_address";
     public static final String SAVE_IMEI= BASE_URL + "save_imei";
-
-
-
 
 
     public static final int LOGIN_TAG = 1001;

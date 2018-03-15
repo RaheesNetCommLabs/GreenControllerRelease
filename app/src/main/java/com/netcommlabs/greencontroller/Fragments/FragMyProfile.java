@@ -15,7 +15,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -31,16 +34,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
-
-
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
-
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
@@ -79,8 +77,8 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     private EditText et_match_pass;
     private EditText et_new_pass;
     private EditText et_confirm_pass;
-
-
+    private Bitmap compressedBitmap;
+    public static final int TAG_FOR_CAPTURE_IMAGE = 300;
     private ImageView img_cross;
     private TextView tv_submit;
     private TextView tv_phone_no;
@@ -105,7 +103,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     private int CAMERA_IMG_REQUEST = 1002;
     private Bitmap bitmap;
     PreferenceModel preference;
-    private  static String strEncodedImage;
+    private static String strEncodedImage;
 
     @Override
 
@@ -192,9 +190,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         ll_edit_profile_img.setOnClickListener(this);
 
 
-
-
-     //  userImageCallback.userImage(MySharedPreference.getInstance(getActivity()).getUser_img());
+        //  userImageCallback.userImage(MySharedPreference.getInstance(getActivity()).getUser_img());
     }
 
     @Override
@@ -269,9 +265,9 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
 
                 et_phoneNo.setCursorVisible(true);
                 if (et_phoneNo.getText().toString().trim().length() > 0) {
-                    if(et_phoneNo.getText().toString().equals(preference.getMobile())){
+                    if (et_phoneNo.getText().toString().equals(preference.getMobile())) {
                         Toast.makeText(mContext, "You are Updating same no.", Toast.LENGTH_SHORT).show();
-                    }else {
+                    } else {
                         hitApiChangeMobileNo();
                     }
 
@@ -323,7 +319,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                         if (et_confirm_pass.getText().toString().equals(et_new_pass.getText().toString())) {
                             if (et_new_pass.getText().toString().length() < 6) {
 
-                                Toast.makeText(mContext, "password should be minimum 6 digit ", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, "Password should be minimum 6 digit ", Toast.LENGTH_SHORT).show();
                             } else {
                                 hitApiChangePassword();
                                 // System.out.println("Valid");
@@ -331,15 +327,15 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                             }
 
                         } else {
-                            Toast.makeText(mContext, "password not match", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "Password not match", Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
-                        Toast.makeText(mContext, "enter confirm password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Enter confirm password", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
-                    Toast.makeText(mContext, "enter password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Enter password", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.tv_cancel:
@@ -464,23 +460,53 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-            boolean flag = false;
+          /*  permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+          //  boolean flag = false;
             for (String s : permissions)
                 if (mContext.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED)
-                    flag = true;
+                 //   flag = true;
+                    requestPermissions(permissions, pCode);
+            else
             openDailog();
-            if (flag) {
-                requestPermissions(permissions, pCode);
-            }
+
         } else
             //finish();
-            openDailog();
+            openDailog();*/
+
+
+            if (ContextCompat.checkSelfPermission(mContext,
+                    Manifest.permission.CAMERA) + ContextCompat
+                    .checkSelfPermission(mContext,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(mContext,
+                        new String[]{Manifest.permission
+                                .CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        TAG_FOR_CAPTURE_IMAGE);
+            } else {
+                //Toast.makeText(mContext, "All permissions already granted", Toast.LENGTH_SHORT).show();
+                openDailog();
+
+            }
+        }
     }
 
-    private void openDailog() {
+
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+
+        }
+
+    }
+
+    public void openDailog() {
         dialog = new Dialog(mContext);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCanceledOnTouchOutside(true);
@@ -523,15 +549,15 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             picturePath = cursor.getString(columnIndex);
             cursor.close();
             bitmap = BitmapFactory.decodeFile(picturePath);
-              setPath(picturePath);
-          //  image_user.setImageBitmap(bitmap);
-           // convertBitmapToBse64(bitmap);
+            setPath(picturePath);
+            //  image_user.setImageBitmap(bitmap);
+            // convertBitmapToBse64(bitmap);
         } else if (requestCode == CAMERA_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
             bitmap = (Bitmap) data.getExtras().get("data");
             saveImage(bitmap);
             picturePath = new File(Environment.getExternalStorageDirectory()
                     + File.separator + "/test.jpg").getAbsolutePath();
-           setPath(picturePath);
+            setPath(picturePath);
 
 
         }
@@ -539,15 +565,16 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     }
 
     private void setPath(String picturePath) {
-        Bitmap compressedBitmap = FileUtils.getBitmapWithCompressedFromPicker(mContext, picturePath);
+        compressedBitmap = FileUtils.getBitmapWithCompressedFromPicker(mContext, picturePath);
         convertBitmapToBse64(compressedBitmap);
         image_user.setImageBitmap(compressedBitmap);
+
     }
 
     private String convertBitmapToBse64(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        strEncodedImage=  Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+        strEncodedImage = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
         return strEncodedImage;
     }
 
@@ -603,32 +630,34 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             } else {
                 Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
-        }else if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
-            if(obj.optString("status").equals("success")){
+        } else if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
+            if (obj.optString("status").equals("success")) {
                 change_password_dialog.setVisibility(View.GONE);
                 tv_pass.setText(et_new_pass.getText().toString());
-                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+
+            } else {
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
 
-        }else if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
-            if(obj.optString("status").equals("success")){
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+            if (obj.optString("status").equals("success")) {
                 phone_layout.setVisibility(View.GONE);
                 mContext.setOtpForMobile(et_phoneNo.getText().toString());
 
-                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
-        }else if(Tag==UrlConstants.UPDATE_PROFILE_TAG){
-            if(obj.optString("status").equals("success")){
+        } else if (Tag == UrlConstants.UPDATE_PROFILE_TAG) {
+            if (obj.optString("status").equals("success")) {
 
                 PreferenceModel model = new Gson().fromJson(obj.toString(), PreferenceModel.class);
                 MySharedPreference.getInstance(mContext).setUserDetail(model);
-
                 MySharedPreference.getInstance(mContext).setUser_img(obj.optString("image"));
-              //  userImageCallback.userImage(obj.optString("Image"));
-
-                Toast.makeText(mContext, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+                //  userImageCallback.userImage(obj.optString("Image"));
+                MainActivity.circularIVNav.setImageBitmap(compressedBitmap);
+                MainActivity.username_header.setText(et_name.getText().toString());
+                Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -636,6 +665,35 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     }
 
     @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        clearRef();
+
+        if (Tag == UrlConstants.MATCH_PASSWORD_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        } if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }if (Tag == UrlConstants.UPDATE_PROFILE_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+        clearRef();
+        if (Tag == UrlConstants.MATCH_PASSWORD_TAG) {
+            hitApiForMatchPassword();
+        }else if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
+            hitApiChangePassword();
+        }else if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+            hitApiChangeMobileNo();
+        }else if(Tag==UrlConstants.UPDATE_PROFILE_TAG){
+            hitApiForUpdateProfiler();
+        }
+    }
+
+ /*   @Override
     public void onFailure(String error, int Tag, String erroMsg) {
         clearRef();
         if (Tag == MessageConstants.NO_NETWORK_TAG) {
@@ -646,5 +704,5 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     @Override
     public void doRetryNow() {
         clearRef();
-    }
+    }*/
 }

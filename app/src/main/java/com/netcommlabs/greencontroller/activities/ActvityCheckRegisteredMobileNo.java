@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
@@ -108,6 +109,25 @@ public class ActvityCheckRegisteredMobileNo extends Activity implements View.OnC
     }
 
     @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+      /*  if (Tag == MessageConstants.NO_NETWORK_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this,tag, MessageConstants.No_NETWORK_MSG, this);
+        }*/
+        if(Tag==UrlConstants.FORGOT_PASSWORD_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+       if(Tag==UrlConstants.FORGOT_PASSWORD_TAG){
+            hitApi();
+        }
+
+
+    }
+
+   /* @Override
     public void onFailure(String error, int Tag, String erroMsg) {
 
     }
@@ -115,5 +135,5 @@ public class ActvityCheckRegisteredMobileNo extends Activity implements View.OnC
     @Override
     public void doRetryNow() {
 
-    }
+    }*/
 }

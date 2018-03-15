@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
-import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
@@ -36,16 +35,12 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
         initBase();
-
-
     }
 
     private void initBase() {
         mContext = this;
-
         etPhoneEmail = (EditText) findViewById(R.id.etPhoneEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
-
         tvForgtPassEvent = (TextView) findViewById(R.id.tvForgtPassEvent);
         tvLoginEvent = (TextView) findViewById(R.id.tvLoginEvent);
         tvSignUpEvent = (TextView) findViewById(R.id.tvSignUpEvent);
@@ -124,9 +119,11 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                 MySharedPreference.getInstance(this).setUserDetail(model);
                 MySharedPreference.getInstance(this).setUser_img(object.optString("image"));
                 startActivity(new Intent(LoginAct.this, MainActivity.class));
+              //  ActvityOtp.getTagRegistartion("Registration");
                 finish();
             } else {
                 Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
+
             }
 
         }
@@ -134,15 +131,16 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
 
 
     @Override
-    public void onFailure(String error, int Tag, String erroMsg) {
+    public void onFailure( int tag,String error, int Tag, String erroMsg) {
         clearRef();
-        if (Tag == MessageConstants.NO_NETWORK_TAG) {
-            ErroScreenDialog.showErroScreenDialog(this, MessageConstants.No_NETWORK_MSG, this);
+
+        if(Tag==UrlConstants.LOGIN_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
         }
     }
 
     @Override
-    public void doRetryNow() {
+    public void doRetryNow( int Tag) {
         clearRef();
         hitApi();
     }

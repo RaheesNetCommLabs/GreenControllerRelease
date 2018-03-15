@@ -42,4 +42,11 @@
 
     <style name="FullScreen.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="MyAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+
+
+        <item name="android:textColor">@color/text_color_white</item>
+        <item name="android:background">@color/theme_color</item>
+        <item name="colorAccent">@color/text_color_white</item>
+    </style>
 </resources>

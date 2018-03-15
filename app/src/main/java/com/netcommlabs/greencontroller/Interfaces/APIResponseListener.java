@@ -11,7 +11,7 @@ public interface APIResponseListener {
     //void onFailure(VolleyError error, int Tag);
     void onSuccess(JSONObject call, int Tag);
 
-    void onFailure(String error, int Tag, String erroMsg);
+    void onFailure( int tag,String error, int Tag, String erroMsg);
 
-    void doRetryNow();
+    void doRetryNow(int Tag);
 }

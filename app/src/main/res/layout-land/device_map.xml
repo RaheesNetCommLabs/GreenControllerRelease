@@ -614,14 +614,17 @@
                 android:focusable="true"
                 android:hint="Enter device name"
                 android:imeOptions="flagNoExtractUi"
-
                 android:inputType="text"
                 android:padding="@dimen/_10sdp"
-
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_color_gray"
                 android:textSize="@dimen/_13sdp" />
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_1sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:background="#1A000000" />
 
             <LinearLayout
                 android:layout_width="match_parent"

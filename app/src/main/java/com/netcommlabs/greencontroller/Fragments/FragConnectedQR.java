@@ -18,21 +18,24 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 import org.json.JSONObject;
 
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Android on 12/6/2017.
@@ -325,7 +328,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_FOR_ADDRESS_BOOK && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_CODE_FOR_ADDRESS_BOOK && resultCode == RESULT_OK) {
             if (data.getStringExtra("KEY_selected_Address_ID") != null) {
                 selectedExistingAddressID = data.getStringExtra("KEY_selected_Address_ID");
                 Toast.makeText(mContext, "Existing address selected", Toast.LENGTH_SHORT).show();
@@ -334,7 +337,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
             }
         }
 
-        if (requestCode == REQUEST_ADDADDRESS_QRCONNECT && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_ADDADDRESS_QRCONNECT && resultCode == RESULT_OK) {
             if (data.getSerializableExtra("mdlAddressLocation") != null) {
                 modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
                 Toast.makeText(mContext, "Address Saved", Toast.LENGTH_SHORT).show();
@@ -373,13 +376,42 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     }
 
     @Override
-    public void onFailure(String error, int Tag, String erroMsg) {
-
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        clearRef();
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
     }
 
     @Override
-    public void doRetryNow() {
+    public void doRetryNow(int Tag) {
+        clearRef();
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            hitApiForSaveAddress();
+        }
 
     }
 
+    /* @Override
+     public void onFailure(String error, int Tag, String erroMsg) {
+
+     }
+
+     @Override
+     public void doRetryNow() {
+
+     }
+ <<<<<<< HEAD
+
+ }
+ =======
+ */
+    public void addressBookChosen(String selectedAddressID) {
+        getTargetFragment().onActivityResult(
+                getTargetRequestCode(),
+                RESULT_OK,
+                new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
+        );
+        mContext.onBackPressed();
+    }
 }

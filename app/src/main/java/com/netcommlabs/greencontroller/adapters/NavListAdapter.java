@@ -22,6 +22,7 @@ import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
 import com.netcommlabs.greencontroller.Fragments.FragRecomm;
 import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
+import com.netcommlabs.greencontroller.Interfaces.OpendialogCallback;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.LoginAct;
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -44,11 +45,12 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
     DrawerLayout nav_drawer_layout;
     private DatabaseHandler databaseHandler;
     private LinearLayout llAddNewAddress;
-
-    public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout) {
+    OpendialogCallback opendialogCallback;
+    public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout, OpendialogCallback opendialogCallback) {
         this.mContext = mContext;
         this.listNavDrawerRowDat = listNavDrawerRowDat;
         this.nav_drawer_layout = nav_drawer_layout;
+        this.opendialogCallback=opendialogCallback;
 
     }
 
@@ -73,7 +75,9 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                     switch (clickedNavItem) {
                         case "My Profile":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
+                            FragMyProfile fragMyProfile=new FragMyProfile();
+                            MyFragmentTransactions.replaceFragment(mContext, fragMyProfile, Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
+                            opendialogCallback.getFragment(fragMyProfile);
                             break;
                         case "My Devices":
                             databaseHandler = DatabaseHandler.getInstance(mContext);

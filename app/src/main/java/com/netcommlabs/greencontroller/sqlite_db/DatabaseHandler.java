@@ -913,7 +913,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         ModalValveSessionData modalValveSessionData;
         ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
-        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
+        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_NAME_SESN,CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
                 new String[]{clickedVlvUUID}, null, null, null, null);
 
         if (myCursor != null && myCursor.moveToFirst()) {

@@ -80,7 +80,6 @@ public class AppAlertDialog {
         appAlertDialog.mContext = mContext;
         appAlertDialog.myRequestedFrag = myRequestedFrag;
         appAlertDialog.bleAppLevel = bleAppLevel;
-
         appAlertDialog.macAddressClassLevel = macAddress;
         String title, msg;
         if (myRequestedFrag instanceof FragDeviceMAP) {
@@ -126,7 +125,7 @@ public class AppAlertDialog {
 
 
     public static void dialogConnectingBLE() {
-        final ProgressDialog pdConnectingBLE = new ProgressDialog(appAlertDialog.mContext);
+        final ProgressDialog pdConnectingBLE = new ProgressDialog(appAlertDialog.mContext, R.style.MyAlertDialogStyle);
         pdConnectingBLE.setMessage("Connecting...");
         pdConnectingBLE.setCancelable(false);
         pdConnectingBLE.setIndeterminate(true);
