@@ -24,15 +24,17 @@ public class ErroScreenDialog {
     private static Context mContext;
     private static APIResponseListener listener;
     private static String errorMsg;
+    private  static int tag;
 
-    public static void showErroScreenDialog(Context mmContext, String merrorMsg, APIResponseListener mlistener) {
+    public static void showErroScreenDialog( Context mmContext,int tag, String merrorMsg, APIResponseListener mlistener) {
         mContext = mmContext;
         errorMsg = merrorMsg;
         listener = mlistener;
-        showErorScreen();
+        tag=tag;
+        showErorScreen(tag);
     }
 
-    private static void showErorScreen() {
+    private static void showErorScreen(final int Tag) {
 
         dialog = new Dialog(mContext);
         // dialog.getWindow().getAttributes().windowAnimations = R.style.CustomThemeBottomAndUpAnimation;
@@ -56,7 +58,7 @@ public class ErroScreenDialog {
             public void onClick(View v) {
                 if (NetworkUtils.isConnected(mContext)) {
                     dialog.dismiss();
-                    listener.doRetryNow();
+                    listener.doRetryNow(Tag);
                 } else {
                     Intent intent = new Intent(Settings.ACTION_SETTINGS);
                     mContext.startActivity(intent);

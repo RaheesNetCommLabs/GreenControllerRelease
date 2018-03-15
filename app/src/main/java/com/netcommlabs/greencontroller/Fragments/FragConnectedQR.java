@@ -18,15 +18,16 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
@@ -363,6 +364,23 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     }
 
     @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        clearRef();
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+        clearRef();
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            hitApiForSaveAddress();
+        }
+
+    }
+
+   /* @Override
     public void onFailure(String error, int Tag, String erroMsg) {
 
     }
@@ -371,7 +389,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
     public void doRetryNow() {
 
     }
-
+*/
     public void addressBookChosen(String selectedAddressID) {
         getTargetFragment().onActivityResult(
                 getTargetRequestCode(),

@@ -75,9 +75,10 @@ public class ProjectWebRequest {
                 doPostUsingHttp();
             }
         } else {
-            apiResponseListener.onFailure(null, MessageConstants.NO_NETWORK_TAG, "");
+            apiResponseListener.onFailure(Tag,null, MessageConstants.NO_NETWORK_TAG, "");
             if (mContext != null)
-                Toast.makeText(mContext, "No internet connection found", Toast.LENGTH_LONG).show();
+
+               Toast.makeText(mContext, "No internet connection found", Toast.LENGTH_LONG).show();
             return;
         }
     }
@@ -114,8 +115,8 @@ public class ProjectWebRequest {
                 } else if (error instanceof TimeoutError) {
                     errorMsg = "Timeout error, please try again later";
                 }
-                apiResponseListener.onFailure(errorMsg, Tag, errorMsg);
-                Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
+                apiResponseListener.onFailure(Tag,errorMsg, Tag, errorMsg);
+              //  Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
             }
         }
         );
@@ -188,13 +189,13 @@ public class ProjectWebRequest {
                     Log.e("&&&&&&&&&&&&->>>>>>>>>>",""+object.toString());
                     apiResponseListener.onSuccess(object, Tag);
                 } catch (JSONException e) {
-                    apiResponseListener.onFailure(errorMsg, Tag, e.getLocalizedMessage());
+                    apiResponseListener.onFailure(Tag,errorMsg, Tag, e.getLocalizedMessage());
                     Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             } else {
                 Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
-                apiResponseListener.onFailure(errorMsg, Tag, errorMsg);
+                apiResponseListener.onFailure(Tag,errorMsg, Tag, errorMsg);
             }
         }
     }

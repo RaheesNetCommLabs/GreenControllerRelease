@@ -34,7 +34,7 @@
                 android:layout_height="@dimen/_55sdp"
                 android:background="@drawable/rect_shadow_all_bg"
                 android:hint="Enter phone or email"
-                android:text="9717014340"
+
                 android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="@dimen/_15sdp"
                 android:singleLine="true"
@@ -46,7 +46,7 @@
                 android:layout_height="@dimen/_55sdp"
                 android:background="@drawable/rect_shadow_all_bg"
                 android:hint="Enter password"
-                android:text="123456"
+
                 android:inputType="textPassword"
                 android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="@dimen/_15sdp"

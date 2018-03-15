@@ -63,6 +63,7 @@ import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.Fragments.FragMyProfile;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
+import com.netcommlabs.greencontroller.Interfaces.OpendialogCallback;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.adapters.NavListAdapter;
 import com.netcommlabs.greencontroller.constant.Constant;
@@ -92,7 +93,7 @@ import static com.netcommlabs.greencontroller.constant.Constant.CONNECTED_QR;
 import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_DETAILS;
 import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_MAP;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, APIResponseListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, APIResponseListener,OpendialogCallback {
 
     private static final int PERMISSIONS_MULTIPLE_REQUEST = 200;
     private MainActivity mContext;
@@ -122,10 +123,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private DatabaseHandler databaseHandler;
     //public TextView tvAddNewAddress;
     public LinearLayout llAddNewAddress;
-    private ImageView circularIVNav;
+    public static ImageView circularIVNav;
     private LinearLayout nav_header;
     private PreferenceModel preference;
-    private TextView username_header;
+    public static TextView username_header;
     private String imeiSIM1, imeiSIM2;
     public static final int RESOLUTION_REQUEST_LOCATION = 59;
     public static final int PLACE_AC_REQUEST_CODE = 60;
@@ -137,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ProjectWebRequest request;
     private String addressUserFriendly = "", city = "", area = "";
     private boolean checkNetStatus = false;
+    FragMyProfile fragMyProfile;
 
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
@@ -273,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             ));
         }
-        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout));
+        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout,this));
         //MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
 
         //Adding first Fragment(FragDashboardPebbleHome)
@@ -304,14 +306,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION) + ContextCompat
+                Manifest.permission.ACCESS_FINE_LOCATION)/* + ContextCompat
                 .checkSelfPermission(mContext,
-                        Manifest.permission.CAMERA) + ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
+                        Manifest.permission.CAMERA) */+ ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(mContext,
                     new String[]{Manifest.permission
-                            .ACCESS_FINE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.READ_PHONE_STATE},
+                            .ACCESS_FINE_LOCATION, /*Manifest.permission.CAMERA,*/ Manifest.permission.READ_PHONE_STATE},
                     PERMISSIONS_MULTIPLE_REQUEST);
         } else {
             //Toast.makeText(mContext, "All permissions already granted", Toast.LENGTH_SHORT).show();
@@ -333,13 +335,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case PERMISSIONS_MULTIPLE_REQUEST: {
+            case PERMISSIONS_MULTIPLE_REQUEST:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0) {
                     boolean fineLocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    boolean phoneReadState = grantResults[2] == PackageManager.PERMISSION_GRANTED;
-                    if (fineLocation && cameraPermission && phoneReadState) {
+                 //   boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean phoneReadState = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if (fineLocation /*&& cameraPermission */&& phoneReadState) {
                         //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
                         if (NetworkUtils.isConnected(this)) {
                             //Bluetooth work starts
@@ -353,11 +355,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
                         mContext.finish();
                     }
-                }
+
             }
+            break;
+
+            case FragMyProfile.TAG_FOR_CAPTURE_IMAGE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0) {
+                    boolean cameraPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeExternalStorage= grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if (cameraPermission && writeExternalStorage ) {
+                        //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
+                      if(fragMyProfile!=null)
+                          fragMyProfile.openDailog();
+
+                    } else {
+                        Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
+                        mContext.finish();
+                    }
+
+                }
         }
 
     }
+
+    /****************************hit Api for location**********************************/
 
     private void hitApiForSaveLocation() {
 
@@ -389,11 +411,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return object;
     }
 
-    void clearRef() {
-        if (request != null) {
-            request = null;
+    @Override
+    public void onSuccess(JSONObject call, int Tag) {
+        if (Tag == UrlConstants.SAVE_IMEI_TAG) {
+            if (call.optString("status").equals("success")) {
+                //   Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
+            }
         }
+
     }
+
+    @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        /*if(Tag==UrlConstants.SAVE_IMEI_TAG){
+            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        }*/
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+
+    }
+
+    /***************************************************************************************/
+
 
     private void gettingLocationWithProgressBar() {
 
@@ -643,6 +684,57 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest().create();
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, listener);
+        checkResolutionAndProceed();
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void checkResolutionAndProceed() {
+        checkNetStatus = InternetAvailability.getInstance(this).isOnline();
+        if (!checkNetStatus) {
+            Toast.makeText(this, "Kindly check your network connectivity", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
+        builder.setAlwaysShow(true);
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        startGettingLocation();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            status.startResolutionForResult(MainActivity.this, RESOLUTION_REQUEST_LOCATION);
+                        } catch (IntentSender.SendIntentException e) {
+                        }
+                        break;
+                }
+            }
+        });
+    }
+
     /* public void CallBackForProfile() {
          MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
      }
@@ -767,74 +859,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onDestroy();
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest = new LocationRequest().create();
-        mLocationRequest.setInterval(0);
-        mLocationRequest.setFastestInterval(0);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, listener);
-        checkResolutionAndProceed();
 
-    }
 
-    @Override
-    public void onConnectionSuspended(int i) {
 
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    private void checkResolutionAndProceed() {
-        checkNetStatus = InternetAvailability.getInstance(this).isOnline();
-        if (!checkNetStatus) {
-            Toast.makeText(this, "Kindly check your network connectivity", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-        builder.setAlwaysShow(true);
-        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                Status status = result.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        startGettingLocation();
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            status.startResolutionForResult(MainActivity.this, RESOLUTION_REQUEST_LOCATION);
-                        } catch (IntentSender.SendIntentException e) {
-                        }
-                        break;
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onSuccess(JSONObject call, int Tag) {
-        if (Tag == UrlConstants.SAVE_IMEI_TAG) {
-            if (call.optString("status").equals("success")) {
-             //   Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
-
-    @Override
-    public void onFailure(String error, int Tag, String erroMsg) {
-
-    }
-
-    @Override
-    public void doRetryNow() {
-
-    }
 
     public void dvcDeleteUpdateSuccess() {
         Toast.makeText(mContext, "Device Deleted successfully", Toast.LENGTH_SHORT).show();
@@ -842,6 +869,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
     }
 
+    @Override
+    public void getFragment(Fragment fragment) {
+        if(fragment instanceof FragMyProfile){
+            fragMyProfile=(FragMyProfile)fragment;
+        }
+
+    }
+    void clearRef() {
+        if (request != null) {
+            request = null;
+        }
+    }
 
    /* @Override
     public void onConfigurationChanged(Configuration newConfig) {

@@ -15,7 +15,7 @@
         <ImageView
             android:layout_width="@dimen/_70sdp"
             android:layout_height="@dimen/_70sdp"
-            android:background="@drawable/error_icon" />
+            android:background="@drawable/error_icon_two" />
 
         <TextView
             android:layout_width="match_parent"

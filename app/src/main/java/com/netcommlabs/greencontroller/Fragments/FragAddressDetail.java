@@ -16,15 +16,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import org.json.JSONObject;
@@ -219,6 +220,18 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     }
 
     @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+        hitApiforDeleteAdd();
+    }
+
+   /* @Override
     public void onFailure(String error, int Tag, String erroMsg) {
 
     }
@@ -226,5 +239,5 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     @Override
     public void doRetryNow() {
 
-    }
+    }*/
 }

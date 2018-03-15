@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
-import com.netcommlabs.greencontroller.constant.MessageConstants;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
@@ -152,7 +151,7 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
 
                 Intent i = new Intent(RegistraionActivity.this, ActvityOtp.class);
                 i.putExtra("userId", userIdForOtp);
-                i.putExtra("mobile",edtPhoneNo.getText().toString());
+                i.putExtra("mobile", edtPhoneNo.getText().toString());
                 startActivity(i);
 
             } else {
@@ -162,7 +161,22 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
         }
     }
 
+    @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        clearRef();
+        if (Tag == UrlConstants.REGISTERATION_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
+        }
+    }
 
+    @Override
+    public void doRetryNow(int Tag) {
+        clearRef();
+        hitApiForRegistration();
+    }
+
+
+/*
     @Override
     public void onFailure(String error, int Tag, String erroMsg) {
         clearRef();
@@ -176,6 +190,7 @@ public class RegistraionActivity extends Activity implements View.OnClickListene
         clearRef();
         hitApiForRegistration();
     }
+*/
 
 
     void clearRef() {

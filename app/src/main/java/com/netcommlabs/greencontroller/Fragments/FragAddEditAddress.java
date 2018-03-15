@@ -34,7 +34,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -593,6 +593,20 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
 
     }
 
+    @Override
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
+    }
+
+    @Override
+    public void doRetryNow(int Tag) {
+        if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
+            hitApiForSaveAddress(strValue);
+        }
+    }
+
     private void clearRef() {
         if (request != null) {
             request = null;
@@ -607,7 +621,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
             mContext.getFragmentManager().beginTransaction().remove(mapFragment).commit();
         }
     }
-
+/*
     @Override
     public void onFailure(String error, int Tag, String erroMsg) {
 
@@ -616,5 +630,5 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
     @Override
     public void doRetryNow() {
 
-    }
+    }*/
 }
