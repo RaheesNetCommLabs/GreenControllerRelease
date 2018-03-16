@@ -1728,7 +1728,6 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
 
     private void dialogDeleteEditTPts(final View view) {
         String clickedItemText = ((TextView) view).getText().toString();
-
         AlertDialog.Builder alBu = new AlertDialog.Builder(mContext);
         alBu.setTitle(clickedItemText);
         alBu.setCancelable(false);
@@ -1745,7 +1744,17 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 deleteTPnts(view);
             }
         });
-        alBu.create().show();
+      //  alBu.create().show();
+        AlertDialog alert = alBu.create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = alert.getWindow();
+        lp.copyFrom(window.getAttributes());
+        //This makes the dialog take up the full width
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
+        alert.show();
     }
 
     private void deleteTPnts(View view) {
