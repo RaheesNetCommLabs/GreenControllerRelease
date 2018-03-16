@@ -164,7 +164,7 @@
                         android:padding="@dimen/_8sdp">
 
                         <TextView
-                            android:id="@+id/tvDeviceName"
+                            android:id="@+id/tvDeviceNameTopLeft"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
@@ -180,7 +180,7 @@
                         android:background="@drawable/circle_notification">
 
                         <TextView
-                            android:id="@+id/tvValveCount"
+                            android:id="@+id/tvValveCountTopLeft"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"

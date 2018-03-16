@@ -142,7 +142,7 @@
                         android:padding="@dimen/_8sdp">
 
                         <TextView
-                            android:id="@+id/tvDeviceName"
+                            android:id="@+id/tvDeviceNameTopLeft"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
@@ -158,7 +158,7 @@
                         android:background="@drawable/circle_notification">
 
                         <TextView
-                            android:id="@+id/tvValveCount"
+                            android:id="@+id/tvValveCountTopLeft"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -183,7 +183,7 @@
                     android:visibility="gone">
 
                     <LinearLayout
-                        android:id="@+id/ll_3st"
+                        android:id="@+id/llBubbleTopRightBG"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="@dimen/_8sdp"
@@ -192,6 +192,7 @@
                         android:padding="@dimen/_8sdp">
 
                         <TextView
+                            android:id="@+id/tvDvcNameTopRigh"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -207,6 +208,7 @@
                         android:background="@drawable/circle_notification">
 
                         <TextView
+                            android:id="@+id/tvValveCountTopRight"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -234,6 +236,7 @@
                 android:visibility="gone">
 
                 <LinearLayout
+                    android:id="@+id/llBubbleMiddleBG"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="@dimen/_8sdp"
@@ -242,6 +245,7 @@
                     android:padding="@dimen/_8sdp">
 
                     <TextView
+                        android:id="@+id/tvDvcNameMiddle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -257,6 +261,7 @@
                     android:background="@drawable/circle_notification">
 
                     <TextView
+                        android:id="@+id/tvValveCountMiddle"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -289,7 +294,7 @@
                     android:visibility="gone">
 
                     <LinearLayout
-                        android:id="@+id/ll_4st"
+                        android:id="@+id/llBubbleLeftBottomBG"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="@dimen/_8sdp"
@@ -298,6 +303,7 @@
                         android:padding="@dimen/_8sdp">
 
                         <TextView
+                            android:id="@+id/tvDvcNameLeftBottom"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -313,6 +319,7 @@
                         android:background="@drawable/circle_notification">
 
                         <TextView
+                            android:id="@+id/tvValveCountLeftBottom"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -336,7 +343,7 @@
                     android:visibility="gone">
 
                     <LinearLayout
-                        android:id="@+id/ll_5st"
+                        android:id="@+id/llBubbleRightBottomBG"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="@dimen/_8sdp"
@@ -345,6 +352,7 @@
                         android:padding="@dimen/_8sdp">
 
                         <TextView
+                            android:id="@+id/tvDvcNameRightBottom"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -360,6 +368,7 @@
                         android:background="@drawable/circle_notification">
 
                         <TextView
+                            android:id="@+id/tvValveCountRightBottom"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -419,8 +428,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_30sdp"
                 android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_30sdp"
                 android:background="@color/text_color_white"
                 android:orientation="vertical">
 
@@ -527,45 +536,45 @@
                     android:textColor="@android:color/black" />
 
 
-           <!--     <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_40sdp"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:background="@color/text_color_white"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
+                <!--     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="@dimen/_40sdp"
+                         android:layout_marginTop="@dimen/_10sdp"
+                         android:background="@color/text_color_white"
+                         android:gravity="center"
+                         android:orientation="horizontal"
+                         android:weightSum="1">
 
-                    <TextView
-                        android:id="@+id/tv_submit_change_password"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="@dimen/_3sdp"
-                        android:layout_weight=".5"
-                        android:background="#0B9F7F"
-                        android:gravity="center"
-                        android:text="SUBMIT"
-                        android:textColor="@color/text_color_white"
-                        android:textSize="@dimen/_15sdp" />
+                         <TextView
+                             android:id="@+id/tv_submit_change_password"
+                             android:layout_width="0dp"
+                             android:layout_height="match_parent"
+                             android:layout_marginTop="@dimen/_3sdp"
+                             android:layout_weight=".5"
+                             android:background="#0B9F7F"
+                             android:gravity="center"
+                             android:text="SUBMIT"
+                             android:textColor="@color/text_color_white"
+                             android:textSize="@dimen/_15sdp" />
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_3sdp"
-                        android:background="#73C59F"></View>
+                         <View
+                             android:layout_width="1dp"
+                             android:layout_height="wrap_content"
+                             android:layout_marginTop="@dimen/_3sdp"
+                             android:background="#73C59F"></View>
 
-                    <TextView
-                        android:id="@+id/tv_cancel"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="@dimen/_3sdp"
-                        android:layout_weight=".5"
-                        android:background="#0B9F7F"
-                        android:gravity="center"
-                        android:text="CANCEL"
-                        android:textColor="@color/text_color_white"
-                        android:textSize="@dimen/_15sdp" />
-                </LinearLayout>-->
+                         <TextView
+                             android:id="@+id/tv_cancel"
+                             android:layout_width="0dp"
+                             android:layout_height="match_parent"
+                             android:layout_marginTop="@dimen/_3sdp"
+                             android:layout_weight=".5"
+                             android:background="#0B9F7F"
+                             android:gravity="center"
+                             android:text="CANCEL"
+                             android:textColor="@color/text_color_white"
+                             android:textSize="@dimen/_15sdp" />
+                     </LinearLayout>-->
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -619,6 +628,7 @@
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_color_gray"
                 android:textSize="@dimen/_13sdp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_1sdp"

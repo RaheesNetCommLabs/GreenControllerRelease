@@ -36,7 +36,7 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/tvValveCount"
+            android:id="@+id/tvValveCountTopLeft"
             android:layout_width="@dimen/_25sdp"
             android:layout_height="@dimen/_25sdp"
             android:background="@drawable/circle_cyan"

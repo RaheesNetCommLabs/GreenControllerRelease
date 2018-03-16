@@ -346,8 +346,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public String getAddressUUID() {
         db = this.getReadableDatabase();
         Cursor cursor;
-        cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID}, null,
-                null, null, null, null, null);
+        cursor = db.query(TABLE_ADDRESS_MASTER, new String[]{CLM_ADDRESS_UUID}, CLM_ADDRESS_IS_SHOW_STATUS + " = ? ",
+                new String[]{String.valueOf(1)}, null, null, null, null);
         cursor.moveToFirst();
         String addressUUID = cursor.getString(0);
         cursor.close();
@@ -513,8 +513,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<String> getAllDeviceName() {
         db = this.getReadableDatabase();
         ArrayList<String> listDeviceUniqueName = new ArrayList<>();
-        String selectQuery = "SELECT " + CLM_DVC_NAME + " FROM " + TABLE_DVC_MASTER;
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        //String selectQuery = "SELECT " + CLM_DVC_NAME + " FROM " + TABLE_DVC_MASTER;
+        Cursor cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_NAME}, CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{String.valueOf(1)}, null, null, null);
         // looping through all rows and adding to list
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -626,8 +626,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         List<String> listDeviceMAC = new ArrayList<>();
 
-        Cursor cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_MAC}, null,
-                null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_MAC}, CLM_DVC_IS_SHOW_STATUS + " = ? ",
+                new String[]{String.valueOf(1)}, null, null, null, null);
         // looping through all cursor rows and adding to list
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -644,8 +644,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         Cursor cursor;
         int deviceNum = 0, valveNum = 0;
-        cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_VALVE_NUM}, CLM_ADDRESS_UUID + " = ? ",
-                new String[]{addressUUID}, null, null, null, null);
+        cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_UUID, CLM_DVC_VALVE_NUM}, CLM_ADDRESS_UUID + " = ? AND " + CLM_DVC_IS_SHOW_STATUS+" = ?",
+                new String[]{addressUUID, String.valueOf(1)}, null, null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -913,7 +913,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         ModalValveSessionData modalValveSessionData;
         ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
-        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_NAME_SESN,CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
+        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_NAME_SESN, CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
                 new String[]{clickedVlvUUID}, null, null, null, null);
 
         if (myCursor != null && myCursor.moveToFirst()) {

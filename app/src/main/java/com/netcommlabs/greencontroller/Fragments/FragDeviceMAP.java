@@ -1,3 +1,4 @@
+
 package com.netcommlabs.greencontroller.Fragments;
 
 import android.content.Context;
@@ -43,7 +44,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private RecyclerView recyclerView;
     private DeviceAddressAdapter mAdapter;
     private LinearLayout llAddNewAddress;
-    public LinearLayout llBubbleLeftTopBG, llFooterIM;
+    public LinearLayout llBubbleLeftTopBG, llFooterIM, llBubbleTopRightBG, llBubbleMiddleBG, llBubbleLeftBottomBG, llBubbleRightBottomBG;
     /* private LinearLayout ll_3st;
      private LinearLayout ll_4st;
      private LinearLayout ll_5st;*/
@@ -54,7 +55,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private ImageView ivPrev;
     private ImageView ivNext;
     private int valveNum;
-    private TextView tvDeviceName, tvValveCount, tvShowAddressTop, toolbar_tile;
+    private TextView tvDeviceNameTopLeft, tvValveCountTopLeft, tvDvcNameTopRigh, tvValveCountTopRight, tvDvcNameMiddle, tvValveCountMiddle, tvDvcNameLeftBottom, tvValveCountLeftBottom, tvDvcNameRightBottom, tvValveCountRightBottom;
     private ModalAddressModule modalAddressModule;
     private String addressComplete;
     private List<String> listAddressName;
@@ -69,6 +70,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     public LinearLayout llIMWholeDesign, llDialogLongPressDvc, llDialogEditDvcName;
     private EditText etEditDvcName;
     private int totalPlayValvesCount, totalPauseValvesCount;
+    private FragDeviceDetails fragDeviceDetails;
+    private Bundle bundle;
     //private Fragment myFragment;
 
     @Override
@@ -94,6 +97,10 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         llAddNewAddress = view.findViewById(R.id.llAddNewAddress);
         ivMapNewDevice = view.findViewById(R.id.ivMapNewDevice);
         llBubbleLeftTopBG = view.findViewById(R.id.llBubbleLeftTopBG);
+        llBubbleTopRightBG = view.findViewById(R.id.llBubbleTopRightBG);
+        llBubbleMiddleBG = view.findViewById(R.id.llBubbleMiddleBG);
+        llBubbleLeftBottomBG = view.findViewById(R.id.llBubbleLeftBottomBG);
+        llBubbleRightBottomBG = view.findViewById(R.id.llBubbleRightBottomBG);
         rlBubbleLeftTop = view.findViewById(R.id.rlBubbleLeftTop);
         rlBubbleRightTop = view.findViewById(R.id.rlBubbleRightTop);
         rlBubbleMiddle = view.findViewById(R.id.rlBubbleMiddle);
@@ -102,8 +109,16 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         llFooterIM = view.findViewById(R.id.llFooterIM);
         ivPrev = view.findViewById(R.id.ivPrev);
         ivNext = view.findViewById(R.id.ivNext);
-        tvDeviceName = view.findViewById(R.id.tvDeviceName);
-        tvValveCount = view.findViewById(R.id.tvValveCount);
+        tvDeviceNameTopLeft = view.findViewById(R.id.tvDeviceNameTopLeft);
+        tvValveCountTopLeft = view.findViewById(R.id.tvValveCountTopLeft);
+        tvDvcNameTopRigh = view.findViewById(R.id.tvDvcNameTopRigh);
+        tvValveCountTopRight = view.findViewById(R.id.tvValveCountTopRight);
+        tvDvcNameMiddle = view.findViewById(R.id.tvDvcNameMiddle);
+        tvValveCountMiddle = view.findViewById(R.id.tvValveCountMiddle);
+        tvDvcNameLeftBottom = view.findViewById(R.id.tvDvcNameLeftBottom);
+        tvValveCountLeftBottom = view.findViewById(R.id.tvValveCountLeftBottom);
+        tvDvcNameRightBottom = view.findViewById(R.id.tvDvcNameRightBottom);
+        tvValveCountRightBottom = view.findViewById(R.id.tvValveCountRightBottom);
         llDialogLongPressDvc = view.findViewById(R.id.llDialogLongPressDvc);
         llIMWholeDesign = view.findViewById(R.id.llIMWholeDesign);
         tvEditDvcName = view.findViewById(R.id.tvEditDvcName);
@@ -162,7 +177,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         MySharedPreference.getInstance(getActivity()).setStringData(ADDRESS, addressComplete);
 
         valveNum = listModalAddressAndDevices.get(0).getValvesNum();
-        tvValveCount.setText(valveNum + "");*/
+        tvValveCountTopLeft.setText(valveNum + "");*/
 
         setRecyclerViewAdapter();
         setUIForAddressNdDeviceMap(addressUUID);
@@ -170,19 +185,25 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
 
     private void initListeners() {
         llAddNewAddress.setOnClickListener(this);
+
         rlBubbleLeftTop.setOnClickListener(this);
         rlBubbleLeftTop.setOnLongClickListener(this);
+
+        rlBubbleRightTop.setOnClickListener(this);
+        rlBubbleRightTop.setOnLongClickListener(this);
+
         rlBubbleMiddle.setOnClickListener(this);
-       /* ll_3st.setOnClickListener(this);
-        ll_4st.setOnClickListener(this);
-        ll_5st.setOnClickListener(this);*/
+        rlBubbleMiddle.setOnLongClickListener(this);
+
+        rlBubbleLeftBottom.setOnClickListener(this);
+        rlBubbleLeftBottom.setOnLongClickListener(this);
+
+        rlBubbleRightBottom.setOnClickListener(this);
+        rlBubbleRightBottom.setOnLongClickListener(this);
+
+        ivMapNewDevice.setOnClickListener(this);
         ivPrev.setOnClickListener(this);
         ivNext.setOnClickListener(this);
-        ivMapNewDevice.setOnClickListener(this);
-        rlBubbleMiddle.setOnLongClickListener(this);
-       /* ll_3st.setOnLongClickListener(this);
-        ll_4st.setOnLongClickListener(this);
-        ll_5st.setOnLongClickListener(this);*/
     }
 
     void setRecyclerViewAdapter() {
@@ -207,27 +228,153 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         tvAddressTop.setText(addressComplete);
 
         if (listModalDeviceModule.size() > 0) {
-            dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
-            dvcName = listModalDeviceModule.get(0).getName();
-            dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
-            valveNum = listModalDeviceModule.get(0).getValvesNum();
+            for (int i = 0; i < listModalDeviceModule.size(); i++) {
+                if (rlBubbleLeftTop.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
 
-            //myFragment = new Fragment();
-            //BLEAppLevel.getInstance(mContext, null, dvcMac);
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
-            rlBubbleLeftTop.setVisibility(View.VISIBLE);
-            rlBubbleRightTop.setVisibility(View.GONE);
-            rlBubbleMiddle.setVisibility(View.GONE);
-            rlBubbleLeftBottom.setVisibility(View.GONE);
-            rlBubbleRightBottom.setVisibility(View.GONE);
-            llFooterIM.setVisibility(View.GONE);
+                    rlBubbleLeftTop.setVisibility(View.VISIBLE);
+                    tvDeviceNameTopLeft.setText(dvcName);
+                    tvValveCountTopLeft.setText(valveNum + "");
 
-            tvDeviceName.setText(dvcName);
-            tvValveCount.setText(valveNum + "");
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
 
-            if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                //Change background on BLE connected
-                llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
+
+                   /* rlBubbleRightTop.setVisibility(View.GONE);
+                    rlBubbleMiddle.setVisibility(View.GONE);
+                    rlBubbleLeftBottom.setVisibility(View.GONE);
+                    rlBubbleRightBottom.setVisibility(View.GONE);
+                    llFooterIM.setVisibility(View.GONE);*/
+
+                    continue;
+                }
+                if (rlBubbleRightTop.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+                    rlBubbleRightTop.setVisibility(View.VISIBLE);
+                    tvDvcNameTopRigh.setText(dvcName);
+                    tvValveCountTopRight.setText(valveNum + "");
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleTopRightBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
+
+                 /*   rlBubbleMiddle.setVisibility(View.GONE);
+                    rlBubbleLeftBottom.setVisibility(View.GONE);
+                    rlBubbleRightBottom.setVisibility(View.GONE);
+                    llFooterIM.setVisibility(View.GONE);*/
+
+                    continue;
+                }
+
+                if (rlBubbleMiddle.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+                    rlBubbleMiddle.setVisibility(View.VISIBLE);
+                    tvDvcNameMiddle.setText(dvcName);
+                    tvValveCountMiddle.setText(valveNum + "");
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleMiddleBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
+
+                    /*rlBubbleLeftBottom.setVisibility(View.GONE);
+                    rlBubbleRightBottom.setVisibility(View.GONE);
+                    llFooterIM.setVisibility(View.GONE);*/
+
+                    continue;
+                }
+               /* if (rlBubbleLeftBottom.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+                    rlBubbleMiddle.setVisibility(View.VISIBLE);
+                    tvDvcNameMiddle.setText(dvcName);
+                    tvValveCountMiddle.setText(valveNum + "");
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleMiddleBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
+
+                    rlBubbleLeftBottom.setVisibility(View.GONE);
+                    rlBubbleRightBottom.setVisibility(View.GONE);
+                    llFooterIM.setVisibility(View.GONE);
+
+                    continue;
+                }*/
+                if (rlBubbleLeftBottom.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+                    rlBubbleLeftBottom.setVisibility(View.VISIBLE);
+                    tvDvcNameLeftBottom.setText(dvcName);
+                    tvValveCountLeftBottom.setText(valveNum + "");
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleLeftBottomBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
+
+                    /*rlBubbleRightBottom.setVisibility(View.GONE);
+                    llFooterIM.setVisibility(View.GONE);*/
+
+                    continue;
+                }
+                if (rlBubbleRightBottom.getVisibility() == View.GONE) {
+                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+
+                    //myFragment = new Fragment();
+                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+
+                    rlBubbleRightBottom.setVisibility(View.VISIBLE);
+                    tvDvcNameRightBottom.setText(dvcName);
+                    tvValveCountRightBottom.setText(valveNum + "");
+
+                    llFooterIM.setVisibility(View.VISIBLE);
+
+                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                        //Change background on BLE connected
+                        llBubbleRightBottomBG.setBackgroundResource(R.drawable.pebble_back_connected);
+                    }
+                    //To Do if No. of Devices are > 5
+                    //continue;
+                }
             }
         } else if (listModalDeviceModule.size() > 1 && listModalDeviceModule.size() < 6) {
             Toast.makeText(mContext, "more than one devices, but less than 6", Toast.LENGTH_SHORT).show();
@@ -238,8 +385,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             rlBubbleLeftBottom.setVisibility(View.VISIBLE);
             rlBubbleRightBottom.setVisibility(View.VISIBLE);
             llFooterIM.setVisibility(View.VISIBLE);
-            tvDeviceName.setText("Farm House Balcony");
-            tvValveCount.setText(1 + "");
+            tvDeviceNameTopLeft.setText("Farm House Balcony");
+            tvValveCountTopLeft.setText(1 + "");
             llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
         }
     }
@@ -256,10 +403,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 break;
             case R.id.rlBubbleLeftTop:
-                //Toast.makeText(mContext, "In progress...", Toast.LENGTH_SHORT).show();
-                FragDeviceDetails fragDeviceDetails = new FragDeviceDetails();
-                Bundle bundle = new Bundle();
-                //bundle.putInt(FragDeviceDetails.EXTRA_ADDRESS_ID, addressUUID);
+                fragDeviceDetails = new FragDeviceDetails();
+                bundle = new Bundle();
                 bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
                 bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
                 bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
@@ -268,14 +413,51 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 //Adding Fragment(FragDeviceDetails)
                 MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
                 break;
+            case R.id.rlBubbleRightTop:
+                fragDeviceDetails = new FragDeviceDetails();
+                bundle = new Bundle();
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
+                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
+                fragDeviceDetails.setArguments(bundle);
+                //Adding Fragment(FragDeviceDetails)
+                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+
+                break;
             case R.id.rlBubbleMiddle:
+                fragDeviceDetails = new FragDeviceDetails();
+                bundle = new Bundle();
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
+                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
+                fragDeviceDetails.setArguments(bundle);
+                //Adding Fragment(FragDeviceDetails)
+                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
                 break;
-            /*case R.id.ll_3st:
+            case R.id.rlBubbleLeftBottom:
+                fragDeviceDetails = new FragDeviceDetails();
+                bundle = new Bundle();
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
+                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
+                fragDeviceDetails.setArguments(bundle);
+                //Adding Fragment(FragDeviceDetails)
+                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
                 break;
-            case R.id.ll_4st:
+            case R.id.rlBubbleRightBottom:
+                fragDeviceDetails = new FragDeviceDetails();
+                bundle = new Bundle();
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
+                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
+                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
+                fragDeviceDetails.setArguments(bundle);
+                //Adding Fragment(FragDeviceDetails)
+                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
                 break;
-            case R.id.ll_5st:
-                break;*/
             case R.id.ivPrev:
                 Toast.makeText(mContext, "Previous", Toast.LENGTH_SHORT).show();
                 break;

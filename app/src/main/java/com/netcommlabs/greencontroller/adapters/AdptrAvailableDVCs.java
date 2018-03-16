@@ -19,7 +19,7 @@ public class AdptrAvailableDVCs extends RecyclerView.Adapter<AdptrAvailableDVCs.
 
     private Context mContext;
     private List<BluetoothDevice> listAvailbleDvcs;
-    private List<String> listDeviceMAC;
+    private List<String> listDeviceMacDB;
     private FragAvailableDevices fragAvailableDevices;
 
 
@@ -28,7 +28,7 @@ public class AdptrAvailableDVCs extends RecyclerView.Adapter<AdptrAvailableDVCs.
         this.listAvailbleDvcs = listAvailbleDvcs;
         this.fragAvailableDevices = fragAvailableDevices;
 
-        listDeviceMAC = DatabaseHandler.getInstance(mContext).getAllDeviceMAC();
+        listDeviceMacDB = DatabaseHandler.getInstance(mContext).getAllDeviceMAC();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -57,9 +57,9 @@ public class AdptrAvailableDVCs extends RecyclerView.Adapter<AdptrAvailableDVCs.
 
         holder.llAvailDvcRow.setBackgroundResource(R.drawable.rounded_shadow_background);
         //Device already registered with app, should appear different
-        if (listDeviceMAC.size() > 0) {
-            for (int i = 0; i < listDeviceMAC.size(); i++) {
-                if (listDeviceMAC.get(i).equalsIgnoreCase(dvcAddress)) {
+        if (listDeviceMacDB.size() > 0) {
+            for (int i = 0; i < listDeviceMacDB.size(); i++) {
+                if (listDeviceMacDB.get(i).equalsIgnoreCase(dvcAddress)) {
                     holder.llAvailDvcRow.setBackgroundResource(R.drawable.added_dvc_bg);
                     break;
                 }

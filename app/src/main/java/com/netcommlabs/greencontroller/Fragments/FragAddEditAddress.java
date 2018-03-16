@@ -70,7 +70,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
     private RadioGroup raGrAddressType;
     private RadioButton raBtnHome, raBtnOffice, raBtnOther;
     private LinearLayout llAddAddressName;
-    private TextView tvSaveEvent;
+    private TextView tvNextEvent;
     private LinearLayout llScrnHeader;
     private EditText et_flat_num, et_street_area, et_city, et_locality_landmark, et_pincode, et_state, etOtherAddName, etSearchPlaceAuto;
     private String et_other_addrs_name_input;
@@ -140,7 +140,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
         raBtnOther = view.findViewById(R.id.raBtnOther);
         etOtherAddName = view.findViewById(R.id.etOtherAddName);
         llAddAddressName = view.findViewById(R.id.llAddAddressName);
-        tvSaveEvent = view.findViewById(R.id.tvNextEvent);
+        tvNextEvent = view.findViewById(R.id.tvNextEvent);
         etSearchPlaceAuto = mContext.etSearchMapTop;
     }
 
@@ -253,7 +253,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
         etSearchPlaceAuto.setOnClickListener(this);
         mContext.btnMapDone.setOnClickListener(this);
         mContext.btnMapBack.setOnClickListener(this);
-        tvSaveEvent.setOnClickListener(this);
+        tvNextEvent.setOnClickListener(this);
 
         raGrAddressType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -344,6 +344,7 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
                 Toast.makeText(mContext, "Check your network connection", Toast.LENGTH_SHORT).show();
                 return;
             }
+            latlongShowOnGoogleMap();
             Toast.makeText(mContext, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
