@@ -406,12 +406,4 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
  }
  =======
  */
-    public void addressBookChosen(String selectedAddressID) {
-        getTargetFragment().onActivityResult(
-                getTargetRequestCode(),
-                RESULT_OK,
-                new Intent().putExtra("KEY_selected_Address_ID", selectedAddressID)
-        );
-        mContext.onBackPressed();
-    }
 }

@@ -6,11 +6,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-
         android:layout_marginLeft="@dimen/_10sdp"
         android:layout_marginRight="@dimen/_10sdp"
-
         android:orientation="vertical">
 
         <TextView
@@ -21,17 +18,17 @@
             android:gravity="center"
             android:text="Change Password"
             android:textAllCaps="true"
-            android:textSize="@dimen/_20sdp" />
+            android:textSize="@dimen/_18sdp" />
 
         <EditText
             android:id="@+id/et_new_pass"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_55sdp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/rect_shadow_all_bg"
             android:hint="Enter new password "
             android:imeOptions="flagNoExtractUi"
             android:inputType="textPassword"
-
             android:paddingLeft="@dimen/_15sdp"
             android:singleLine="true"
             android:textSize="@dimen/_13sdp" />
@@ -45,7 +42,6 @@
             android:hint="Enter confirm password "
             android:imeOptions="flagNoExtractUi"
             android:inputType="textPassword"
-
             android:paddingLeft="@dimen/_15sdp"
             android:singleLine="true"
             android:textSize="@dimen/_13sdp" />
@@ -53,6 +49,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
             android:gravity="center"
             android:orientation="horizontal">
 

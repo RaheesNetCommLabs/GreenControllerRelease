@@ -30,7 +30,10 @@ public class ActivitySplash extends Activity {
 
                     PreferenceModel model = MySharedPreference.getInstance(ActivitySplash.this).getsharedPreferenceData();
                     if (model.getUser_id() != null && model.getUser_id().length() > 0) {
-                        startActivity(new Intent(ActivitySplash.this, MainActivity.class));
+                        Intent intent = new Intent(ActivitySplash.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        //finish();
                     } else {
                         startActivity(new Intent(ActivitySplash.this, LoginAct.class));
                     }

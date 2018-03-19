@@ -60,25 +60,24 @@ public class ProjectWebRequest {
 
     synchronized public void execute() {
         if (NetworkUtils.isConnected(mContext)) {
-            errorMsg=null;
-         if(Tag==1013){
-             progressDialog.hideProgressBar();
-         }
-         else
-             progressDialog.showProgressBar();
+            errorMsg = null;
+            if (Tag == 1013) {
+                progressDialog.hideProgressBar();
+            } else
+                progressDialog.showProgressBar();
             if (url.contains("https")) {
-                Log.e("@@@@@@@@@@","HTTPS REQUEST");
+                Log.e("@@@@@@@@@@", "HTTPS REQUEST");
                 showRequest();
                 new StartRequestHttps().execute();
             } else {
-                Log.e("@@@@@@@@@@","HTTP REQUEST");
+                Log.e("@@@@@@@@@@", "HTTP REQUEST");
                 doPostUsingHttp();
             }
         } else {
-            apiResponseListener.onFailure(Tag,null, MessageConstants.NO_NETWORK_TAG, "");
+            apiResponseListener.onFailure(Tag, null, MessageConstants.NO_NETWORK_TAG, "");
             if (mContext != null)
 
-               Toast.makeText(mContext, "No internet connection found", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, "No internet connection found", Toast.LENGTH_LONG).show();
             return;
         }
     }
@@ -115,8 +114,8 @@ public class ProjectWebRequest {
                 } else if (error instanceof TimeoutError) {
                     errorMsg = "Timeout error, please try again later";
                 }
-                apiResponseListener.onFailure(Tag,errorMsg, Tag, errorMsg);
-              //  Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
+                apiResponseListener.onFailure(Tag, errorMsg, Tag, errorMsg);
+                //  Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
             }
         }
         );
@@ -144,7 +143,7 @@ public class ProjectWebRequest {
                     wr.flush();
                     StringBuilder sb = new StringBuilder();
                     int HttpResult = httpsConn.getResponseCode();
-                    Log.e("&&&&&&&&&&&&->>>>>>>>>>",""+HttpResult);
+                    Log.e("&&&&&&&&&&&&->>>>>>>>>>", "" + HttpResult);
                     if (HttpResult == HttpURLConnection.HTTP_OK) {
                         BufferedReader br = new BufferedReader(new InputStreamReader(httpsConn.getInputStream(), "utf-8"));
                         String line = null;
@@ -152,22 +151,22 @@ public class ProjectWebRequest {
                             sb.append(line);
                         }
                         br.close();
-                        errorMsg=null;
+                        errorMsg = null;
                         return sb.toString();
                     } else {
-                        errorMsg=httpsConn.getResponseMessage();
+                        errorMsg = httpsConn.getResponseMessage();
                         return null;
                     }
                 } catch (Exception e) {
-                    errorMsg=e.getLocalizedMessage();
+                    errorMsg = e.getLocalizedMessage();
                     return null;
                 }
             } else {
-                errorMsg="Not a Https Request";
+                errorMsg = "Not a Https Request";
                 return null;
             }
         } catch (Exception e) {
-            errorMsg=e.getLocalizedMessage();
+            errorMsg = e.getLocalizedMessage();
             return null;
         }
 
@@ -186,16 +185,16 @@ public class ProjectWebRequest {
             if (result != null) {
                 try {
                     JSONObject object = new JSONObject(result.toString());
-                    Log.e("&&&&&&&&&&&&->>>>>>>>>>",""+object.toString());
+                    Log.e("&&&&&&&&&&&&->>>>>>>>>>", "" + object.toString());
                     apiResponseListener.onSuccess(object, Tag);
                 } catch (JSONException e) {
-                    apiResponseListener.onFailure(Tag,errorMsg, Tag, e.getLocalizedMessage());
+                    apiResponseListener.onFailure(Tag, errorMsg, Tag, e.getLocalizedMessage());
                     Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             } else {
                 Toast.makeText(mContext, "" + errorMsg, Toast.LENGTH_SHORT).show();
-                apiResponseListener.onFailure(Tag,errorMsg, Tag, errorMsg);
+                apiResponseListener.onFailure(Tag, errorMsg, Tag, errorMsg);
             }
         }
     }

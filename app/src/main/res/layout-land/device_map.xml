@@ -69,6 +69,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/llHomeAddNewDvc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_10sdp"
@@ -114,6 +115,22 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/llNoDeviceIns"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Device is installed on this address"
+                android:textSize="@dimen/_15sdp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llDvcTopContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_10sdp"
@@ -222,6 +239,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/llDvcMiddleContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_10sdp"
@@ -274,6 +292,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/llDvcBottomContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/_10sdp"
@@ -415,13 +434,11 @@
         android:id="@+id/llDialogLongPressDvc"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
-
         android:visibility="gone">
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="@dimen/_300sdp"
@@ -429,7 +446,6 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_marginRight="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_30sdp"
                 android:background="@color/text_color_white"
                 android:orientation="vertical">
 
@@ -576,6 +592,7 @@
                              android:textSize="@dimen/_15sdp" />
                      </LinearLayout>-->
             </LinearLayout>
+
         </ScrollView>
     </LinearLayout>
 

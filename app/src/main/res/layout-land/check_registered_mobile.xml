@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-
+        android:gravity="center"
         android:layout_marginLeft="@dimen/_20sdp"
         android:layout_marginRight="@dimen/_20sdp"
         android:orientation="vertical">
@@ -20,15 +20,15 @@
             android:layout_gravity="center"
             android:layout_marginBottom="@dimen/_10sdp"
             android:gravity="center"
-            android:textSize="@dimen/_18sdp"
-            android:text="Input your phone number for change password" />
+            android:text="Please enter your Mobile no. to change password"
+            android:textSize="@dimen/_18sdp" />
 
         <EditText
             android:id="@+id/et_mobile_no"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_55sdp"
+            android:layout_width="@dimen/_250sdp"
+            android:layout_height="@dimen/_50sdp"
             android:background="@drawable/rect_shadow_all_bg"
-            android:hint="Enter phone "
+            android:hint="Enter mobile number "
             android:imeOptions="flagNoExtractUi"
             android:inputType="number"
             android:maxLength="10"
@@ -44,9 +44,9 @@
             <TextView
                 android:id="@+id/tv_submit_mobile"
                 android:layout_width="@dimen/_120sdp"
-                android:layout_height="@dimen/_42sdp"
+                android:layout_height="@dimen/_45sdp"
                 android:layout_marginBottom="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_15sdp"
                 android:background="@drawable/round_back_shadow_small"
                 android:gravity="center"
                 android:text="Submit"

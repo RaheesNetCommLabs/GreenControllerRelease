@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:layout_marginBottom="@dimen/_5sdp"
     android:layout_marginLeft="@dimen/_5sdp"
     android:layout_marginRight="@dimen/_5sdp"
@@ -11,14 +10,13 @@
 
     <!--Add Address design implementation-->
     <ScrollView
-
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/llScrnHeader">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -37,8 +35,8 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
+                        android:layout_width="@dimen/_23sdp"
+                        android:layout_height="@dimen/_23sdp"
                         android:layout_marginLeft="@dimen/_8sdp"
                         android:src="@drawable/human_dummy" />
 
@@ -49,11 +47,10 @@
                         android:background="@android:color/transparent"
                         android:cursorVisible="true"
                         android:focusable="true"
-
                         android:gravity="center_vertical"
-                        android:hint="Name"
+                        android:hint="User Name"
                         android:imeOptions="flagNoExtractUi"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:paddingLeft="@dimen/_5sdp"
                         android:textSize="@dimen/_13sdp" />
 
@@ -74,26 +71,19 @@
                         android:background="@drawable/rect_shadow_all_bg"
                         android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="@dimen/_25sdp"
-                            android:layout_height="@dimen/_25sdp"
-                            android:layout_gravity="center"
-                            android:layout_marginLeft="@dimen/_10sdp"
-                            android:gravity="center"
-                            android:src="@drawable/human_dummy" />
-
                         <TextView
                             android:id="@+id/textView9"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_margin="@dimen/_10sdp"
                             android:gravity="center"
+                            android:padding="@dimen/_10sdp"
+                            android:paddingStart="@dimen/_15sdp"
                             android:text="+91"
                             android:textColor="@color/text_color_white"
                             android:textSize="@dimen/_13sdp" />
 
                         <View
-                            android:layout_width="@dimen/_3sdp"
+                            android:layout_width="@dimen/_1sdp"
                             android:layout_height="match_parent"
                             android:layout_margin="@dimen/_5sdp"
                             android:background="#1A000000" />
@@ -126,6 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_3sdp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -138,10 +129,10 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
+                        android:layout_width="@dimen/_23sdp"
+                        android:layout_height="@dimen/_23sdp"
                         android:layout_marginLeft="@dimen/_8sdp"
-                        android:src="@drawable/locality" />
+                        android:src="@drawable/mail" />
 
                     <EditText
                         android:id="@+id/et_email"
@@ -170,10 +161,10 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
+                        android:layout_width="@dimen/_23sdp"
+                        android:layout_height="@dimen/_23sdp"
                         android:layout_marginLeft="@dimen/_10sdp"
-                        android:src="@drawable/pincode" />
+                        android:src="@drawable/password" />
 
                     <EditText
                         android:id="@+id/et_pass"
@@ -199,6 +190,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_3sdp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -210,10 +202,10 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
+                        android:layout_width="@dimen/_23sdp"
+                        android:layout_height="@dimen/_23sdp"
                         android:layout_marginLeft="@dimen/_10sdp"
-                        android:src="@drawable/city" />
+                        android:src="@drawable/password" />
 
                     <EditText
                         android:id="@+id/et_confirm_pass"
@@ -236,7 +228,6 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/_65sdp"
                     android:layout_weight="1"
-
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -244,8 +235,8 @@
                         android:id="@+id/raBtnHome"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/_10sdp"
-                        android:paddingRight="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:paddingStart="@dimen/_5sdp"
                         android:text="@string/str_term_policy"
                         android:textSize="@dimen/_14sdp" />
 
@@ -257,7 +248,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_15sdp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -286,7 +277,7 @@
 
         </LinearLayout>
 
- </ScrollView>
+    </ScrollView>
 
 
 </RelativeLayout>

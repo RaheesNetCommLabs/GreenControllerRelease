@@ -97,11 +97,11 @@ public class AppAlertDialog {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialogConnectingBLE();
-                String macAddress = MySharedPreference.getInstance(mContext).getConnectedDvcMacAdd();
+                //String macAddress = MySharedPreference.getInstance(mContext).getConnectedDvcMacAdd();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     bleAppLevel.disconnectBLECompletely();
                 }
-                BLEAppLevel.getInstance(mContext, myRequestedFrag, macAddress);
+                BLEAppLevel.getInstance(mContext, myRequestedFrag, appAlertDialog.macAddressClassLevel);
             }
         });
         alBui.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

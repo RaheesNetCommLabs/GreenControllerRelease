@@ -19,6 +19,7 @@ public class MySharedPreference {
     private String keySetMacAd = "macAddkey";
 
     private String keyConnectedTime = "connTime";
+    private String KEY_DVC_NAME = "dvc_name";
     private final String Name = "name";
     private final String User_img = "image";
     private final String UID = "user_id";
@@ -76,7 +77,7 @@ public class MySharedPreference {
     }
 
     public String getLastConnectedTime() {
-        return sharedpreferences.getString(keyConnectedTime, null);
+        return sharedpreferences.getString(keyConnectedTime, "");
     }
 
     public void setLastConnectedTime(String lastConctdTime) {
@@ -107,7 +108,7 @@ public class MySharedPreference {
     }
 
     public String getUser_img() {
-        return sharedpreferences.getString(User_img, null);
+        return sharedpreferences.getString(User_img, "");
     }
 
     public void setUser_img(String data) {
@@ -139,14 +140,13 @@ public class MySharedPreference {
     }*/
 
 
-    public ModalAddressModule getADDRESSID()
-    {
-        ModalAddressModule modalAddressModule=new ModalAddressModule();
+    public ModalAddressModule getADDRESSID() {
+        ModalAddressModule modalAddressModule = new ModalAddressModule();
         modalAddressModule.setAddressUUID(sharedpreferences.getString(ADDRESSID, null));
         return modalAddressModule;
     }
 
-    public void  setADDRESSID( ModalAddressModule modalAddressModule){
+    public void setADDRESSID(ModalAddressModule modalAddressModule) {
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(ADDRESSID, modalAddressModule.getAddressUUID());
@@ -158,4 +158,13 @@ public class MySharedPreference {
         sharedpreferences.edit().clear().commit();
     }
 
+    public void setDvcNameFromDvcDetails(String dvcName) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(KEY_DVC_NAME, dvcName);
+        editor.commit();
+    }
+
+    public String getDvcNameFromDvcDetails() {
+        return sharedpreferences.getString(KEY_DVC_NAME, null);
+    }
 }

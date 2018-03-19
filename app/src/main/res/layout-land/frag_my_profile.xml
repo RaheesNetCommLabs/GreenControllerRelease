@@ -304,7 +304,10 @@
 
     <include layout="@layout/match_password_dialog"></include>
 
-    <include layout="@layout/change_password_dialog"></include>
+    <include
+        layout="@layout/change_password_dialog"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"></include>
     <!-- <include layout="@layout/otp_dialog"></include>
  -->
 

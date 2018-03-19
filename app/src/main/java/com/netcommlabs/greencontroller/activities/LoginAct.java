@@ -17,11 +17,12 @@ import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 import org.json.JSONObject;
 
 
-public class LoginAct extends AppCompatActivity implements View.OnClickListener,APIResponseListener {
+public class LoginAct extends AppCompatActivity implements View.OnClickListener, APIResponseListener {
 
 
     private LoginAct mContext;
@@ -34,11 +35,15 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+
         initBase();
     }
 
     private void initBase() {
         mContext = this;
+        /*if (!NetworkUtils.isConnected(mContext)) {
+            Toast.makeText(mContext, "Please check your net connection", Toast.LENGTH_SHORT).show();
+        }*/
         etPhoneEmail = (EditText) findViewById(R.id.etPhoneEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
         tvForgtPassEvent = (TextView) findViewById(R.id.tvForgtPassEvent);
@@ -47,6 +52,7 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
 
         llLoginFB = (LinearLayout) findViewById(R.id.llLoginFB);
         llLoginGoogle = (LinearLayout) findViewById(R.id.llLoginGoogle);
+
         tvSignUpEvent.setOnClickListener(this);
         tvLoginEvent.setOnClickListener(this);
         tvForgtPassEvent.setOnClickListener(this);
@@ -66,15 +72,20 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                 //  hitApi();
                 break;
             case R.id.tvForgtPassEvent:
-                Intent intent=new Intent(LoginAct.this,ActvityCheckRegisteredMobileNo.class);
+                Intent intent = new Intent(LoginAct.this, ActvityCheckRegisteredMobileNo.class);
                 startActivity(intent);
-                finish();
+                //finish();
                 break;
         }
 
     }
 
     private void validationLogin() {
+       /* if (!NetworkUtils.isConnected(mContext)) {
+            Toast.makeText(mContext, "Please check your net connection", Toast.LENGTH_SHORT).show();
+            return;
+        }*/
+
         if (etPhoneEmail.getText().toString().trim().length() <= 0 || etPhoneEmail.getText().toString().trim().length() <= 0) {
             Toast.makeText(this, "Please Enter Email Address or Mobile no", Toast.LENGTH_SHORT).show();
             return;
@@ -118,9 +129,11 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                 PreferenceModel model = new Gson().fromJson(object.toString(), PreferenceModel.class);
                 MySharedPreference.getInstance(this).setUserDetail(model);
                 MySharedPreference.getInstance(this).setUser_img(object.optString("image"));
-                startActivity(new Intent(LoginAct.this, MainActivity.class));
-              //  ActvityOtp.getTagRegistartion("Registration");
-                finish();
+                Intent intent = new Intent(LoginAct.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                //  ActvityOtp.getTagRegistartion("Registration");
+                //finish();
             } else {
                 Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
 
@@ -131,16 +144,16 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
 
 
     @Override
-    public void onFailure( int tag,String error, int Tag, String erroMsg) {
+    public void onFailure(int tag, String error, int Tag, String erroMsg) {
         clearRef();
 
-        if(Tag==UrlConstants.LOGIN_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        if (Tag == UrlConstants.LOGIN_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
         }
     }
 
     @Override
-    public void doRetryNow( int Tag) {
+    public void doRetryNow(int Tag) {
         clearRef();
         hitApi();
     }

@@ -148,21 +148,26 @@ public class FragDeviceDetails extends Fragment {
         tvSatSecond = view.findViewById(R.id.tvSatSecond);
         tvSatThird = view.findViewById(R.id.tvSatThird);
         tvSatFourth = view.findViewById(R.id.tvSatFourth);
+
+        tvDeviceName = mContext.tvToolbar_title;
+        tvDesc_txt = mContext.tvDesc_txt;
     }
 
     private void initBase() {
         databaseHandler = DatabaseHandler.getInstance(mContext);
         //Getting sent Bundle
         Bundle bundle = getArguments();
-        addressID = bundle.getInt(EXTRA_ADDRESS_ID);
+        //addressID = bundle.getInt(EXTRA_ADDRESS_ID);
         dvcUUID = bundle.getString(EXTRA_DVC_ID);
         dvcName = bundle.getString(EXTRA_DVC_NAME);
         dvcMacAdd = bundle.getString(EXTRA_DVC_MAC);
         dvcValveCount = bundle.getInt(EXTRA_DVC_VALVE_COUNT);
 
         myRequestedFrag = FragDeviceDetails.this;
-        tvDeviceName = mContext.tvToolbar_title;
-        tvDesc_txt = mContext.tvDesc_txt;
+        tvDeviceName.setText(dvcName);
+
+        MySharedPreference.getInstance(mContext).setDvcNameFromDvcDetails(dvcName);
+
         bleAppLevel = BLEAppLevel.getInstanceOnly();
         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
             tvDesc_txt.setText("This device is Connected");
@@ -172,11 +177,9 @@ public class FragDeviceDetails extends Fragment {
         /*dvcName = "PEBBLE";
         dvcMacAdd = "98:4F:EE:10:87:66";
         dvcValveCount = 8;*/
-        tvDeviceName.setText(dvcName);
-
         databaseHandler = DatabaseHandler.getInstance(mContext);
         //List<ModalValveMaster> listValveMaster = databaseHandler.getAllValvesNdData();
-        listValveMaster = databaseHandler.getValveMaster();
+        listValveMaster = databaseHandler.getValveMaster(dvcUUID);
         if (listValveMaster.size() == 0) {
             for (int i = 1; i <= dvcValveCount; i++) {
                 valveConctName = "Valve " + i;
@@ -310,7 +313,7 @@ public class FragDeviceDetails extends Fragment {
 
                     //dialogSTOPConfirm();
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, dvcMacAdd);
                 }
             }
         });
@@ -326,7 +329,7 @@ public class FragDeviceDetails extends Fragment {
                         dialogPlyPosFlshOnOffStop("Pause Valve", "This will disable valve effect", "Pause");
                     }
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, dvcMacAdd);
                 }
             }
         });
@@ -342,7 +345,7 @@ public class FragDeviceDetails extends Fragment {
                         dialogPlyPosFlshOnOffStop("Turn Flush On", "This will turn on the valve Flush", "Flush On");
                     }
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, dvcMacAdd);
                 }
             }
         });
@@ -350,7 +353,7 @@ public class FragDeviceDetails extends Fragment {
 
     private void initValveListAdapter() {
         //if (listValveMaster.size() == 0) {
-            listValveMaster = databaseHandler.getValveMaster();
+        listValveMaster = databaseHandler.getValveMaster(dvcUUID);
         //}
         scrlToSelectedPosi = 0;
         //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
@@ -421,7 +424,7 @@ public class FragDeviceDetails extends Fragment {
             this.currentPlPsCmdName = "PAUSE";
         }
         if (flushOnOffStatusDB.equals("FLUSH ON")) {
-            Toast.makeText(mContext, clickedValveName+" Flush is activated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, clickedValveName + " Flush is activated", Toast.LENGTH_SHORT).show();
         }
         setTimePntsVisibilityGONE();
         listValveSessionData = databaseHandler.getValveSessionData(clickedVlvUUID);
@@ -1156,7 +1159,6 @@ public class FragDeviceDetails extends Fragment {
     }*/
 
 
-
     private void dialogPlyPosFlshOnOffStop(String title, String msg, final String positiveBtnName) {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(mContext);
@@ -1205,6 +1207,7 @@ public class FragDeviceDetails extends Fragment {
     public void cmdButtonACK(String cmdNameLocalACK) {
         if (cmdNameLocalACK.equals("STOP")) {
             if (databaseHandler.updateValveOpTpSPPStatus("", clickedVlvUUID, "STOP") == 1) {
+                //databaseHandler.selectFrmVlvSesnMasterInsertIntoLog("1");
                 if (databaseHandler.deleteStopedValveData(clickedVlvUUID) > 0) {
                     Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
                     initValveListAdapter();

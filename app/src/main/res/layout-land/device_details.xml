@@ -113,7 +113,8 @@
                                 <ImageView
                                     android:layout_width="@dimen/icon_size"
                                     android:layout_height="@dimen/icon_size"
-                                    android:src="@drawable/edit_one" />
+                                    android:src="@drawable/edit_one"
+                                    android:padding="@dimen/_2sdp"/>
 
                                 <TextView
                                     android:layout_width="wrap_content"

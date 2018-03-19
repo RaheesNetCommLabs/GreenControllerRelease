@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
@@ -46,11 +47,12 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
     private DatabaseHandler databaseHandler;
     private LinearLayout llAddNewAddress;
     OpendialogCallback opendialogCallback;
+
     public NavListAdapter(MainActivity mContext, List<Navigation_Drawer_Data> listNavDrawerRowDat, DrawerLayout nav_drawer_layout, OpendialogCallback opendialogCallback) {
         this.mContext = mContext;
         this.listNavDrawerRowDat = listNavDrawerRowDat;
         this.nav_drawer_layout = nav_drawer_layout;
-        this.opendialogCallback=opendialogCallback;
+        this.opendialogCallback = opendialogCallback;
 
     }
 
@@ -75,7 +77,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                     switch (clickedNavItem) {
                         case "My Profile":
                             //Replacing Fragment(FragAddEditAddress)
-                            FragMyProfile fragMyProfile=new FragMyProfile();
+                            FragMyProfile fragMyProfile = new FragMyProfile();
                             MyFragmentTransactions.replaceFragment(mContext, fragMyProfile, Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
                             opendialogCallback.getFragment(fragMyProfile);
                             break;
@@ -121,7 +123,8 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                         case "Log out":
                             //Replacing Fragment(FragAddAddress)
                             MySharedPreference.getInstance(mContext).clearAll();
-                            mContext. startActivity(new Intent(mContext, LoginAct.class));
+                            Toast.makeText(mContext, "Logout successfully", Toast.LENGTH_SHORT).show();
+                            mContext.startActivity(new Intent(mContext, LoginAct.class));
                             mContext.finish();
                             break;
                       /*  case "Verify Otp":

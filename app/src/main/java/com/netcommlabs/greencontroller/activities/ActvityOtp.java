@@ -43,30 +43,35 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     private ProjectWebRequest request;
     private static String mobileNo;
     PreferenceModel preference;
-    private static String tagValue = "";
+    private String landedFrom;
     private static String tagVarifyUser = "";
     private View view;
     private long mSeconds = 0;
     private EditText et_otp_value;
     private BroadcastReceiver myBroadcastReceiver;
-    private String userId,mobileNoFromRegs;
+    private String userId/*, mobileNoFromRegs*/;
     private TextView tv_mobile_no;
+    public static final String KEY_LANDED_FROM = "landed_from";
+    public static final String KEY_MOBILE_NUM = "mobile_num";
 
     TelephonyManager tm;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.otp_layout);
-        userId = getIntent().getStringExtra("userId");
-        mobileNoFromRegs=getIntent().getStringExtra("mobile");
-        init();
-        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
+        init();
     }
 
 
     private void init() {
+        userId = getIntent().getStringExtra("userId");
+        //mobileNoFromRegs = getIntent().getStringExtra("mobile");
+        mobileNo = getIntent().getStringExtra(KEY_MOBILE_NUM);
+        landedFrom = getIntent().getStringExtra(KEY_LANDED_FROM);
 
+        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         tv_mobile_no = findViewById(R.id.tv_mobile_no);
         ll_resnd_otp = findViewById(R.id.ll_resnd_otp);
         ll_timer_otp = findViewById(R.id.ll_timer_otp);
@@ -76,22 +81,21 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         ll_resnd_otp.setOnClickListener(this);
         ll_timer_otp.setVisibility(View.VISIBLE);
         ll_resnd_otp.setVisibility(View.GONE);
-        if (tagValue.equals("My Profile")) {
-            tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNo);
-        }else {
-            tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNoFromRegs);
 
-        }
+        //if (landedFrom.equals("My Profile")) {
+            tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNo);
+        //} else {
+            //tv_mobile_no.setText("Waiting to automatically  detect a SMS sent to " + mobileNoFromRegs);
+        //}
 
         if (ContextCompat.checkSelfPermission(ActvityOtp.this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ActvityOtp.this, new String[]{Manifest.permission.RECEIVE_SMS}, 120);
         } else {
             registerReceiver(broadcastReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
         }
+
         ll_veryfyOtp.setOnClickListener(this);
         timerOTP();
-
-
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -112,19 +116,17 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                             if (msg_from.contains("TX-EDUNET")) {
                                 /*if (msgBody.contains("Kindly use One Time Password - OTP") && msgBody.contains("")) {
                                     String otp = msgBody.substring(35, 41);*/
-                                    et_otp_value.setText(msgBody);
-                                    if (tagValue.equals("My Profile")) {
-                                        hitOtpApiForMobileNoChange();
+                                et_otp_value.setText(msgBody);
 
-                                    }else if(tagValue.equals("Register User Varification")){
-                                        hitApiForvarifyuUser();
-                                    }
+                                if (landedFrom.equals("My Profile")) {
+                                    hitOtpApiForMobileNoChange();//Mobile no. change
+                                } else if (landedFrom.equals("Register User Varification")) {
+                                    hitApiForgotPass();//Forgot password
+                                } else {
+                                    hitApiforRegistrationOTP();//Registration confirm
+                                }
 
-                                    else {
-                                        hitApiforOtp();
-                                    }
-
-                              //  }
+                                //  }
                             }
                         }
                     } catch (Exception e) {
@@ -136,8 +138,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     };
 
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -145,11 +145,10 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 registerReceiver(broadcastReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
             } else {
-                Toast.makeText(ActvityOtp.this, "OTP will not be autofill", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ActvityOtp.this, "OTP will not be auto fill", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 
 
     private void timerOTP() {
@@ -158,8 +157,6 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             public void onTick(long millisUntilFinished) {
                 mSeconds = Math.round(millisUntilFinished * 0.001f);
                 tv_countdown_timer.setText(" 00 : " + getTwoDigitNumber(mSeconds));
-
-
             }
 
             public void onFinish() {
@@ -169,14 +166,11 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                 ll_resnd_otp.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(tagValue.equals("My Profile")){
-                            hitResendOtpForMobileNo();
-
-                        }
-                        else if(tagValue.equals("Register User Varification")){
-                            hitResendOtpForMobileNo();
-
-                        }else{
+                        if (landedFrom.equals("My Profile")) {
+                            hitResendOtpForChangePassChangeMob();
+                        } else if (landedFrom.equals("Register User Varification")) {
+                            hitResendOtpForChangePassChangeMob();
+                        } else {
                             hitApiforResendOtpRegistrationPage();
                         }
 
@@ -188,7 +182,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         }.start();
     }
 
-    private void hitResendOtpForMobileNo() {
+    private void hitResendOtpForChangePassChangeMob() {
         try {
             request = new ProjectWebRequest(this, getParamForMobileNo(), UrlConstants.CHANGE_MOBILE_NO, this, UrlConstants.CHANGE_MOBILE_NO_TAG);
             request.execute();
@@ -204,13 +198,13 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         try {
             object = new JSONObject();
             object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-            if(tagValue.equals("My Profile")) {
+            //if (landedFrom.equals("My Profile")) {
                 object.put("user_id", preference.getUser_id());
                 object.put("mobile", mobileNo);
-            }else{
+            /*} else {
                 object.put("user_id", userId);
                 object.put("mobile", mobileNoFromRegs);
-            }
+            }*/
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -236,15 +230,12 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
                 timerOTP();
                 break;
             case R.id.ll_veryfyOtp:
-                if (tagValue.equals("My Profile")) {
+                if (landedFrom.equals("My Profile")) {
                     hitOtpApiForMobileNoChange();
-
-                }else if(tagValue.equals("Register User Varification")){
-                    hitApiForvarifyuUser();
-                }
-
-                else {
-                    hitApiforOtp();
+                } else if (landedFrom.equals("Register User Varification")) {
+                    hitApiForgotPass();
+                } else {
+                    hitApiforRegistrationOTP();
                 }
 
 
@@ -254,7 +245,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
 
     }
 
-    private void hitApiForvarifyuUser() {
+    private void hitApiForgotPass() {
         try {
             request = new ProjectWebRequest(this, getParamVarifyUser(), UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS, this, UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG);
             request.execute();
@@ -326,7 +317,7 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
         return object;
     }
 
-    private void hitApiforOtp() {
+    private void hitApiforRegistrationOTP() {
 
         try {
             request = new ProjectWebRequest(this, getParamOtp(), UrlConstants.OTP, this, UrlConstants.OTP_TAG);
@@ -364,8 +355,11 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             if (object.optString("status").equals("success")) {
                 PreferenceModel model = new Gson().fromJson(object.toString(), PreferenceModel.class);
                 MySharedPreference.getInstance(this).setUserDetail(model);
+
                 Intent i = new Intent(ActvityOtp.this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(i);
+                //finish();
                 //  Toast.makeText(mContext, "", Toast.LENG_SHORT).show();
 
             } else {
@@ -387,25 +381,24 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
             } else {
                 Toast.makeText(ActvityOtp.this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
             }
-        }else if (Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
-            if(object.optString("status").equals("success")){
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+            if (object.optString("status").equals("success")) {
                 ll_timer_otp.setVisibility(View.VISIBLE);
                 ll_resnd_otp.setVisibility(View.GONE);
                 timerOTP();
-                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
             }
-        }else if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
-            if(object.optString("status").equals("success")){
-                Intent intentChangePass=new Intent(ActvityOtp.this,ActivityForgotPass.class);
-                intentChangePass.putExtra("userId",object.optString("user_id"));
+        } else if (Tag == UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG) {
+            if (object.optString("status").equals("success")) {
+                Intent intentChangePass = new Intent(ActvityOtp.this, ActivityForgotPass.class);
+                intentChangePass.putExtra("userId", object.optString("user_id"));
                 startActivity(intentChangePass);
-              finish();
+                finish();
 
-            }
-            else {
-                Toast.makeText(this, "" +object.optString("message"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "" + object.optString("message"), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -414,40 +407,44 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
 
     @Override
     public void onFailure(int tag, String error, int Tag, String erroMsg) {
-        if(Tag==UrlConstants.OTP_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
-        }  if(Tag==UrlConstants.RESENDOTP_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
-        }  if(Tag==UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
-        }  if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
-        } if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        if (Tag == UrlConstants.OTP_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
+        }
+        if (Tag == UrlConstants.RESENDOTP_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
+        }
+        if (Tag == UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
+        }
+        if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
+        }
+        if (Tag == UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
         }
     }
 
     @Override
     public void doRetryNow(int Tag) {
-        if(Tag==UrlConstants.OTP_TAG){
-            hitApiforOtp();
-        }else if(Tag==UrlConstants.RESENDOTP_TAG){
+        if (Tag == UrlConstants.OTP_TAG) {
+            hitApiforRegistrationOTP();
+        } else if (Tag == UrlConstants.RESENDOTP_TAG) {
             hitApiforResendOtpRegistrationPage();
-        }else if(Tag==UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG){
-            if (tagValue.equals("My Profile")) {
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_VERIFY_OTP_TAG) {
+            if (landedFrom.equals("My Profile")) {
                 hitOtpApiForMobileNoChange();
 
             }
 
-        }else  if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
-            if(tagValue.equals("My Profile")) {
-                hitResendOtpForMobileNo();
-            }else if(tagValue.equals("Register User Varification")){
-                hitResendOtpForMobileNo();
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+            if (landedFrom.equals("My Profile")) {
+                hitResendOtpForChangePassChangeMob();
+            } else if (landedFrom.equals("Register User Varification")) {
+                hitResendOtpForChangePassChangeMob();
             }
-        }else  if(Tag==UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG){
-             if(tagValue.equals("Register User Varification")){
-                hitApiForvarifyuUser();
+        } else if (Tag == UrlConstants.VERIFY_OTP_FOR_FORGOT_PASS_TAG) {
+            if (landedFrom.equals("Register User Varification")) {
+                hitApiForgotPass();
             }
         }
 
@@ -465,16 +462,22 @@ public class ActvityOtp extends Activity implements View.OnClickListener, APIRes
     @Override
     public void doRetryNow() {
         clearRef();
-        hitApiforOtp();
+        hitApiforRegistrationOTP();
     }*/
 
-    public static String getTagData(String s1, String s) {
-        tagValue = s1;
+    /*public static String getTagData(String s1, String s) {
+        landedFrom = s1;
         mobileNo = s;
         return s;
     }
 
     public static void getTagVarificationUser(String s) {
-        tagValue =s;
+        landedFrom = s;
+    }*/
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(broadcastReceiver);
+        super.onDestroy();
     }
 }

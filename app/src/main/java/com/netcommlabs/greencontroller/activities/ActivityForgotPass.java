@@ -65,7 +65,7 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
                             }
 
                         } else {
-                            Toast.makeText(this, "password not match", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "passwords do not match", Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
@@ -77,7 +77,7 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
                 }
                 break;
             case R.id.tv_cancel:
-                Intent i=new Intent(ActivityForgotPass.this,LoginAct.class);
+                Intent i = new Intent(ActivityForgotPass.this, LoginAct.class);
                 startActivity(i);
                 finish();
                 break;
@@ -111,8 +111,6 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
     }
 
 
-
-
     private void clearRef() {
         if (request != null) {
             request = null;
@@ -121,11 +119,12 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
 
     @Override
     public void onSuccess(JSONObject obj, int Tag) {
-        if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
-            if(obj.optString("status").equals("success")){
-                Intent i=new Intent(ActivityForgotPass.this,LoginAct.class);
+        if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
+            if (obj.optString("status").equals("success")) {
+                Intent i = new Intent(ActivityForgotPass.this, LoginAct.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
-                Toast.makeText(this, "" +obj.optString("message"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
                 finish();
             }
 
@@ -134,8 +133,8 @@ public class ActivityForgotPass extends Activity implements View.OnClickListener
 
     @Override
     public void onFailure(int tag, String error, int Tag, String erroMsg) {
-        if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
+        if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
+            ErroScreenDialog.showErroScreenDialog(this, tag, erroMsg, this);
         }
     }
 

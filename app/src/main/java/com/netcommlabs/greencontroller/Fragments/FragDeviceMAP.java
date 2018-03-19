@@ -44,7 +44,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private RecyclerView recyclerView;
     private DeviceAddressAdapter mAdapter;
     private LinearLayout llAddNewAddress;
-    public LinearLayout llBubbleLeftTopBG, llFooterIM, llBubbleTopRightBG, llBubbleMiddleBG, llBubbleLeftBottomBG, llBubbleRightBottomBG;
+    public LinearLayout llDvcTopContainer, llDvcMiddleContainer, llDvcBottomContainer, llBubbleLeftTopBG, llFooterIM, llBubbleTopRightBG, llBubbleMiddleBG, llBubbleLeftBottomBG, llBubbleRightBottomBG, llNoDeviceIns;
     /* private LinearLayout ll_3st;
      private LinearLayout ll_4st;
      private LinearLayout ll_5st;*/
@@ -131,6 +131,10 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         tvEditBtn = view.findViewById(R.id.tvSaveEditBtn);
         tvCancelEdit = view.findViewById(R.id.tvCancelEdit);
         etEditDvcName = view.findViewById(R.id.etEditDvcName);
+        llNoDeviceIns = view.findViewById(R.id.llNoDeviceIns);
+        llDvcTopContainer = view.findViewById(R.id.llDvcTopContainer);
+        llDvcMiddleContainer = view.findViewById(R.id.llDvcMiddleContainer);
+        llDvcBottomContainer = view.findViewById(R.id.llDvcBottomContainer);
     }
 
     private void initBase() {
@@ -146,45 +150,18 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 }
             }
         }
-        //listAddressName=databaseHandler.getAlladdressUUIDRadioNameSelectStatus();
-        //listAddressName.add("Home");
-
-       /* bleAppLevel = BLEAppLevel.getInstanceOnly();
-        if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-            //Change background on BLE connected
-            llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
-        }
-        //Getting Address and mapped Devices from DB
-        //databaseHandler = new DatabaseHandler(mContext);
-        List<ModalDeviceModule> listModalAddressAndDevices = databaseHandler.getAllAddressNdDeviceMapping();
-        if (listModalAddressAndDevices != null && listModalAddressAndDevices.size() > 0) {
-            for (int i=0;i<listModalAddressAndDevices.size();i++){
-                listAddressName.add(listModalAddressAndDevices.get(i).getMdlLocationAddress().getAddressRadioName());
-            }
-        }
-        //rlBubbleLeftTop.setVisibility(View.VISIBLE);
-        *//*dvcName ="Pebble";
-        dvcMac ="98:4F:EE:10:87:66";
-        valveNum = 8;*//*
-        dvcName = listModalAddressAndDevices.get(0).getName();
-        tvDeviceName.setText(dvcName);
-        dvcMac = listModalAddressAndDevices.get(0).getDvcMacAddress();
-        modalAddressModule = listModalAddressAndDevices.get(0).getMdlLocationAddress();
-
-        addressComplete = modalAddressModule.getFlat_num() + ", " + modalAddressModule.getStreetName() + ", " + modalAddressModule.getLocality_landmark() + ", " + modalAddressModule.getPinCode() + ", " + modalAddressModule.getCity() + ", " + modalAddressModule.getState();
-        tvAddressTop = mContext.tvDesc_txt;
-        tvAddressTop.setText(addressComplete);
-        MySharedPreference.getInstance(getActivity()).setStringData(ADDRESS, addressComplete);
-
-        valveNum = listModalAddressAndDevices.get(0).getValvesNum();
-        tvValveCountTopLeft.setText(valveNum + "");*/
 
         setRecyclerViewAdapter();
         setUIForAddressNdDeviceMap(addressUUID);
     }
 
     private void initListeners() {
-        llAddNewAddress.setOnClickListener(this);
+        llAddNewAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+            }
+        });
 
         rlBubbleLeftTop.setOnClickListener(this);
         rlBubbleLeftTop.setOnLongClickListener(this);
@@ -201,9 +178,133 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         rlBubbleRightBottom.setOnClickListener(this);
         rlBubbleRightBottom.setOnLongClickListener(this);
 
-        ivMapNewDevice.setOnClickListener(this);
-        ivPrev.setOnClickListener(this);
-        ivNext.setOnClickListener(this);
+        ivMapNewDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
+            }
+        });
+        ivPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Previous", Toast.LENGTH_SHORT).show();
+            }
+        });
+        ivNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Next", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        tvEditDvcName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                llDialogLongPressDvc.setVisibility(View.GONE);
+                llDialogEditDvcName.setVisibility(View.VISIBLE);
+                etEditDvcName.setText(dvcName);
+
+                tvCancelEdit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        llIMWholeDesign.setVisibility(View.VISIBLE);
+                        llDialogEditDvcName.setVisibility(View.GONE);
+                    }
+                });
+
+                tvEditBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String userIPDvcName = etEditDvcName.getText().toString();
+                        if (userIPDvcName.isEmpty()) {
+                            Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
+                            return;
+                        } else if (userIPDvcName.equals(dvcName)) {
+                            Toast.makeText(mContext, "Please edit device name", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        //No device name should be duplicate
+                        if (databaseHandler.getAllDeviceName().size() > 0) {
+                            for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
+                                if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(userIPDvcName)) {
+                                    Toast.makeText(mContext, "This device name " +
+                                            "already exists with app", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+                        }
+                        databaseHandler.updateDvcNameOnly(dvcUUID, etEditDvcName.getText().toString());
+                        llIMWholeDesign.setVisibility(View.VISIBLE);
+                        llDialogEditDvcName.setVisibility(View.GONE);
+
+                        Toast.makeText(mContext, "Device name edited successfully", Toast.LENGTH_SHORT).show();
+                        mContext.dvcLongPressEvents();
+                    }
+                });
+            }
+        });
+        tvPauseDvc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleAppLevel = BLEAppLevel.getInstanceOnly();
+                if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                    dialogPsRmDtConfirm("Pause Device", "This will Pause device completely", "Pause");
+                } else {
+                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                }
+            }
+        });
+        tvResumeDbc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleAppLevel = BLEAppLevel.getInstanceOnly();
+                if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                    dialogPsRmDtConfirm("Resume Device", "This will Resume device completely", "Resume");
+                } else {
+                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                }
+            }
+        });
+        tvConnectDvc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleAppLevel = BLEAppLevel.getInstanceOnly();
+
+                if (bleAppLevel == null) {
+                    llDialogLongPressDvc.setVisibility(View.GONE);
+                    llIMWholeDesign.setVisibility(View.VISIBLE);
+                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                }
+
+            }
+        });
+        tvDisconnectDvc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleAppLevel = BLEAppLevel.getInstanceOnly();
+
+                if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                    bleAppLevel.disconnectBLECompletely();
+                    databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected");
+                } else {
+                    Toast.makeText(mContext, "BLE Lost connection", Toast.LENGTH_SHORT).show();
+                }
+                llDialogLongPressDvc.setVisibility(View.GONE);
+                llIMWholeDesign.setVisibility(View.VISIBLE);
+            }
+        });
+        tvDeleteDvc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleAppLevel = BLEAppLevel.getInstanceOnly();
+                if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                    dialogPsRmDtConfirm("Delete Device", "This will Delete device permanently", "Delete");
+                } else {
+                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                }
+
+            }
+        });
     }
 
     void setRecyclerViewAdapter() {
@@ -228,15 +329,16 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         tvAddressTop.setText(addressComplete);
 
         if (listModalDeviceModule.size() > 0) {
-            for (int i = 0; i < listModalDeviceModule.size(); i++) {
-                if (rlBubbleLeftTop.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
-                    dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
-                    valveNum = listModalDeviceModule.get(i).getValvesNum();
+            llDvcTopContainer.setVisibility(View.VISIBLE);
+            llDvcMiddleContainer.setVisibility(View.VISIBLE);
+            llDvcBottomContainer.setVisibility(View.VISIBLE);
 
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
+            llNoDeviceIns.setVisibility(View.GONE);
+
+            for (int i = 0; i < listModalDeviceModule.size(); i++) {
+                if (rlBubbleLeftTop.getVisibility() == View.GONE && i == 0) {
+                    dvcName = listModalDeviceModule.get(i).getName();
+                    valveNum = listModalDeviceModule.get(i).getValvesNum();
 
                     rlBubbleLeftTop.setVisibility(View.VISIBLE);
                     tvDeviceNameTopLeft.setText(dvcName);
@@ -246,24 +348,11 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         //Change background on BLE connected
                         llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
                     }
-
-
-                   /* rlBubbleRightTop.setVisibility(View.GONE);
-                    rlBubbleMiddle.setVisibility(View.GONE);
-                    rlBubbleLeftBottom.setVisibility(View.GONE);
-                    rlBubbleRightBottom.setVisibility(View.GONE);
-                    llFooterIM.setVisibility(View.GONE);*/
-
                     continue;
                 }
-                if (rlBubbleRightTop.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                if (rlBubbleRightTop.getVisibility() == View.GONE && i == 1) {
                     dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
                     valveNum = listModalDeviceModule.get(i).getValvesNum();
-
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
                     rlBubbleRightTop.setVisibility(View.VISIBLE);
                     tvDvcNameTopRigh.setText(dvcName);
@@ -273,23 +362,12 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         //Change background on BLE connected
                         llBubbleTopRightBG.setBackgroundResource(R.drawable.pebble_back_connected);
                     }
-
-                 /*   rlBubbleMiddle.setVisibility(View.GONE);
-                    rlBubbleLeftBottom.setVisibility(View.GONE);
-                    rlBubbleRightBottom.setVisibility(View.GONE);
-                    llFooterIM.setVisibility(View.GONE);*/
-
                     continue;
                 }
 
-                if (rlBubbleMiddle.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                if (rlBubbleMiddle.getVisibility() == View.GONE && i == 2) {
                     dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
                     valveNum = listModalDeviceModule.get(i).getValvesNum();
-
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
                     rlBubbleMiddle.setVisibility(View.VISIBLE);
                     tvDvcNameMiddle.setText(dvcName);
@@ -299,45 +377,11 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         //Change background on BLE connected
                         llBubbleMiddleBG.setBackgroundResource(R.drawable.pebble_back_connected);
                     }
-
-                    /*rlBubbleLeftBottom.setVisibility(View.GONE);
-                    rlBubbleRightBottom.setVisibility(View.GONE);
-                    llFooterIM.setVisibility(View.GONE);*/
-
                     continue;
                 }
-               /* if (rlBubbleLeftBottom.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                if (rlBubbleLeftBottom.getVisibility() == View.GONE && i == 3) {
                     dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
                     valveNum = listModalDeviceModule.get(i).getValvesNum();
-
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
-
-                    rlBubbleMiddle.setVisibility(View.VISIBLE);
-                    tvDvcNameMiddle.setText(dvcName);
-                    tvValveCountMiddle.setText(valveNum + "");
-
-                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        //Change background on BLE connected
-                        llBubbleMiddleBG.setBackgroundResource(R.drawable.pebble_back_connected);
-                    }
-
-                    rlBubbleLeftBottom.setVisibility(View.GONE);
-                    rlBubbleRightBottom.setVisibility(View.GONE);
-                    llFooterIM.setVisibility(View.GONE);
-
-                    continue;
-                }*/
-                if (rlBubbleLeftBottom.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
-                    dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
-                    valveNum = listModalDeviceModule.get(i).getValvesNum();
-
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
                     rlBubbleLeftBottom.setVisibility(View.VISIBLE);
                     tvDvcNameLeftBottom.setText(dvcName);
@@ -347,20 +391,11 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                         //Change background on BLE connected
                         llBubbleLeftBottomBG.setBackgroundResource(R.drawable.pebble_back_connected);
                     }
-
-                    /*rlBubbleRightBottom.setVisibility(View.GONE);
-                    llFooterIM.setVisibility(View.GONE);*/
-
                     continue;
                 }
-                if (rlBubbleRightBottom.getVisibility() == View.GONE) {
-                    dvcUUID = listModalDeviceModule.get(i).getDvcUUID();
+                if (rlBubbleRightBottom.getVisibility() == View.GONE && i == 4) {
                     dvcName = listModalDeviceModule.get(i).getName();
-                    dvcMac = listModalDeviceModule.get(i).getDvcMacAddress();
                     valveNum = listModalDeviceModule.get(i).getValvesNum();
-
-                    //myFragment = new Fragment();
-                    //BLEAppLevel.getInstance(mContext, null, dvcMac);
 
                     rlBubbleRightBottom.setVisibility(View.VISIBLE);
                     tvDvcNameRightBottom.setText(dvcName);
@@ -376,18 +411,19 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     //continue;
                 }
             }
-        } else if (listModalDeviceModule.size() > 1 && listModalDeviceModule.size() < 6) {
-            Toast.makeText(mContext, "more than one devices, but less than 6", Toast.LENGTH_SHORT).show();
         } else {
-            rlBubbleLeftTop.setVisibility(View.VISIBLE);
-            rlBubbleRightTop.setVisibility(View.VISIBLE);
-            rlBubbleMiddle.setVisibility(View.VISIBLE);
-            rlBubbleLeftBottom.setVisibility(View.VISIBLE);
-            rlBubbleRightBottom.setVisibility(View.VISIBLE);
-            llFooterIM.setVisibility(View.VISIBLE);
-            tvDeviceNameTopLeft.setText("Farm House Balcony");
-            tvValveCountTopLeft.setText(1 + "");
-            llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
+            llDvcTopContainer.setVisibility(View.GONE);
+            llDvcMiddleContainer.setVisibility(View.GONE);
+            llDvcBottomContainer.setVisibility(View.GONE);
+
+            rlBubbleLeftTop.setVisibility(View.GONE);
+            rlBubbleRightTop.setVisibility(View.GONE);
+            rlBubbleMiddle.setVisibility(View.GONE);
+            rlBubbleLeftBottom.setVisibility(View.GONE);
+            rlBubbleRightBottom.setVisibility(View.GONE);
+            llFooterIM.setVisibility(View.GONE);
+
+            llNoDeviceIns.setVisibility(View.VISIBLE);
         }
     }
 
@@ -395,81 +431,51 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     public void onClick(View view) {
         int id = view.getId();
         switch (id) {
-            case R.id.llAddNewAddress:
-                FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
-                //First child---then parent
-                //fragAddEditAddress.setTargetFragment(FragDeviceMAP.this, 101);
-                //Adding Fragment(FragAddEditAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
-                break;
             case R.id.rlBubbleLeftTop:
-                fragDeviceDetails = new FragDeviceDetails();
-                bundle = new Bundle();
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
-                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
-                fragDeviceDetails.setArguments(bundle);
-                //Adding Fragment(FragDeviceDetails)
-                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+                //Its data will come from index 0, always
+                dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
+                dvcName = listModalDeviceModule.get(0).getName();
+                dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
+                valveNum = listModalDeviceModule.get(0).getValvesNum();
                 break;
             case R.id.rlBubbleRightTop:
-                fragDeviceDetails = new FragDeviceDetails();
-                bundle = new Bundle();
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
-                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
-                fragDeviceDetails.setArguments(bundle);
-                //Adding Fragment(FragDeviceDetails)
-                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
-
+                //Its data will come from index 1, always
+                dvcUUID = listModalDeviceModule.get(1).getDvcUUID();
+                dvcName = listModalDeviceModule.get(1).getName();
+                dvcMac = listModalDeviceModule.get(1).getDvcMacAddress();
+                valveNum = listModalDeviceModule.get(1).getValvesNum();
                 break;
             case R.id.rlBubbleMiddle:
-                fragDeviceDetails = new FragDeviceDetails();
-                bundle = new Bundle();
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
-                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
-                fragDeviceDetails.setArguments(bundle);
-                //Adding Fragment(FragDeviceDetails)
-                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+                //Its data will come from index 2, always
+                dvcUUID = listModalDeviceModule.get(2).getDvcUUID();
+                dvcName = listModalDeviceModule.get(2).getName();
+                dvcMac = listModalDeviceModule.get(2).getDvcMacAddress();
+                valveNum = listModalDeviceModule.get(2).getValvesNum();
                 break;
             case R.id.rlBubbleLeftBottom:
-                fragDeviceDetails = new FragDeviceDetails();
-                bundle = new Bundle();
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
-                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
-                fragDeviceDetails.setArguments(bundle);
-                //Adding Fragment(FragDeviceDetails)
-                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+                //Its data will come from index 3, always
+                dvcUUID = listModalDeviceModule.get(3).getDvcUUID();
+                dvcName = listModalDeviceModule.get(3).getName();
+                dvcMac = listModalDeviceModule.get(3).getDvcMacAddress();
+                valveNum = listModalDeviceModule.get(3).getValvesNum();
                 break;
             case R.id.rlBubbleRightBottom:
-                fragDeviceDetails = new FragDeviceDetails();
-                bundle = new Bundle();
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
-                bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
-                bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
-                fragDeviceDetails.setArguments(bundle);
-                //Adding Fragment(FragDeviceDetails)
-                MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+                //Its data will come from index 4, always
+                dvcUUID = listModalDeviceModule.get(4).getDvcUUID();
+                dvcName = listModalDeviceModule.get(4).getName();
+                dvcMac = listModalDeviceModule.get(4).getDvcMacAddress();
+                valveNum = listModalDeviceModule.get(4).getValvesNum();
                 break;
-            case R.id.ivPrev:
-                Toast.makeText(mContext, "Previous", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.ivNext:
-                Toast.makeText(mContext, "Next", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.ivMapNewDevice:
-                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
-                //Toast.makeText(mContext, "In progress...", Toast.LENGTH_SHORT).show();
-               /* Intent intent2 = new Intent(mContext, AvailableDevices.class);
-                startActivity(intent2);*/
         }
+        fragDeviceDetails = new FragDeviceDetails();
+        bundle = new Bundle();
+        bundle.putString(FragDeviceDetails.EXTRA_DVC_ID, dvcUUID);
+        bundle.putString(FragDeviceDetails.EXTRA_DVC_NAME, dvcName);
+        bundle.putString(FragDeviceDetails.EXTRA_DVC_MAC, dvcMac);
+        bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
+        fragDeviceDetails.setArguments(bundle);
+        //Adding Fragment(FragDeviceDetails)
+        MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
     }
 
     @Override
@@ -477,21 +483,28 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         int id = v.getId();
         switch (id) {
             case R.id.rlBubbleLeftTop:
-                dialogLongPressDvc();
+                dvcUUID = listModalDeviceModule.get(0).getDvcUUID();
+                dvcMac = listModalDeviceModule.get(0).getDvcMacAddress();
                 break;
             case R.id.rlBubbleMiddle:
-                dialogLongPressDvc();
+                dvcUUID = listModalDeviceModule.get(1).getDvcUUID();
+                dvcMac = listModalDeviceModule.get(1).getDvcMacAddress();
                 break;
-           /* case R.id.ll_3st:
-                dialogLongPressDvc();
+            case R.id.rlBubbleRightTop:
+                dvcUUID = listModalDeviceModule.get(2).getDvcUUID();
+                dvcMac = listModalDeviceModule.get(2).getDvcMacAddress();
                 break;
-            case R.id.ll_4st:
-                dialogLongPressDvc();
+            case R.id.rlBubbleLeftBottom:
+                dvcUUID = listModalDeviceModule.get(3).getDvcUUID();
+                dvcMac = listModalDeviceModule.get(3).getDvcMacAddress();
                 break;
-            case R.id.ll_5st:
-                dialogLongPressDvc();
-                break;*/
+            case R.id.rlBubbleRightBottom:
+                dvcUUID = listModalDeviceModule.get(4).getDvcUUID();
+                dvcMac = listModalDeviceModule.get(4).getDvcMacAddress();
+                break;
         }
+
+        dialogLongPressDvc();
         return true;
     }
 
@@ -500,10 +513,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         llDialogLongPressDvc.setVisibility(View.VISIBLE);
 
         if (llDialogLongPressDvc.getVisibility() == View.VISIBLE) {
-
             bleAppLevel = BLEAppLevel.getInstanceOnly();
             if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-
                 //Validation Valve PLAY if exists only
                 totalPlayValvesCount = databaseHandler.getDvcTotalValvesPlayPauseCount(dvcUUID, "PLAY");
                 if (totalPlayValvesCount > 0) {
@@ -547,141 +558,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 tvDeleteDvc.setTextColor(Color.GRAY);
             }
 
-            tvEditDvcName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(mContext, "Edit", Toast.LENGTH_SHORT).show();
-                    llDialogLongPressDvc.setVisibility(View.GONE);
-                    llDialogEditDvcName.setVisibility(View.VISIBLE);
-                    etEditDvcName.setText(dvcName);
-
-
-                    tvCancelEdit.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            llIMWholeDesign.setVisibility(View.VISIBLE);
-                            llDialogEditDvcName.setVisibility(View.GONE);
-                        }
-                    });
-
-                    tvEditBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String userIPDvcName = etEditDvcName.getText().toString();
-                            if (userIPDvcName.isEmpty()) {
-                                Toast.makeText(mContext, "Device name can't be empty", Toast.LENGTH_SHORT).show();
-                                return;
-                            } else if (userIPDvcName.equals(dvcName)) {
-                                Toast.makeText(mContext, "Please edit device name", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            //No device name should be duplicate
-                            if (databaseHandler.getAllDeviceName().size() > 0) {
-                                for (int i = 0; i < databaseHandler.getAllDeviceName().size(); i++) {
-                                    if (databaseHandler.getAllDeviceName().get(i).equalsIgnoreCase(userIPDvcName)) {
-                                        Toast.makeText(mContext, "This device name " +
-                                                "already exists with app", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                }
-                            }
-                            databaseHandler.updateDvcNameOnly(dvcUUID, etEditDvcName.getText().toString());
-                            llIMWholeDesign.setVisibility(View.VISIBLE);
-                            llDialogEditDvcName.setVisibility(View.GONE);
-
-                            Toast.makeText(mContext, "Device name edited successfully", Toast.LENGTH_SHORT).show();
-                            mContext.dvcLongPressEvents();
-                        }
-                    });
-                }
-            });
-            tvPauseDvc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bleAppLevel = BLEAppLevel.getInstanceOnly();
-                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        dialogPsRmDtConfirm("Pause Device", "This will Pause device completely", "Pause");
-                    } else {
-                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
-                    }
-                }
-            });
-            tvResumeDbc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bleAppLevel = BLEAppLevel.getInstanceOnly();
-                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        dialogPsRmDtConfirm("Resume Device", "This will Resume device completely", "Resume");
-                    } else {
-                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
-                    }
-                }
-            });
-            tvConnectDvc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bleAppLevel = BLEAppLevel.getInstanceOnly();
-                    llDialogLongPressDvc.setVisibility(View.GONE);
-                    llIMWholeDesign.setVisibility(View.VISIBLE);
-                    AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
-                }
-            });
-            tvDisconnectDvc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bleAppLevel = BLEAppLevel.getInstanceOnly();
-
-                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        bleAppLevel.disconnectBLECompletely();
-                    } else {
-                        Toast.makeText(mContext, "BLE Lost connection", Toast.LENGTH_SHORT).show();
-                    }
-                    llDialogLongPressDvc.setVisibility(View.GONE);
-                    llIMWholeDesign.setVisibility(View.VISIBLE);
-                }
-            });
-            tvDeleteDvc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    bleAppLevel = BLEAppLevel.getInstanceOnly();
-                    if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                        dialogPsRmDtConfirm("Delete Device", "This will Delete device permanently", "Delete");
-                    } else {
-                        AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
-                    }
-
-                }
-            });
-
-
         }
-
-        /*Dialog dialog = null;
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Options")
-                .setItems(R.array.long_press_option, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        rlBubbleLeftTop.setVisibility(View.GONE);
-                    }
-                });
-        dialog = builder.create();
-        dialog.setCancelable(true);
-        dialog.show();*/
     }
-
-   /* @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
-            if (data.getSerializableExtra("mdlAddressLocation") != null) {
-                modalAddressModule = (ModalAddressModule) data.getSerializableExtra("mdlAddressLocation");
-                Toast.makeText(mContext, "Saved address is " + modalAddressModule.getAddressRadioName(), Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(mContext, "No data from address", Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }*/
 
     private void dialogPsRmDtConfirm(String title, String msg, final String positiveBtnName) {
         AlertDialog.Builder builder;
@@ -732,19 +610,27 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     public void dvcLongPressBLEDone(String cmdTypeName) {
         if (cmdTypeName.equals("PAUSE")) {
             databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PAUSE");
+            databaseHandler.updateDvcOpTyStringAll(dvcUUID, "PAUSE");
             Toast.makeText(mContext, "Device paused successfully", Toast.LENGTH_SHORT).show();
         } else if (cmdTypeName.equals("PLAY")) {
             databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PLAY");
+            databaseHandler.updateDvcOpTyStringAll(dvcUUID, "RESUME");
             Toast.makeText(mContext, "Device resumed successfully", Toast.LENGTH_SHORT).show();
         } else if (cmdTypeName.equals("STOP")) {
             databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "STOP");
             int rowAffected = databaseHandler.deleteUpdateDevice(dvcUUID);
             if (rowAffected > 0) {
                 mContext.dvcDeleteUpdateSuccess();
+                databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected");
             }
         }
 
         llDialogLongPressDvc.setVisibility(View.GONE);
         llIMWholeDesign.setVisibility(View.VISIBLE);
+    }
+
+    public void BLEConnectedACK() {
+        databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Connected");
+        llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
     }
 }

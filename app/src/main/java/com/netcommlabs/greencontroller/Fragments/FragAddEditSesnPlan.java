@@ -198,6 +198,10 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
 
         //long isDataAddedForThisValve = databaseHandler.valveSessionMasterTotalRowsCount(clkdVlvUUID);
         //if (isDataAddedForThisValve <= 0) {
+
+        //Delete Valve Session TEMP, before making data entry into it
+        databaseHandler.deleteValveSesnTEMP();
+
         for (int i = 1; i <= 4; i++) {
             databaseHandler.insertValveSesnTemp(clkdVlvUUID,clkdVlvName, i);
         }
@@ -421,7 +425,6 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
         tvLoadSesnPlan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progrsBarIndetmnt.setVisibility(View.VISIBLE);
                 etDisPntsInput = etDischargePoints.getText().toString();
                 if (etDisPntsInput.isEmpty()) {
                     Toast.makeText(mContext, "Please enter Discharge points", Toast.LENGTH_SHORT).show();
@@ -466,10 +469,11 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 Log.e("@@@ USER INPUTS ", "DP:: " + etDisPntsInt + "\n DURATION::" + etDurationInt + "\n VOLUME*DP:: " + etWaterQuantWithDPInt);
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
+                    progrsBarIndetmnt.setVisibility(View.VISIBLE);
                     //This method will automatically followed by loading new time points method
                     bleAppLevel.eraseOldTimePoints(FragAddEditSesnPlan.this, etDisPntsInt, etDurationInt, etWaterQuantWithDPInt, listSingleValveData);
                 } else {
-                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, "");
+                    AppAlertDialog.dialogBLENotConnected(mContext, myRequestedFrag, bleAppLevel, macAdd);
                 }
             }
         });

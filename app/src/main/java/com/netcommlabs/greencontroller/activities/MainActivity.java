@@ -87,6 +87,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.netcommlabs.greencontroller.activities.ActvityOtp.KEY_LANDED_FROM;
+import static com.netcommlabs.greencontroller.activities.ActvityOtp.KEY_MOBILE_NUM;
 import static com.netcommlabs.greencontroller.constant.Constant.ADDRESS_BOOK;
 import static com.netcommlabs.greencontroller.constant.Constant.AVAILABLE_DEVICE;
 import static com.netcommlabs.greencontroller.constant.Constant.CONNECTED_QR;
@@ -168,14 +170,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         nav_header = findViewById(R.id.nav_header);
         username_header = (TextView) findViewById(R.id.username_header);
         username_header.setText(preference.getName());
-
         circularIVNav = (ImageView) findViewById(R.id.circularIVNav);
+        llAddNewAddress = findViewById(R.id.llAddNewAddress);
+
         if (MySharedPreference.getInstance(MainActivity.this).getUser_img() != "") {
             Picasso
                     .with(MainActivity.this)
                     .load(MySharedPreference.getInstance(MainActivity.this).getUser_img()).skipMemoryCache().placeholder(R.drawable.user_profile_icon)
                     .into(circularIVNav);
+        } else {
+            circularIVNav.setImageResource(R.drawable.user_icon);
         }
+        //Picasso.with(mContext).setLoggingEnabled(true);
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
     }
 
@@ -250,20 +256,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
             }*/
         }
-        llAddNewAddress = findViewById(R.id.llAddNewAddress);
-        frm_lyt_container_int = R.id.frm_lyt_container;
-        rlHamburgerNdFamily = findViewById(R.id.rlHamburgerNdFamily);
-        llHamburgerIconOnly = findViewById(R.id.llHamburgerIconOnly);
-        etSearchMapTop = findViewById(R.id.etSearchMapTop);
-        llSearchMapOKTop = findViewById(R.id.llSearchMapOKTop);
-        tvToolbar_title = findViewById(R.id.toolbar_title);
-        tvClearEditData = findViewById(R.id.tvClearEditData);
-        tvDesc_txt = findViewById(R.id.desc_txt);
-        nav_drawer_layout = findViewById(R.id.nav_drawer_layout);
-        nav_revi_slider = findViewById(R.id.nav_revi_slider);
-        btnMapDone = findViewById(R.id.btnAddressDone);
-        btnMapBack = findViewById(R.id.btnAddressCancel);
-        //tvAddNewAddress.setVisibility(View.GONE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         nav_revi_slider.setLayoutManager(layoutManager);
 
@@ -355,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
                         mContext.finish();
                     }
-
                 }
                 break;
 
@@ -578,21 +569,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             tvDesc_txt.setText("This device is Connected");
         }
         if (currentFragment instanceof FragDeviceMAP) {
-            ((FragDeviceMAP) currentFragment).llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
+            ((FragDeviceMAP) currentFragment).BLEConnectedACK();
         }
     }
 
 
-    public void setOtpForMobile(String s) {
-        String tag = getActiveFragment();
-        Fragment parentFragment = getSupportFragmentManager().findFragmentByTag(tag);
-        if (tag.equals("My Profile")) {
-            Intent i = new Intent(MainActivity.this, ActvityOtp.class);
-            ActvityOtp.getTagData("My Profile", s);
-            // i.putExtra("Tag",ActvityOtp.getTagData("My Profile"));
-            startActivity(i);
+    public void setOtpForMobile(String mobNum) {
+        //MySharedPreference.getInstance(mContext).setLandedOTPScreenFrom("My Profile");
 
-        }
+        //String tag = getActiveFragment();
+        //Fragment parentFragment = getSupportFragmentManager().findFragmentByTag(tag);
+        //if (tag.equals("My Profile")) {
+        Intent i = new Intent(MainActivity.this, ActvityOtp.class);
+        i.putExtra("userId", "");
+        i.putExtra(KEY_LANDED_FROM, "My Profile");
+        i.putExtra(KEY_MOBILE_NUM, mobNum);
+        //ActvityOtp.getTagData("My Profile", s);
+        // i.putExtra("Tag",ActvityOtp.getTagData("My Profile"));
+        startActivity(i);
+
+        //}
     }
 
     public String getActiveFragment() {
@@ -670,11 +666,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             hitApiForSaveLocation();
         } catch (Exception e) {
             //  new CustomProgressDialog(MainActivity.this, e, "No Location Found", "Please check internet stability or move to different place and retry").show();
-            mGoogleApiClient.disconnect();
+            //mGoogleApiClient.disconnect();
             hitApiForSaveLocation();
 
             e.printStackTrace();
-            Toast.makeText(this, "Something went wrong, location not found", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Something went wrong, location not found", Toast.LENGTH_SHORT).show();
         } finally {
            /* if (proDialog.isShowing()) {
                 proDialog.dismiss();
@@ -817,6 +813,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 break;
             case DEVICE_DETAILS:
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
+                tvToolbar_title.setText(MySharedPreference.getInstance(mContext).getDvcNameFromDvcDetails());
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     tvDesc_txt.setText("This device is Connected");
                 } else {
@@ -873,7 +870,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
             bleAppLevel.disconnectBLECompletely();
         }
-        BLEAppLevel.getInstanceOnly().disconnectBLECompletely();
+        //BLEAppLevel.getInstanceOnly().disconnectBLECompletely();
         MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
         //MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }

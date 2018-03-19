@@ -101,9 +101,9 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     private Dialog dialog;
     private int GALLERY_IMG_REQUEST = 1001;
     private int CAMERA_IMG_REQUEST = 1002;
-    private Bitmap bitmap;
+    private Bitmap takenUserImgBtmp;
     PreferenceModel preference;
-    private static String strEncodedImage;
+    private String strEncodedImage;
 
     @Override
 
@@ -144,11 +144,16 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         et_name.setText(preference.getName());
         et_mailid.setText(preference.getEmail());
         tv_phone_no.setText(preference.getMobile());
-        if (MySharedPreference.getInstance(getActivity()).getUser_img() != "")
+
+        if (MySharedPreference.getInstance(getActivity()).getUser_img() != "") {
             Picasso
                     .with(mContext)
                     .load(MySharedPreference.getInstance(getActivity()).getUser_img()).skipMemoryCache()
                     .into(image_user);
+        } else {
+            image_user.setImageResource(R.drawable.user_icon);
+        }
+
       /*layout match password*/
         match_password_layout = view.findViewById(R.id.match_password_layout);
         et_match_pass = view.findViewById(R.id.et_match_pass);
@@ -266,14 +271,14 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                 et_phoneNo.setCursorVisible(true);
                 if (et_phoneNo.getText().toString().trim().length() > 0) {
                     if (et_phoneNo.getText().toString().equals(preference.getMobile())) {
-                        Toast.makeText(mContext, "You are Updating same no.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Please edit Mobile number", Toast.LENGTH_SHORT).show();
                     } else {
                         hitApiChangeMobileNo();
                     }
 
 
                 } else {
-                    Toast.makeText(getActivity(), "Please enter  mobile no.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please enter Mobile number", Toast.LENGTH_SHORT).show();
                     phone_layout.setVisibility(View.VISIBLE);
                 }
 
@@ -287,7 +292,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                 if (et_match_pass.getText().toString().trim().length() > 0) {
                     hitApiForMatchPassword();
                 } else {
-                    Toast.makeText(getActivity(), "Please enter your password.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please enter your password ", Toast.LENGTH_SHORT).show();
                     match_password_layout.setVisibility(View.VISIBLE);
                 }
                 break;
@@ -319,7 +324,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                         if (et_confirm_pass.getText().toString().equals(et_new_pass.getText().toString())) {
                             if (et_new_pass.getText().toString().length() < 6) {
 
-                                Toast.makeText(mContext, "Password should be minimum 6 digit ", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, "Password should be greater than 5 characters ", Toast.LENGTH_SHORT).show();
                             } else {
                                 hitApiChangePassword();
                                 // System.out.println("Valid");
@@ -327,7 +332,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                             }
 
                         } else {
-                            Toast.makeText(mContext, "Password not match", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "Passwords do not match", Toast.LENGTH_SHORT).show();
                         }
 
                     } else {
@@ -373,7 +378,11 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
             object.put("user_id", preference.getUser_id());
             object.put("name", et_name.getText().toString());
-            object.put("image", strEncodedImage);
+            if (takenUserImgBtmp != null) {
+                object.put("image", strEncodedImage);
+            } else {
+                object.put("image", MySharedPreference.getInstance(mContext).getUser_img());
+            }
             object.put("email", et_mailid.getText().toString());
 
         } catch (Exception e) {
@@ -548,38 +557,44 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             picturePath = cursor.getString(columnIndex);
             cursor.close();
-            bitmap = BitmapFactory.decodeFile(picturePath);
-            setPath(picturePath);
-            //  image_user.setImageBitmap(bitmap);
-            // convertBitmapToBse64(bitmap);
+
+            takenUserImgBtmp = BitmapFactory.decodeFile(picturePath);
+
+            //setUserImgUsingPath(picturePath);
+            //  image_user.setImageBitmap(takenUserImgBtmp);
+            // convertBitmapToBse64(takenUserImgBtmp);
         } else if (requestCode == CAMERA_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
-            bitmap = (Bitmap) data.getExtras().get("data");
-            saveImage(bitmap);
-            picturePath = new File(Environment.getExternalStorageDirectory()
-                    + File.separator + "/test.jpg").getAbsolutePath();
-            setPath(picturePath);
+            takenUserImgBtmp = (Bitmap) data.getExtras().get("data");
+            if (takenUserImgBtmp != null) {
+                saveImage(takenUserImgBtmp);
+                picturePath = new File(Environment.getExternalStorageDirectory()
+                        + File.separator + "/test.jpg").getAbsolutePath();
+            }
+            //setUserImgUsingPath(picturePath);
+        }
 
-
+        if (takenUserImgBtmp != null) {
+            setUserImgUsingPath(picturePath);
         }
 
     }
 
-    private void setPath(String picturePath) {
+    private void setUserImgUsingPath(String picturePath) {
         compressedBitmap = FileUtils.getBitmapWithCompressedFromPicker(mContext, picturePath);
         convertBitmapToBse64(compressedBitmap);
         image_user.setImageBitmap(compressedBitmap);
 
     }
 
-    private String convertBitmapToBse64(Bitmap bitmap) {
+    private String convertBitmapToBse64(Bitmap takenUserImgBtmp) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        takenUserImgBtmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
         strEncodedImage = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
         return strEncodedImage;
     }
 
 
-    private void saveImage(Bitmap bitmap) {
+    private void saveImage(Bitmap takenUserImgBtmp) {
         File file = new File(Environment.getExternalStorageDirectory()
                 + File.separator + "/test.jpg");
         if (!file.exists()) {
@@ -603,7 +618,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         try {
             fos = new FileOutputStream(file);
             if (fos != null) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                takenUserImgBtmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
                 fos.close();
             }
         } catch (Exception e) {
@@ -627,6 +642,8 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                 ll_change_pass.setVisibility(View.VISIBLE);
                 ll_edit_profile_img.setVisibility(View.VISIBLE);
 
+                Toast.makeText(mContext, "Profile is in editable mode", Toast.LENGTH_SHORT).show();
+
             } else {
                 Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
@@ -635,6 +652,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                 change_password_dialog.setVisibility(View.GONE);
                 tv_pass.setText(et_new_pass.getText().toString());
 
+                Toast.makeText(mContext, "Password changed successfully", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
             }
@@ -670,11 +688,14 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
 
         if (Tag == UrlConstants.MATCH_PASSWORD_TAG) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
-        } if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
+        }
+        if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
-        }if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
+        }
+        if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
-        }if (Tag == UrlConstants.UPDATE_PROFILE_TAG) {
+        }
+        if (Tag == UrlConstants.UPDATE_PROFILE_TAG) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
         }
     }
@@ -684,11 +705,11 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         clearRef();
         if (Tag == UrlConstants.MATCH_PASSWORD_TAG) {
             hitApiForMatchPassword();
-        }else if(Tag==UrlConstants.CHANGE_PASSWORD_TAG){
+        } else if (Tag == UrlConstants.CHANGE_PASSWORD_TAG) {
             hitApiChangePassword();
-        }else if(Tag==UrlConstants.CHANGE_MOBILE_NO_TAG){
+        } else if (Tag == UrlConstants.CHANGE_MOBILE_NO_TAG) {
             hitApiChangeMobileNo();
-        }else if(Tag==UrlConstants.UPDATE_PROFILE_TAG){
+        } else if (Tag == UrlConstants.UPDATE_PROFILE_TAG) {
             hitApiForUpdateProfiler();
         }
     }
