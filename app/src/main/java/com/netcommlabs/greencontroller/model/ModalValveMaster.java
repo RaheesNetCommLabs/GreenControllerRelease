@@ -1,5 +1,10 @@
 package com.netcommlabs.greencontroller.model;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -8,30 +13,70 @@ import java.util.ArrayList;
 
 public class ModalValveMaster {
 
+    private JSONObject jsonObjModal;
     private String valveUUID;
-
-    public String getValveUUID() {
-        return valveUUID;
-    }
-
-    public int getAddressID() {
-        return addressID;
-    }
-
-    public String getDvcUUID() {
-        return dvcUUID;
-    }
-
     private int id;
     private String valveName;
     private String dvcMacAddrs;
     private ArrayList<DataTransferModel> listValveData;
-    //private String valveSelected;
     private int valveSelectStatus;
     private String flushStatus;
     private String valveOpTpSPP;
     private int addressID;
     private String dvcUUID;
+    private String valveOpTpFlushONOFF;
+    private int valveOpTPInt;
+
+    // Empty constructor
+    public ModalValveMaster() {
+
+    }
+
+    // constructor
+    public ModalValveMaster(String valveName, int valveSelectStatus, String valveOpTpSPP, String valveOpTpFlushONOFF, int valveOpTpInt) {
+        this.valveName = valveName;
+        this.valveSelectStatus = valveSelectStatus;
+        this.valveOpTpSPP = valveOpTpSPP;
+        this.valveOpTpFlushONOFF = valveOpTpFlushONOFF;
+        this.valveOpTPInt = valveOpTpInt;
+    }
+
+    // constructor
+    public ModalValveMaster(String dvcUUID, String valveUUID, String valveName, int valveSelectStatus, String valveOpTpSPP, String valveOpTpFlushONOFF) {
+        //this.addressID = addressID;
+        this.dvcUUID = dvcUUID;
+        this.valveUUID = valveUUID;
+        this.valveName = valveName;
+        this.valveSelectStatus = valveSelectStatus;
+        this.valveOpTpSPP = valveOpTpSPP;
+        this.valveOpTpFlushONOFF = valveOpTpFlushONOFF;
+    }
+
+    // constructor
+    public ModalValveMaster(String dvcUUID, String valveUUID, String valveName, int valveSelectStatus, String valveOpTpSPP, String valveOpTpFlushONOFF, int valveOpTPInt, String valveCrtDT, String valveUpdateDT) {
+        jsonObjModal = new JSONObject();
+        try {
+            jsonObjModal.put("dvc_uuid", dvcUUID);
+            jsonObjModal.put("valve_uuid", valveUUID);
+            jsonObjModal.put("valve_name", valveName);
+            jsonObjModal.put("valve_select_status", valveSelectStatus);
+            jsonObjModal.put("valve_op_ty_spp", valveOpTpSPP);
+            jsonObjModal.put("valve_op_ty_flush_on_off", valveOpTpFlushONOFF);
+            jsonObjModal.put("valve_op_ty_int", valveOpTPInt);
+            jsonObjModal.put("valve_crt_dt", valveCrtDT);
+            jsonObjModal.put("valve_update_dt", valveUpdateDT == null ? JSONObject.NULL : valveUpdateDT);
+
+            //Log.e("@@JSON VALVE MASTER ", jsonObjModal.toString());
+
+        } catch (JSONException e) {
+            e.getMessage();
+        }
+    }
+
+    public JSONObject getJsonObjModal() {
+        return jsonObjModal;
+    }
+
 
     public String getValveOpTpSPP() {
         return valveOpTpSPP;
@@ -44,17 +89,6 @@ public class ModalValveMaster {
     public int getValveOpTPInt() {
         return valveOpTPInt;
     }
-
-    private String valveOpTpFlushONOFF;
-    private int valveOpTPInt;
-
-   /* public String getValveSelected() {
-        return valveSelected;
-    }*/
-
-   /* public void setValveSelected(String valveSelected) {
-        this.valveSelected = valveSelected;
-    }*/
 
     public int getValveSelectStatus() {
         return valveSelectStatus;
@@ -100,51 +134,20 @@ public class ModalValveMaster {
         return listValveData;
     }
 
+    public String getValveUUID() {
+        return valveUUID;
+    }
+
+    public int getAddressID() {
+        return addressID;
+    }
+
+    public String getDvcUUID() {
+        return dvcUUID;
+    }
+
     public void setListValveData(ArrayList<DataTransferModel> listValveData) {
         this.listValveData = listValveData;
-    }
-
-    // Empty constructor
-    public ModalValveMaster() {
-
-    }
-
-    // constructor
-    public ModalValveMaster(String valveName, int valveSelectStatus, String valveOpTpSPP, String valveOpTpFlushONOFF, int valveOpTpInt) {
-        this.valveName = valveName;
-        this.valveSelectStatus = valveSelectStatus;
-        this.valveOpTpSPP = valveOpTpSPP;
-        this.valveOpTpFlushONOFF = valveOpTpFlushONOFF;
-        this.valveOpTPInt = valveOpTpInt;
-    }
-
-    // constructor
-    public ModalValveMaster(String dvcUUID, String valveUUID, String valveName, int valveSelectStatus, String valveOpTpSPP, String valveOpTpFlushONOFF) {
-        //this.addressID = addressID;
-        this.dvcUUID = dvcUUID;
-        this.valveUUID = valveUUID;
-        this.valveName = valveName;
-        this.valveSelectStatus = valveSelectStatus;
-        this.valveOpTpSPP = valveOpTpSPP;
-        this.valveOpTpFlushONOFF = valveOpTpFlushONOFF;
-    }
-
-    // constructor
-    public ModalValveMaster(String dvcMacAddrs, String valveName, ArrayList<DataTransferModel> listValveData, int valveSelectStatus, String flushStatus) {
-        this.dvcMacAddrs = dvcMacAddrs;
-        this.valveName = valveName;
-        this.listValveData = listValveData;
-        this.flushStatus = flushStatus;
-        this.valveSelectStatus = valveSelectStatus;
-        //this.valveSelectStatus = valveSelectStatus;
-    }
-
-    // constructor
-    public ModalValveMaster(ArrayList<DataTransferModel> listValveData, /*String valveSelectStatus, */int valveSelectStatus, String flushStatus) {
-        this.listValveData = listValveData;
-        //this.valveName = valveSelectStatus;
-        this.valveSelectStatus = valveSelectStatus;
-        this.flushStatus = flushStatus;
     }
 
 }

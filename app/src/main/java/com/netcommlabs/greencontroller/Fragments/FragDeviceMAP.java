@@ -147,6 +147,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     addressUUID = listModalAddressModule.get(i).getAddressUUID();
                     selectAddressNameListAt = i;
                     break;
+                }else {
+                    addressUUID = listModalAddressModule.get(0).getAddressUUID();
+                    selectAddressNameListAt = 0;
                 }
             }
         }
@@ -274,6 +277,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     llDialogLongPressDvc.setVisibility(View.GONE);
                     llIMWholeDesign.setVisibility(View.VISIBLE);
                     AppAlertDialog.dialogBLENotConnected(mContext, FragDeviceMAP.this, bleAppLevel, dvcMac);
+                } else {
+                    bleAppLevel.disconnectBLECompletely();
                 }
 
             }
@@ -556,6 +561,10 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 tvResumeDbc.setTextColor(Color.GRAY);
                 tvDisconnectDvc.setTextColor(Color.GRAY);
                 tvDeleteDvc.setTextColor(Color.GRAY);
+
+                if(bleAppLevel!=null){
+                    bleAppLevel.disconnectBLECompletely();
+                }
             }
 
         }

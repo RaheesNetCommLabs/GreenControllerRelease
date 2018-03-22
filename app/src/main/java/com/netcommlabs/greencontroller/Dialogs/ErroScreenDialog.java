@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
+import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 /**
@@ -24,14 +25,21 @@ public class ErroScreenDialog {
     private static Context mContext;
     private static APIResponseListener listener;
     private static String errorMsg;
-    private  static int tag;
+    private static int Tag;
 
-    public static void showErroScreenDialog( Context mmContext,int tag, String merrorMsg, APIResponseListener mlistener) {
+    public static void showErroScreenDialog(Context mmContext, int tag, String merrorMsg, APIResponseListener mlistener) {
         mContext = mmContext;
         errorMsg = merrorMsg;
         listener = mlistener;
-        tag=tag;
-        showErorScreen(tag);
+        Tag = tag;
+        showErorScreen(Tag);
+    }
+
+    public static void showErroScreenDialog(Context mmContext, String merrorMsg, int tag) {
+        mContext = mmContext;
+        errorMsg = merrorMsg;
+        Tag = tag;
+        showErorScreen(Tag);
     }
 
     private static void showErorScreen(final int Tag) {
@@ -50,18 +58,25 @@ public class ErroScreenDialog {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                ((Activity) mContext).finish();
+                if (Tag == MainActivity.TAG_NO_NET_CONNECTION) {
+                    ((Activity) mContext).finish();
+                }
             }
         });
         tv_retry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (NetworkUtils.isConnected(mContext)) {
+                if (Tag == MainActivity.TAG_NO_NET_CONNECTION) {
                     dialog.dismiss();
-                    listener.doRetryNow(Tag);
+                    ((MainActivity) mContext).checkNetConnectionAndTakeStep();
                 } else {
-                    Intent intent = new Intent(Settings.ACTION_SETTINGS);
-                    mContext.startActivity(intent);
+                    if (NetworkUtils.isConnected(mContext)) {
+                        dialog.dismiss();
+                        listener.doRetryNow(Tag);
+                    } else {
+                        Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                        mContext.startActivity(intent);
+                    }
                 }
             }
         });

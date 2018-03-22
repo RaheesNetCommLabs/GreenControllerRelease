@@ -104,6 +104,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     private Bitmap takenUserImgBtmp;
     PreferenceModel preference;
     private String strEncodedImage;
+    private String userImageBase64;
 
     @Override
 
@@ -145,11 +146,24 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
         et_mailid.setText(preference.getEmail());
         tv_phone_no.setText(preference.getMobile());
 
-        if (MySharedPreference.getInstance(getActivity()).getUser_img() != "") {
+       /* if (MySharedPreference.getInstance(getActivity()).getUser_img() != "") {
             Picasso
                     .with(mContext)
                     .load(MySharedPreference.getInstance(getActivity()).getUser_img()).skipMemoryCache()
                     .into(image_user);
+        } else {
+            image_user.setImageResource(R.drawable.user_icon);
+        }*/
+
+        userImageBase64 = MySharedPreference.getInstance(mContext).getUser_img();
+        if (userImageBase64 != "") {
+            byte[] decodedString = Base64.decode(userImageBase64, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            image_user.setImageBitmap(decodedByte);
+           /* Picasso
+                    .with(MainActivity.this)
+                    .load(MySharedPreference.getInstance(MainActivity.this).getUser_img()).skipMemoryCache().placeholder(R.drawable.user_profile_icon)
+                    .into(circularIVNav);*/
         } else {
             image_user.setImageResource(R.drawable.user_icon);
         }
@@ -673,9 +687,19 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
                 MySharedPreference.getInstance(mContext).setUserDetail(model);
                 MySharedPreference.getInstance(mContext).setUser_img(obj.optString("image"));
                 //  userImageCallback.userImage(obj.optString("Image"));
-                MainActivity.circularIVNav.setImageBitmap(compressedBitmap);
+                //MainActivity.circularIVNav.setImageBitmap(compressedBitmap);
                 MainActivity.username_header.setText(et_name.getText().toString());
                 Toast.makeText(mContext, "" + obj.optString("message"), Toast.LENGTH_SHORT).show();
+
+                userImageBase64 = MySharedPreference.getInstance(mContext).getUser_img();
+                if (userImageBase64 != "") {
+                    byte[] decodedString = Base64.decode(userImageBase64, Base64.DEFAULT);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    MainActivity.circularIVNav.setImageBitmap(decodedByte);
+
+                } else {
+                    MainActivity.circularIVNav.setImageResource(R.drawable.user_icon);
+                }
             }
 
         }

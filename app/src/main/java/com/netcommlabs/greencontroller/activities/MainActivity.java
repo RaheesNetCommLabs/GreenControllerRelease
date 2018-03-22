@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -28,6 +30,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -55,6 +58,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
+import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Fragments.FragAddEditAddress;
 import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.FragDashboardPebbleHome;
@@ -73,17 +77,17 @@ import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
 import com.netcommlabs.greencontroller.utilities.CommonUtilities;
-import com.netcommlabs.greencontroller.utilities.InternetAvailability;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 import com.netcommlabs.greencontroller.utilities.RowDataArrays;
 import com.netcommlabs.greencontroller.utilities.TelephonyInfo;
-import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,25 +109,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public LinearLayout llSearchMapOKTop;
     public RelativeLayout rlHamburgerNdFamily;
     public int frm_lyt_container_int;
-    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
     private static final int REQUEST_CODE_ENABLE = 1;
-
     private BluetoothAdapter mBluetoothAdapter;
-    private static final int REQUEST_CODE = 1001;
-    private ProgressDialog progressDoalog;
-    private Location mLastLocation = null;
-    private String usersAddress = null;
     public TextView tvToolbar_title, tvDesc_txt, tvClearEditData;
     private boolean exit = false;
-    //private Fragment myFragment;
-    private String dvcMacAddress;
     public EditText etSearchMapTop;
     public Button btnMapDone, btnMapBack;
     private Fragment currentFragment;
     private String tagCurrFrag;
     private LinearLayout llHamburgerIconOnly;
     private DatabaseHandler databaseHandler;
-    //public TextView tvAddNewAddress;
     public LinearLayout llAddNewAddress;
     public static ImageView circularIVNav;
     private LinearLayout nav_header;
@@ -141,15 +136,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private String addressUserFriendly = "", city = "", area = "";
     private boolean checkNetStatus = false;
     FragMyProfile fragMyProfile;
+    private String userImageBase64;
+    public static final int TAG_NO_NET_CONNECTION = 1000000000;
+    private Date date;
+    private long greenDataSendLastLongDT;
+    private long greenDataSendImmediateLongDT;
 
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mContext = this;
         findLocalViews();
-        initBase();
-        initListeners();
+        checkNetConnectionAndTakeStep();
+    }
+
+    public void checkNetConnectionAndTakeStep() {
+        if (NetworkUtils.isConnected(mContext)) {
+            initBase();
+            initListeners();
+        } else {
+            ErroScreenDialog.showErroScreenDialog(mContext, "Kindly check your net connection!", TAG_NO_NET_CONNECTION);
+        }
+
     }
 
     private void findLocalViews() {
@@ -173,29 +184,48 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         circularIVNav = (ImageView) findViewById(R.id.circularIVNav);
         llAddNewAddress = findViewById(R.id.llAddNewAddress);
 
-        if (MySharedPreference.getInstance(MainActivity.this).getUser_img() != "") {
-            Picasso
-                    .with(MainActivity.this)
-                    .load(MySharedPreference.getInstance(MainActivity.this).getUser_img()).skipMemoryCache().placeholder(R.drawable.user_profile_icon)
-                    .into(circularIVNav);
+    }
+
+    //@RequiresApi(api = Build.VERSION_CODES.ECLAIR)
+    private void initBase() {
+        setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
+        //See SQLite Schema on Chrome browser
+        Stetho.initializeWithDefaults(mContext);
+        databaseHandler = DatabaseHandler.getInstance(mContext);
+        date = new Date();
+        //Checking Marshmallow
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkPermission();
+        } else {
+            startBTWork();
+        }
+
+        userImageBase64 = MySharedPreference.getInstance(MainActivity.this).getUser_img();
+        if (userImageBase64 != "") {
+            byte[] decodedString = Base64.decode(userImageBase64, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            circularIVNav.setImageBitmap(decodedByte);
         } else {
             circularIVNav.setImageResource(R.drawable.user_icon);
         }
-        //Picasso.with(mContext).setLoggingEnabled(true);
-        setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        nav_revi_slider.setLayoutManager(layoutManager);
+
+        listNavDrawerRowDat = new ArrayList<>();
+        for (int i = 0; i < new RowDataArrays().flatIconArray.length; i++) {
+            listNavDrawerRowDat.add(new Navigation_Drawer_Data(
+                    new RowDataArrays().flatIconArray[i],
+                    new RowDataArrays().labelArray[i]
+
+            ));
+        }
+        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout, this));
+
+        //Adding first Fragment(FragDashboardPebbleHome)
+        MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }
 
-    /* @Override public void onResume() {
-         super.onResume();
-         //lock screen to portrait
-         MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-     }
-
-     @Override public void onPause() {
-         super.onPause();
-         //set rotation to sensor dependent
-         MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-     }*/
     public void setupUIForSoftkeyboardHide(View view) {
         // Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
@@ -215,67 +245,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
-    private void initBase() {
-        mContext = this;
-        Stetho.initializeWithDefaults(mContext);
-/*<<<<<<< HEAD
-        DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
-        List<ModalBLEDevice> listBLEDvcFromDB = databaseHandler.getAllAddressNdDeviceMapping();
-        if (listBLEDvcFromDB != null && listBLEDvcFromDB.size() > 0) {
-            dvcMacAddress = listBLEDvcFromDB.get(0).getDvcMacAddrs();
-            myFragment = new Fragment();
-            BLEAppLevel.getInstance(mContext, myFragment, dvcMacAddress);
-=======*/
-        databaseHandler = DatabaseHandler.getInstance(mContext);
-        //    databaseHandler.createActiveUser();
-
-
-     /*   List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap(0);
-=======
-        List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap("");
->>>>>>> 9bf5698b060d935659284bafe1b6462fb0803ed1
-        if (listAllDevices.size() > 0) {
-            dvcMacAddress = listAllDevices.get(0).getDvcMacAddress();
-            //myFragment = new Fragment();
-            BLEAppLevel.getInstance(mContext, null, dvcMacAddress);
-//>>>>>>> d13132fa322c99ecac00fb3cd9d9bb83c28d4339
-        }*/
-        //Checking Marshmallow
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkPermission();
-        } else {
-            if (NetworkUtils.isConnected(this)) {
-                //Bluetooth work starts
-                startBTWork();
-                getIMEIRunAsync();
-                gettingLocationWithProgressBar();
-
-            } /*else {
-                AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-            }*/
-        }
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        nav_revi_slider.setLayoutManager(layoutManager);
-
-        listNavDrawerRowDat = new ArrayList<>();
-        for (int i = 0; i < new RowDataArrays().flatIconArray.length; i++) {
-            listNavDrawerRowDat.add(new Navigation_Drawer_Data(
-                    new RowDataArrays().flatIconArray[i],
-                    new RowDataArrays().labelArray[i]
-
-            ));
-        }
-        nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout, this));
-        //MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
-
-        //Adding first Fragment(FragDashboardPebbleHome)
-        MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
-
-
-    }
-
 
     public boolean checkGooglePlayServiceAvailability(Context context) {
         int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
@@ -298,27 +267,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION)/* + ContextCompat
-                .checkSelfPermission(mContext,
-                        Manifest.permission.CAMERA) */ + ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
+                Manifest.permission.ACCESS_FINE_LOCATION) + ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(mContext,
-                    new String[]{Manifest.permission
-                            .ACCESS_FINE_LOCATION, /*Manifest.permission.CAMERA,*/ Manifest.permission.READ_PHONE_STATE},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE},
                     PERMISSIONS_MULTIPLE_REQUEST);
         } else {
-            //Toast.makeText(mContext, "All permissions already granted", Toast.LENGTH_SHORT).show();
-            if (NetworkUtils.isConnected(this)) {
-                //Bluetooth work starts
-                startBTWork();
-            /*    getIMEIRunAsync();
-                gettingLocationWithProgressBar();*/
-                //  hitApiForSaveLocation();
-            } else {
-                //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-            }
-
+            startBTWork();
         }
     }
 
@@ -334,15 +290,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     //   boolean cameraPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     boolean phoneReadState = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (fineLocation /*&& cameraPermission */ && phoneReadState) {
-                        //Toast.makeText(mContext, "Thanks for granting permissions", Toast.LENGTH_SHORT).show();
-                        if (NetworkUtils.isConnected(this)) {
-                            //Bluetooth work starts
-                            startBTWork();
-                          /*  gettingLocationWithProgressBar();
-                            getIMEIRunAsync();*/
-                        } else {
-                            //AppAlertDialog.showDialogAndExitApp(this, "Internet", "You are not Connected to internet");
-                        }
+                        startBTWork();
                     } else {
                         Toast.makeText(mContext, "App needs all permissions to be granted", Toast.LENGTH_LONG).show();
                         mContext.finish();
@@ -370,34 +318,67 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    /****************************hit Api for location**********************************/
-
-    private void hitApiForSaveLocation() {
-
-        try {
-            request = new ProjectWebRequest(this, getParam(), UrlConstants.SAVE_IMEI, this, UrlConstants.SAVE_IMEI_TAG);
-            request.execute();
-        } catch (Exception e) {
-            clearRef();
-            e.printStackTrace();
+    private void hitAPI(int TAG_API) {
+/****************************hit Api for location**********************************/
+        if (TAG_API == UrlConstants.SAVE_IMEI_TAG) {
+            try {
+                request = new ProjectWebRequest(this, getParam(TAG_API), UrlConstants.SAVE_IMEI, this, UrlConstants.SAVE_IMEI_TAG);
+                request.execute();
+            } catch (Exception e) {
+                clearRef();
+                e.printStackTrace();
+            }
+        } else if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
+            try {
+                request = new ProjectWebRequest(this, getParam(TAG_API), UrlConstants.URL_LOG_MD_SEND, this, UrlConstants.TAG_LOG_MD_SEND);
+                request.execute();
+            } catch (Exception e) {
+                clearRef();
+                e.printStackTrace();
+            }
         }
     }
 
-    private JSONObject getParam() {
+    private JSONObject getParam(int TAG_API) {
         JSONObject object = null;
-        try {
-            object = new JSONObject();
-            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-            object.put("user_id", preference.getUser_id());
-            object.put("imei_primary", imeiSIM1);
-            object.put("imei_secondary", imeiSIM2);
-            if (addressUserFriendly == "") {
-                object.put("location", "");
-            } else {
-                object.put("location", addressUserFriendly);
-            }
 
-        } catch (Exception e) {
+        if (TAG_API == UrlConstants.SAVE_IMEI_TAG) {
+            try {
+                object = new JSONObject();
+                object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+                object.put("user_id", preference.getUser_id());
+                object.put("imei_primary", imeiSIM1);
+                object.put("imei_secondary", imeiSIM2);
+                if (addressUserFriendly == "") {
+                    object.put("location", "");
+                } else {
+                    object.put("location", addressUserFriendly);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
+            try {
+                object = new JSONObject();
+                ArrayList<JSONObject> listDeviceMD = databaseHandler.getListDvcMD();
+                JSONArray jsonArrayDeviceMD = new JSONArray(listDeviceMD);
+
+                ArrayList<JSONObject> listValveMD = databaseHandler.getListValveMD();
+                JSONArray jsonArrayValveMD = new JSONArray(listValveMD);
+
+                ArrayList<JSONObject> listValveSessionMD = databaseHandler.getListValveSessionMD();
+                JSONArray jsonArrayValveSessionMD = new JSONArray(listValveSessionMD);
+
+                object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+                object.put("user_id", preference.getUser_id());
+                object.put("res_type", "MD");
+                object.put("devices", jsonArrayDeviceMD);
+                object.put("devices_valves_master", jsonArrayValveMD);
+                object.put("devices_valves_session", jsonArrayValveSessionMD);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return object;
     }
@@ -406,7 +387,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.SAVE_IMEI_TAG) {
             if (call.optString("status").equals("success")) {
-                //   Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
+                greenDataSendImmediateLongDT = date.getTime();
+                greenDataSendLastLongDT = MySharedPreference.getInstance(mContext).getLastDataSendLognDT();
+                long millis = greenDataSendImmediateLongDT - greenDataSendLastLongDT;
+                long hours = (millis / (1000 * 60 * 60));
+                long mins = (millis / (1000 * 60));
+                Log.e("@@@ MIN & HOURS ", mins + " & " + hours);
+                if (hours >= 1) {
+                    hitAPI(UrlConstants.TAG_LOG_MD_SEND);
+                }
+            }
+        } else if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+            if (call.optString("status").equals("success")) {
+                greenDataSendLastLongDT = date.getTime();
+                MySharedPreference.getInstance(mContext).setLastDataSendLognDT(greenDataSendLastLongDT);
+                Log.e("@@@ SYNC DATA STATUS ", "SUCCESS FROM MainActivity");
+
+                databaseHandler.setOPtoZeroAllMDTables();
             }
         }
 
@@ -414,14 +411,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onFailure(int tag, String error, int Tag, String erroMsg) {
-        /*if(Tag==UrlConstants.SAVE_IMEI_TAG){
-            ErroScreenDialog.showErroScreenDialog(this,tag, erroMsg, this);
-        }*/
+        Log.e("@@@ TIMEOUT ERROR", erroMsg);
+
+        clearRef();
+        if (Tag == UrlConstants.SAVE_IMEI_TAG) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
+        if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        }
     }
 
     @Override
     public void doRetryNow(int Tag) {
-
+        clearRef();
+        if (Tag == UrlConstants.SAVE_IMEI_TAG) {
+            hitAPI(Tag);
+        } else if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+            hitAPI(Tag);
+        }
     }
 
     /***************************************************************************************/
@@ -456,62 +464,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-
-    /*private String getDeviceID(TelephonyManager telephonyManager) {
-        String id = telephonyManager.getDeviceId(0);
-        String id2=telephonyManager.getDeviceId(1);
-
-
-
-     // String imsi=telephonyManager.getSubscriberId().toString();
-        if (id == null){
-            id = "not available";
-        }
-
-        int phoneType = telephonyManager.getPhoneType();
-        switch(phoneType){
-            case TelephonyManager.PHONE_TYPE_NONE:
-                return "NONE: " + id;
-
-            case TelephonyManager.PHONE_TYPE_GSM:
-                return "GSM: IMEI=" + id;
-
-            case TelephonyManager.PHONE_TYPE_CDMA:
-                return "CDMA: MEID/ESN=" + id;
-
-*//* *//**//**//**//*
-  *  for API Level 11 or above
-  *  case TelephonyManager.PHONE_TYPE_SIP:
-  *   return "SIP";
-  *//**//**//**//**//*
-
-            default:
-                return "UNKNOWN: ID=" + id;
-        }
-
-
-    }*/
-
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void startBTWork() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-            //Toast.makeText(mContext, "Device don't support Bluetooth", Toast.LENGTH_SHORT).show();
             AppAlertDialog.showDialogAndExitApp(mContext, "Bluetooth Issue", "Device does not support Bluetooth");
+            return;
         } else {
             if (mBluetoothAdapter.isEnabled()) {
-                //Now starts Location work
                 getIMEIRunAsync();
                 gettingLocationWithProgressBar();
-                //startDvcDiscovery();
-                //Toast.makeText(mContext, "Bluetooth is enabled", Toast.LENGTH_SHORT).show();
                 return;
             }
             Intent intentBTEnableRqst = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intentBTEnableRqst, REQUEST_CODE_ENABLE);
         }
     }
-
 
     private void initListeners() {
         llHamburgerIconOnly.setOnClickListener(new View.OnClickListener() {
@@ -531,7 +499,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 //Now starts Location work
                 getIMEIRunAsync();
                 gettingLocationWithProgressBar();
-                //Toast.makeText(mContext, "Bluetooth is enabled...", Toast.LENGTH_SHORT).show();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(mContext, "Bluetooth enabling is mandatory", Toast.LENGTH_SHORT).show();
                 finish();
@@ -575,42 +542,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 
     public void setOtpForMobile(String mobNum) {
-        //MySharedPreference.getInstance(mContext).setLandedOTPScreenFrom("My Profile");
-
-        //String tag = getActiveFragment();
-        //Fragment parentFragment = getSupportFragmentManager().findFragmentByTag(tag);
-        //if (tag.equals("My Profile")) {
         Intent i = new Intent(MainActivity.this, ActvityOtp.class);
         i.putExtra("userId", "");
         i.putExtra(KEY_LANDED_FROM, "My Profile");
         i.putExtra(KEY_MOBILE_NUM, mobNum);
-        //ActvityOtp.getTagData("My Profile", s);
-        // i.putExtra("Tag",ActvityOtp.getTagData("My Profile"));
         startActivity(i);
-
-        //}
     }
-
-    public String getActiveFragment() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            return null;
-        }
-        String tag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName();
-        return tag;
-    }
-
-    public void CallBackForProfile() {
-        Fragment fragment = new FragMyProfile();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.frm_lyt_container, fragment)
-                .commit();
-        // MyFragmentTransactions.replaceFragment(MainActivity.this, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
-
-        return;
-
-    }
-
 
     public void startGettingLocation() {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -624,7 +561,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         @Override
         public void onLocationChanged(Location location) {
             myLocation = location;
-
             Log.v("@LOCCHANGED", "YES");
         }
     };
@@ -650,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });
     }
 
-    private String latLongToAddress(double lat, double lng) {
+    private void latLongToAddress(double lat, double lng) {
         myLatitude = lat;
         myLongitude = lng;
         Geocoder geocoder;
@@ -662,24 +598,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             city = addresses.get(0).getLocality();
             area = addresses.get(0).getSubLocality();
             addressUserFriendly = area + " " + city;
-            //  Toast.makeText(mContext, "" + addressUserFriendly, Toast.LENGTH_SHORT).show();
-            hitApiForSaveLocation();
         } catch (Exception e) {
-            //  new CustomProgressDialog(MainActivity.this, e, "No Location Found", "Please check internet stability or move to different place and retry").show();
-            //mGoogleApiClient.disconnect();
-            hitApiForSaveLocation();
-
             e.printStackTrace();
-            //Toast.makeText(this, "Something went wrong, location not found", Toast.LENGTH_SHORT).show();
-        } finally {
-           /* if (proDialog.isShowing()) {
-                proDialog.dismiss();
-            }*/
         }
-        return addressUserFriendly;
-
+        hitAPI(UrlConstants.SAVE_IMEI_TAG);
     }
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -703,11 +626,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void checkResolutionAndProceed() {
-        checkNetStatus = InternetAvailability.getInstance(this).isOnline();
-        if (!checkNetStatus) {
-            Toast.makeText(this, "Kindly check your network connectivity", Toast.LENGTH_SHORT).show();
-            return;
-        }
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
         PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
@@ -729,12 +647,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
     }
-
-    /* public void CallBackForProfile() {
-         MyFragmentTransactions.replaceFragment(mContext, new FragMyProfile(), Constant.MY_PROFILE, frm_lyt_container_int, true);
-     }
- */
-
 
     @Override
     public void onBackPressed() {
@@ -896,4 +808,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }*/
     }
 
+    public void syncUnsyncDataAndClearAll() {
+        if (NetworkUtils.isConnected(mContext)) {
+            hitAPI(UrlConstants.TAG_LOG_MD_SEND);
+        } else {
+
+        }
+    }
 }

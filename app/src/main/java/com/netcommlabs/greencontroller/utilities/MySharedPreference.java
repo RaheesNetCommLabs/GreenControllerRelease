@@ -12,6 +12,7 @@ import com.netcommlabs.greencontroller.model.PreferenceModel;
 
 public class MySharedPreference {
 
+    private static final String KEY_LAST_DATA_SEND_LONG_DT = "dataSendLongDT";
     private static MySharedPreference object;
     public static final String MyPREFERENCES = "greenContrllerPrefs";
     private SharedPreferences sharedpreferences;
@@ -166,5 +167,15 @@ public class MySharedPreference {
 
     public String getDvcNameFromDvcDetails() {
         return sharedpreferences.getString(KEY_DVC_NAME, null);
+    }
+
+    public void setLastDataSendLognDT(long greenDataSendLastLongDT) {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putLong(KEY_LAST_DATA_SEND_LONG_DT, greenDataSendLastLongDT);
+        editor.commit();
+    }
+
+    public long getLastDataSendLognDT() {
+        return sharedpreferences.getLong(KEY_LAST_DATA_SEND_LONG_DT, 0);
     }
 }

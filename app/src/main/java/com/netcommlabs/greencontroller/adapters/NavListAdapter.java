@@ -121,7 +121,21 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), Constant.FAQ, mContext.frm_lyt_container_int, false);
                             break;
                         case "Log out":
-                            //Replacing Fragment(FragAddAddress)
+
+                            if (databaseHandler.getDvcMasterOpTypeCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            } else if (databaseHandler.getValveMasterOpTypeCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            } else if (databaseHandler.getValveSesnMasterOpTypeCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            } else if (databaseHandler.getDvcLogRowsCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            } else if (databaseHandler.getValveLogRowsCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            } else if (databaseHandler.getValveSesnLogRowsCount() > 0) {
+                                mContext.syncUnsyncDataAndClearAll();
+                            }
+
                             MySharedPreference.getInstance(mContext).clearAll();
                             Toast.makeText(mContext, "Logout successfully", Toast.LENGTH_SHORT).show();
                             mContext.startActivity(new Intent(mContext, LoginAct.class));

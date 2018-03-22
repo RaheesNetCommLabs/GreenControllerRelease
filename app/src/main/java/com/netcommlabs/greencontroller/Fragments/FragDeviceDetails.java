@@ -42,38 +42,27 @@ public class FragDeviceDetails extends Fragment {
 
     private MainActivity mContext;
     private View view;
-    private static final int REQUEST_CODE_SESN_PLAN = 201;
-    public static final int RESULT_CODE_VALVE_INDB = 202;
     private RecyclerView reviValvesList;
-    private ArrayList<MdlValveNameStateNdSelect> listMdlValveNameStateNdSelect;
-    //public static ArrayList<MdlValveNameStateNdSelect> listModalValveProperties = new ArrayList<>();
-    private LinearLayout /*llScrnHeader,*/ llNoSesnPlan, llSesnPlanDetails, llControllerNameEdit, llControllerNameSave;
+    private LinearLayout llNoSesnPlan, llSesnPlanDetails;
     private LinearLayout llEditValve, llStopValve, llPausePlayValve, llFlushValve, llHelpValve;
     private TextView tvDeviceName, tvDesc_txt, tvAddNewSesnPlan;
     private DatabaseHandler databaseHandler;
     private ArrayList<ModalValveSessionData> listValveSessionData;
-    public static final String EXTRA_ADDRESS_ID = "address_id";
     public static final String EXTRA_DVC_ID = "dvc_id";
     public static final String EXTRA_DVC_NAME = "dvc_name";
     public static final String EXTRA_DVC_MAC = "dvc_mac";
     public static final String EXTRA_DVC_VALVE_COUNT = "dvc_count";
     private String dvcName;
     private String dvcMacAdd, dvcUUID;
-    private int dvcValveCount, addressID;
+    private int dvcValveCount;
     private String valveConctName, clickedValveName;
     private TextView tvSunFirst, tvSunSecond, tvSunThird, tvSunFourth, tvMonFirst, tvMonSecond, tvMonThird, tvMonFourth, tvTueFirst, tvTueSecond, tvTueThird, tvTueFourth, tvWedFirst, tvWedSecond, tvWedThird, tvWedFourth, tvThuFirst, tvThuSecond, tvThuThird, tvThuFourth, tvFriFirst, tvFriSecond, tvFriThird, tvFriFourth, tvSatFirst, tvSatSecond, tvSatThird, tvSatFourth;
     private TextView tvDischargePnts, tvDuration, tvQuantity, tvPauseText;
-    private ArrayList<Integer> listTimePntsSun, listTimePntsMon, listTimePntsTue, listTimePntsWed, listTimePntsThu, listTimePntsFri, listTimePntsSat;
-    private BleAdapterService bluetooth_le_adapter;
-    private boolean back_requested = false;
-    private int position = 0;
     private String currentPlPsCmdName = "";
     private String titleDynamicAddEdit;
     private ValvesListAdapter valveListAdp;
-    private boolean isValveSelected = true;
     BLEAppLevel bleAppLevel;
     private Fragment myRequestedFrag;
-    private ModalValveMaster modalBLEValve;
     private List<ModalValveMaster> listValveMaster;
     private int scrlToSelectedPosi;
     private String clickedVlvUUID = "";
@@ -157,7 +146,6 @@ public class FragDeviceDetails extends Fragment {
         databaseHandler = DatabaseHandler.getInstance(mContext);
         //Getting sent Bundle
         Bundle bundle = getArguments();
-        //addressID = bundle.getInt(EXTRA_ADDRESS_ID);
         dvcUUID = bundle.getString(EXTRA_DVC_ID);
         dvcName = bundle.getString(EXTRA_DVC_NAME);
         dvcMacAdd = bundle.getString(EXTRA_DVC_MAC);
@@ -174,9 +162,6 @@ public class FragDeviceDetails extends Fragment {
         } else {
             tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
         }
-        /*dvcName = "PEBBLE";
-        dvcMacAdd = "98:4F:EE:10:87:66";
-        dvcValveCount = 8;*/
         databaseHandler = DatabaseHandler.getInstance(mContext);
         //List<ModalValveMaster> listValveMaster = databaseHandler.getAllValvesNdData();
         listValveMaster = databaseHandler.getValveMaster(dvcUUID);
@@ -199,68 +184,8 @@ public class FragDeviceDetails extends Fragment {
             //list(Table) Valve Master contains data
             initValveListAdapter();
         }
-            /*else {
-            for (ModalValveMaster modalBLEValve : listValveMaster) {
-                if (modalBLEValve.getDvcMacAddrs().equalsIgnoreCase(dvcMacAdd)) {
-                    //List for Valve RecyclerView to show valves
-                    initValveListAdapter();
-                    //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
-                    break;
-                } else {
-                    for (int i = 1; i <= dvcValveCount; i++) {
-                        valveConctName = "Valve " + i;
-                        //Birth of valves one after one
-                        if (valveConctName.equals("Valve 1")) {
-                            //On birth first valve would be selected
-                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "TRUE", "STOP", "FALSE"));
-                        } else {
-                            databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "FALSE", "STOP", "FALSE"));
-                        }
-                    }
-                    initValveListAdapter();
-                    //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
-                    break;
-                }
-            }
-        }*/
+
     }
-
-       /* if (FragDeviceDetails.listModalValveProperties != null && FragDeviceDetails.listModalValveProperties.size() > 0) {
-            LinearLayoutManager gridLayoutManager = new LinearLayoutManager(mContext);
-            reviValvesList.setLayoutManager(gridLayoutManager);
-            valveListAdp = new ValvesListAdapter(mContext, FragDeviceDetails.this, dvcMacAdd, position);
-            reviValvesList.setAdapter(valveListAdp);
-        } else {*/
-    //initValveListAdapter();
-    //}
-
-
-    //databasHandler.deleteAllRecordFromTable();
-    //listDataTransferModels = databasHandler.getListDataTM();
-
-       /* if (listDataTransferModels != null && listDataTransferModels.size() > 0) {
-            llNoSesnPlan.setVisibility(View.GONE);
-            llSesnPlanDetails.setVisibility(View.VISIBLE);
-        } else {
-            llNoSesnPlan.setVisibility(View.VISIBLE);
-            llSesnPlanDetails.setVisibility(View.GONE);
-        }*/
-    //modalBLEValve = databaseHandler.getValveSessionData(dvcMacAdd, clickedValveName);
-    //if (modalBLEValve != null) {
-       /* String valveOpTpSPP = listValveMaster.get(scrlToSelectedPosi).getValveOpTpSPP();
-        if (valveOpTpSPP.equals("STOP")) {
-            llNoSesnPlan.setVisibility(View.VISIBLE);
-            llSesnPlanDetails.setVisibility(View.GONE);
-        } else {
-            llNoSesnPlan.setVisibility(View.GONE);
-            llSesnPlanDetails.setVisibility(View.VISIBLE);
-            checkValveDataUpdtUIFrmDB();
-        }*/
-
-    //}
-
-    //initController();
-
 
     private void initListeners() {
         tvAddNewSesnPlan.setOnClickListener(new View.OnClickListener() {
@@ -360,9 +285,6 @@ public class FragDeviceDetails extends Fragment {
         //Getting selected valve on page load
         for (int i = 0; i < listValveMaster.size(); i++) {
             if (listValveMaster.get(i).getValveSelectStatus() == 1) {
-                //clickedValveName = listValveMaster.get(i).getValveName();
-                //clickedVlvUUID = listValveMaster.get(i).getValveUUID();
-                //valveOpTpSPP = listValveMaster.get(i).getValveOpTpSPP();
                 scrlToSelectedPosi = i;
                 break;
             }
@@ -398,21 +320,7 @@ public class FragDeviceDetails extends Fragment {
         }
     }
 
-   /* private void checkValveDataUpdtUIFrmDB() {
-        if (modalBLEValve != null && modalBLEValve.getListValveData() != null && modalBLEValve.getListValveData().size() > 0) {
-            llNoSesnPlan.setVisibility(View.GONE);
-            setValveAndItsSesnDataToUI();
-        } else {
-            llNoSesnPlan.setVisibility(View.VISIBLE);
-            llSesnPlanDetails.setVisibility(View.GONE);
-        }
-    }*/
-
     private void setValveAndItsSesnDataToUI() {
-        //llSesnPlanDetails.setVisibility(View.VISIBLE);
-        //initListeners();
-        //String valveOpTpSPP = modalBLEValve.getValveOpTpSPP();
-        //String flushStatus = modalBLEValve.getFlushStatus();
         //PLAY-PAUSE & FLUSH effect for valve load on UI
         if (valveOpTpSPP.equals("PLAY")) {
             tvPauseText.setText("Pause");
@@ -428,19 +336,6 @@ public class FragDeviceDetails extends Fragment {
         }
         setTimePntsVisibilityGONE();
         listValveSessionData = databaseHandler.getValveSessionData(clickedVlvUUID);
-        //listValveSessionData = modalBLEValve.getListValveData();
-        /*if (listValveSessionData == null || listValveSessionData.size() == 0) {
-            return;
-        }*/
-
-        //ModalValveSessionData modalValveSessionData;
-       /* listTimePntsSun = new ArrayList<>();
-        listTimePntsMon = new ArrayList<>();
-        listTimePntsTue = new ArrayList<>();
-        listTimePntsWed = new ArrayList<>();
-        listTimePntsThu = new ArrayList<>();
-        listTimePntsFri = new ArrayList<>();
-        listTimePntsSat = new ArrayList<>();*/
         int dischargePnts = 0, duration = 0, quantity = 0;
 
         for (int i = 0; i < listValveSessionData.size(); i++) {
@@ -584,398 +479,7 @@ public class FragDeviceDetails extends Fragment {
                     tvSatFourth.setText(mvsd.getSatTP());
                 }
             }
-
-           /* dischargePnts = modalValveSessionData.getDischarge();
-            duration = modalValveSessionData.getDuration();
-            if (dischargePnts != 0) {
-                quantity = modalValveSessionData.getQty() / dischargePnts;
-            } else {
-                quantity = modalValveSessionData.getQty();
-            }
-
-            //For Sunday
-            if (modalValveSessionData.getDayOfWeek() == 1) {
-                listTimePntsSun.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 2) {
-                listTimePntsMon.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 3) {
-                listTimePntsTue.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 4) {
-                listTimePntsWed.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 5) {
-                listTimePntsThu.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 6) {
-                listTimePntsFri.add(modalValveSessionData.getHourOfDay());
-            }
-            if (modalValveSessionData.getDayOfWeek() == 7) {
-                listTimePntsSat.add(modalValveSessionData.getHourOfDay());
-            }
-
         }
-
-        tvDischargePnts.setText(dischargePnts + " Unit");
-        tvDuration.setText(duration + " Min");
-        tvQuantity.setText(quantity + " ML");
-        String timePntsUserFriendly = "";
-
-       *//* if (llEditValve.getVisibility() != View.VISIBLE) {
-            llEditValve.setVisibility(View.VISIBLE);
-            llStopValve.setVisibility(View.VISIBLE);
-            llPausePlayValve.setVisibility(View.VISIBLE);
-            llFlushValve.setVisibility(View.VISIBLE);
-            llHelpValve.setVisibility(View.VISIBLE);
-        }*//*
-
-        if (listTimePntsSun.size() > 0) {
-            for (int i = 0; i < listTimePntsSun.size(); i++) {
-
-                if (tvSunFirst.getVisibility() != View.VISIBLE) {
-                    tvSunFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSun.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSunFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSunSecond.getVisibility() != View.VISIBLE) {
-                    tvSunSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSun.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSunSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSunThird.getVisibility() != View.VISIBLE) {
-                    tvSunThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSun.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSunThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSunFourth.getVisibility() != View.VISIBLE) {
-                    tvSunFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSun.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSunFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsMon.size() > 0) {
-            for (int i = 0; i < listTimePntsMon.size(); i++) {
-                if (tvMonFirst.getVisibility() != View.VISIBLE) {
-                    tvMonFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsMon.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvMonFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvMonSecond.getVisibility() != View.VISIBLE) {
-                    tvMonSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsMon.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvMonSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvMonThird.getVisibility() != View.VISIBLE) {
-                    tvMonThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsMon.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvMonThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvMonFourth.getVisibility() != View.VISIBLE) {
-                    tvMonFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsMon.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvMonFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsTue.size() > 0) {
-            for (int i = 0; i < listTimePntsTue.size(); i++) {
-                if (tvTueFirst.getVisibility() != View.VISIBLE) {
-                    tvTueFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsTue.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvTueFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvTueSecond.getVisibility() != View.VISIBLE) {
-                    tvTueSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsTue.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvTueSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvTueThird.getVisibility() != View.VISIBLE) {
-                    tvTueThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsTue.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvTueThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvTueFourth.getVisibility() != View.VISIBLE) {
-                    tvTueFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsTue.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvTueFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsWed.size() > 0) {
-            for (int i = 0; i < listTimePntsWed.size(); i++) {
-                if (tvWedFirst.getVisibility() != View.VISIBLE) {
-                    tvWedFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsWed.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvWedFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvWedSecond.getVisibility() != View.VISIBLE) {
-                    tvWedSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsWed.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvWedSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvWedThird.getVisibility() != View.VISIBLE) {
-                    tvWedThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsWed.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvWedThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvWedFourth.getVisibility() != View.VISIBLE) {
-                    tvWedFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsWed.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvWedFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsThu.size() > 0) {
-            for (int i = 0; i < listTimePntsThu.size(); i++) {
-                if (tvThuFirst.getVisibility() != View.VISIBLE) {
-                    tvThuFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsThu.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvThuFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvThuSecond.getVisibility() != View.VISIBLE) {
-                    tvThuSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsThu.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvThuSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvThuThird.getVisibility() != View.VISIBLE) {
-                    tvThuThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsThu.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvThuThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvThuFourth.getVisibility() != View.VISIBLE) {
-                    tvThuFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsThu.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvThuFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsFri.size() > 0) {
-            for (int i = 0; i < listTimePntsFri.size(); i++) {
-                if (tvFriFirst.getVisibility() != View.VISIBLE) {
-                    tvFriFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsFri.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvFriFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvFriSecond.getVisibility() != View.VISIBLE) {
-                    tvFriSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsFri.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvFriSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvFriThird.getVisibility() != View.VISIBLE) {
-                    tvFriThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsFri.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvFriThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvFriFourth.getVisibility() != View.VISIBLE) {
-                    tvFriFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsFri.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvFriFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }
-        }
-
-        if (listTimePntsSat.size() > 0) {
-            for (int i = 0; i < listTimePntsSat.size(); i++) {
-                if (tvSatFirst.getVisibility() != View.VISIBLE) {
-                    tvSatFirst.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSat.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSatFirst.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSatSecond.getVisibility() != View.VISIBLE) {
-                    tvSatSecond.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSat.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSatSecond.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSatThird.getVisibility() != View.VISIBLE) {
-                    tvSatThird.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSat.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSatThird.setText(timePntsUserFriendly);
-                    continue;
-                }
-                if (tvSatFourth.getVisibility() != View.VISIBLE) {
-                    tvSatFourth.setVisibility(View.VISIBLE);
-                    String timePntString = listTimePntsSat.get(i).toString();
-                    if (timePntString.length() == 1) {
-                        timePntsUserFriendly = "0" + timePntString + ":00";
-                    } else {
-                        timePntsUserFriendly = timePntString + ":00";
-                    }
-                    tvSatFourth.setText(timePntsUserFriendly);
-                    continue;
-                }
-            }*/
-        }
-
-
     }
 
     private void setTimePntsVisibilityGONE() {
@@ -1014,150 +518,6 @@ public class FragDeviceDetails extends Fragment {
         tvSatThird.setVisibility(View.GONE);
         tvSatFourth.setVisibility(View.GONE);
     }
-
-    /*private void dialogSTOPConfirm() {
-        String title, msg;
-        title = "Stop Valve";
-        msg = "This will delete valve saved data";
-
-        AlertDialog.Builder builder;
-       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*//*
-        builder = new AlertDialog.Builder(mContext);
-        //}
-        builder.setTitle(title)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton("Stop", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
-                        if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                            bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "STOP");
-                        } else {
-                            Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-<<<<<<< HEAD
-                });
-               // .show();
-        AlertDialog alert = builder.create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        Window window = alert.getWindow();
-        lp.copyFrom(window.getAttributes());
-//This makes the dialog take up the full width
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setAttributes(lp);
-        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
-        alert.show();
-    }
-=======
-                })
-                .show();
-    }*/
-
-
-    /*private void dialogPAUSEConfirm() {
-        String title, msg;
-        title = "Pause Valve";
-        msg = "This will disable valve effect";
-
-        AlertDialog.Builder builder;
-       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*//*
-        builder = new AlertDialog.Builder(mContext);
-        //}
-        builder.setTitle(title)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton("Pause", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
-                        if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                            bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "PAUSE");
-                        } else {
-                            Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-<<<<<<< HEAD
-                });
-               // .show();
-        AlertDialog alert = builder.create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        Window window = alert.getWindow();
-        lp.copyFrom(window.getAttributes());
-//This makes the dialog take up the full width
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setAttributes(lp);
-        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
-        alert.show();
-    }
-=======
-                })
-                .show();
-    }*/
-
-
-    /*private void dialogPLAYConfirm() {
-        String title, msg;
-        title = "Play Valve";
-        msg = "This will enable valve effect";
-
-        AlertDialog.Builder builder;
-       *//* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {*//*
-        builder = new AlertDialog.Builder(mContext);
-        //}
-        builder.setTitle(title)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton("Play", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        BLEAppLevel bleAppLevel = BLEAppLevel.getInstanceOnly();
-                        if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
-                            bleAppLevel.cmdButtonMethod(FragDeviceDetails.this, "PLAY");
-                        } else {
-                            Toast.makeText(mContext, "BLE lost connection", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-<<<<<<< HEAD
-                });
-               // .show();
-        AlertDialog alert = builder.create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        Window window = alert.getWindow();
-        lp.copyFrom(window.getAttributes());
-//This makes the dialog take up the full width
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setAttributes(lp);
-        alert.getWindow().setBackgroundDrawableResource(R.color.theme_color);
-        alert.show();
-    }
-=======
-                })
-                .show();
-    }*/
-
 
     private void dialogPlyPosFlshOnOffStop(String title, String msg, final String positiveBtnName) {
         AlertDialog.Builder builder;
@@ -1207,8 +567,8 @@ public class FragDeviceDetails extends Fragment {
     public void cmdButtonACK(String cmdNameLocalACK) {
         if (cmdNameLocalACK.equals("STOP")) {
             if (databaseHandler.updateValveOpTpSPPStatus("", clickedVlvUUID, "STOP") == 1) {
-                //databaseHandler.selectFrmVlvSesnMasterInsertIntoLog("1");
-                if (databaseHandler.deleteStopedValveData(clickedVlvUUID) > 0) {
+                databaseHandler.selectFrmVlvSesnMasterInsertIntoLog(clickedVlvUUID);
+                if (databaseHandler.deleteValveSessionData(clickedVlvUUID) > 0) {
                     Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
                     initValveListAdapter();
                 }
@@ -1243,39 +603,11 @@ public class FragDeviceDetails extends Fragment {
         }
     }
 
-
-    /*public void clickedPassDataToParent(ModalValveMaster modalBLEValve, String clickedValveName) {
-        this.modalBLEValve = modalBLEValve;
-        this.clickedValveName = clickedValveName;
-        //this.position = position;
-        checkValveDataUpdtUIFrmDB();
-    }*/
-
-   /* private void initSTOPbtnEffectes() {
-        listValveSessionData = null;
-        if (databaseHandler.updateValveDataAndState(dvcMacAdd, clickedValveName, listValveSessionData, "STOP") == 1) {
-            llNoSesnPlan.setVisibility(View.VISIBLE);
-            llSesnPlanDetails.setVisibility(View.GONE);
-            databaseHandler.updateValveFlushStatus(dvcMacAdd, clickedValveName, "FALSE");
-            Toast.makeText(mContext, clickedValveName + " session stopped", Toast.LENGTH_LONG).show();
-
-            initValveListAdapter();*/
-    //}
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
             if (data.getExtras().getString("dataKey").equals("Success")) {
                 Toast.makeText(mContext, clickedValveName + " Session Activated", Toast.LENGTH_SHORT).show();
-
-                //setValveAndItsSesnDataToUI();
-
-                //modalBLEValve = databaseHandler.getValveSessionData(clickedVlvUUID);
-                //checkValveDataUpdtUIFrmDB();
-               /* reviValvesList = null;
-                valveListAdp = null;
-                listMdlValveNameStateNdSelect.clear();
-                listModalValveProperties.clear();*/
             } else {
                 Toast.makeText(mContext, "Load data not succeeded", Toast.LENGTH_SHORT).show();
             }

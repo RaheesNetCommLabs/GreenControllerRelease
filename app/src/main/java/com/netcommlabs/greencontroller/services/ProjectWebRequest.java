@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.constant.MessageConstants;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.utilities.AppController;
 import com.netcommlabs.greencontroller.utilities.CustomProgressDialog;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
@@ -61,7 +62,7 @@ public class ProjectWebRequest {
     synchronized public void execute() {
         if (NetworkUtils.isConnected(mContext)) {
             errorMsg = null;
-            if (Tag == 1013) {
+            if (Tag == 1013 || Tag == UrlConstants.TAG_LOG_MD_SEND) {
                 progressDialog.hideProgressBar();
             } else
                 progressDialog.showProgressBar();
@@ -74,6 +75,10 @@ public class ProjectWebRequest {
                 doPostUsingHttp();
             }
         } else {
+            //Not taking user's no internet awareness on FragAddEditSesnPlan while syncing data
+            if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+                return;
+            }
             apiResponseListener.onFailure(Tag, null, MessageConstants.NO_NETWORK_TAG, "");
             if (mContext != null)
 

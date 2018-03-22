@@ -403,9 +403,13 @@ public class FragAddEditAddress extends Fragment implements OnMapReadyCallback, 
         Toast.makeText(mContext, "Click anywhere on MAP to adjust marker", Toast.LENGTH_SHORT).show();
         //LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        marker = googleMap.addMarker(new MarkerOptions().title(placeAddress).position(placeLatLong));
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(placeLatLong).zoom(15).build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        if (placeLatLong!=null) {
+            marker = googleMap.addMarker(new MarkerOptions().title(placeAddress).position(placeLatLong));
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(placeLatLong).zoom(15).build();
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }else {
+            Toast.makeText(mContext, "Drawing marker not succeeded", Toast.LENGTH_SHORT).show();
+        }
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override

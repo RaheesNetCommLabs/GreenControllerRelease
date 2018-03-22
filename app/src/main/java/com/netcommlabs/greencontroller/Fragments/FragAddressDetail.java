@@ -2,6 +2,7 @@ package com.netcommlabs.greencontroller.Fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -44,11 +45,13 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     private ModalAddressModule modalAddressModule;
     private List<ModalAddressModule> listModalAddressModules;
     private ImageView ivAddressTypeIconAD;
-    private TextView tvAddressTypeNameAD, tvFlatNum, tvStreetArea, tvLocalityLandmark, tvPincode, tvCity, tvState;
+    private TextView tvAddressTypeNameAD, tvFlatNum, tvStreetArea, tvLocalityLandmark, tvPincode, tvCity, tvState, tv_delete;
     private EditText et_flat_num, et_street_area, et_city, et_locality_landmark, et_pincode, et_state;
     private ProjectWebRequest request;
     private PreferenceModel preference;
     private String AddressId;
+    private DatabaseHandler databaseHandler;
+    private int activeDvcCount;
 
     @Override
     public void onAttach(Context context) {
@@ -78,13 +81,13 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
         llBack = view.findViewById(R.id.llBack);
         llEditAddress = view.findViewById(R.id.llEditAddress);
         llDelete = view.findViewById(R.id.llDelete);
+        tv_delete = view.findViewById(R.id.tv_delete);
     }
 
     private void initBaseNdListeners() {
+        databaseHandler = DatabaseHandler.getInstance(mContext);
         addressUUID = getArguments().getString(ADDRESS_UUID_KEY, "");
-        //modalAddressModule = MySharedPreference.getInstance(mContext).getADDRESSID();
-        //  AddressId=MySharedPreference.getInstance(mContext).getADDRESSID();
-        listModalAddressModules = DatabaseHandler.getInstance(mContext).getAddressWithLocation(addressUUID);
+        listModalAddressModules = databaseHandler.getAddressWithLocation(addressUUID);
         modalAddressModule = listModalAddressModules.get(0);
         updateUIUsingFetchedData();
 
@@ -113,12 +116,21 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
                 //MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
-        llDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogConfirmAddressDelete();
-            }
-        });
+
+        activeDvcCount = databaseHandler.getActiveDvcsOnAddress(addressUUID);
+        if (activeDvcCount > 0) {
+            tv_delete.setTextColor(Color.parseColor("#3c7e80"));
+            llDelete.setEnabled(false);
+        } else {
+            llDelete.setEnabled(true);
+            tv_delete.setTextColor(Color.parseColor("#B7DDDB"));
+            llDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialogConfirmAddressDelete();
+                }
+            });
+        }
     }
 
     private void updateUIUsingFetchedData() {
@@ -206,11 +218,10 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
     public void onSuccess(JSONObject call, int Tag) {
         if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
             if (call.optString("status").equals("success")) {
-                //int deleteConfirm = DatabaseHandler.getInstance(mContext).deleteUpdateAddress(addressUUID);
-                //if (deleteConfirm > 0) {
-                //Toast.makeText(mContext, "Address Deleted", Toast.LENGTH_SHORT).show();
+                // Address deleted successfully response
                 Toast.makeText(mContext, "" + call.optString("message"), Toast.LENGTH_SHORT).show();
-                DatabaseHandler.getInstance(mContext).deleteUpdateAddress(addressUUID);
+                databaseHandler.deleteUpdateAddress(addressUUID);
+                //databaseHandler.deleteUpdateDevice(addressUUID);
                 mContext.onBackPressed();
             } else {
                 Toast.makeText(mContext, call.optString("message"), Toast.LENGTH_SHORT).show();

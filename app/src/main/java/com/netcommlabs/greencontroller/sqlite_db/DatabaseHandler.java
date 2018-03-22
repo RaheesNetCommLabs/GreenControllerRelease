@@ -14,8 +14,11 @@ import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.MdlValveNameStateNdSelect;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
+import com.netcommlabs.greencontroller.model.ModalDvcMD;
 import com.netcommlabs.greencontroller.model.ModalValveMaster;
 import com.netcommlabs.greencontroller.model.ModalValveSessionData;
+
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -131,7 +134,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_VALVE_SESN_LOG = "table_valve_sesn_log";
 
     //private static final String CLM_VALVE_SESN_PLN_UUID = "valve_sesn_uuid";
-    private static final String CLM_VALVE_NAME_SESN = "valve_name_sesn";
+    private static final String CLM_VALVE_SESN_NAME = "valve_name_sesn";
     private static final String CLM_VALVE_SESN_DISPOI = "valve_sesn_DP";
     private static final String CLM_VALVE_SESN_DURATION = "valve_sesn_duration";
     private static final String CLM_VALVE_SESN_QUANT = "valve_sesn_quant";
@@ -143,11 +146,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String CLM_VALVE_SESN_DAY_NUM_THU_TP = "thu_tp";
     private static final String CLM_VALVE_SESN_DAY_NUM_FRI_TP = "fri_tp";
     private static final String CLM_VALVE_SESN_DAY_NUM_SAT_TP = "sat_tp";
-    private static final String CLM_VALVE_SESN_IS_STOPPED_INT = "is_stopped_int_valve_sesn";
-    //private static final String CLM_VALVE_SESN_OP_TP_INT = "valve_sesn_op_type_int";
-
     private static final String CLM_VALVE_SESN_OP_TP_INT = "valve_sesn_op_type_int";
-    private static final String CLM_VALVE_SESN_TEMP_CREATED_DT = "valve_sesn_crted_dt";
+    private static final String CLM_VALVE_SESN_CREATED_DT = "valve_sesn_crted_dt";
 
    /* private static final String CLM_VALVE_CREATED_DT = "valve_created_at";
     private static final String CLM_VALVE_UPDATED_DT = "valve_updated_at";
@@ -210,9 +210,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_TABLE_VALVE_MASTER = "CREATE TABLE " + TABLE_VALVE_MASTER + " (" + CLM_DVC_UUID + " TEXT," + CLM_VALVE_UUID + " TEXT PRIMARY KEY," + CLM_VALVE_NAME + " TEXT," + CLM_VALVE_SELECT_STATUS + " INTEGER," + CLM_VALVE_OP_TP_SPP_STRING + " TEXT," + CLM_VALVE_OP_TP_FLASH_ON_OF_STRING + " TEXT," + CLM_VALVE_OP_TP_INT + " INTEGER," + CLM_VALVE_CREATED_DT + " TEXT," + CLM_VALVE_UPDATED_DT + " TEXT )";
         //String CREATE_TABLE_VALVE_LOG = "CREATE TABLE " + TABLE_VALVE_LOG + " (" + CLM_ADDRESS_UUID + " INTEGER," + CLM_DVC_UUID + " INTEGER," + CLM_VALVE_LOG_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + CLM_VALVE_NAME + " TEXT," + CLM_VALVE_SELECT_STATUS + " INTEGER," + CLM_VALVE_OP_TP_SPP_STRING + " TEXT," + CLM_VALVE_OP_TP_FLASH_ON_OF_STRING + " TEXT," + CLM_VALVE_OP_TP_INT + " INTEGER," + CLM_VALVE_CREATED_DT + " TEXT )";
 
-        String CREATE_TABLE_VALVE_SESN_PLN_TEMP = "CREATE TABLE " + TABLE_VALVE_SESN_TEMP + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_NAME_SESN + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER)";
-        String CREATE_TABLE_VALVE_SESN_MASTER = "CREATE TABLE " + TABLE_VALVE_SESN_MASTER + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_NAME_SESN + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_IS_STOPPED_INT + " INTEGER," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER," + CLM_VALVE_SESN_TEMP_CREATED_DT + " TEXT )";
-        String CREATE_TABLE_VALVE_SESN_LOG = "CREATE TABLE " + TABLE_VALVE_SESN_LOG + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_NAME_SESN + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER," + CLM_VALVE_SESN_TEMP_CREATED_DT + " TEXT )";
+        String CREATE_TABLE_VALVE_SESN_PLN_TEMP = "CREATE TABLE " + TABLE_VALVE_SESN_TEMP + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_SESN_NAME + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER)";
+        String CREATE_TABLE_VALVE_SESN_MASTER = "CREATE TABLE " + TABLE_VALVE_SESN_MASTER + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_SESN_NAME + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER," + CLM_VALVE_SESN_CREATED_DT + " TEXT )";
+        String CREATE_TABLE_VALVE_SESN_LOG = "CREATE TABLE " + TABLE_VALVE_SESN_LOG + " (" + CLM_VALVE_UUID + " TEXT," + CLM_VALVE_SESN_NAME + " TEXT," + CLM_VALVE_SESN_DISPOI + " INTEGER," + CLM_VALVE_SESN_DURATION + " INTEGER," + CLM_VALVE_SESN_QUANT + " INTEGER," + CLM_VALVE_SESN_SLOT_NUM + " INTEGER," + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_MON_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_WED_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_THU_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " TEXT," + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " TEXT," + CLM_VALVE_SESN_OP_TP_INT + " INTEGER," + CLM_VALVE_SESN_CREATED_DT + " TEXT )";
 
 
         db.execSQL(CREATE_TABLE_ACTIVE_USER);
@@ -421,7 +421,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.putNull(CLM_VALVE_SESN_DAY_NUM_FRI_TP);
         values.putNull(CLM_VALVE_SESN_DAY_NUM_SAT_TP);
         values.put(CLM_VALVE_SESN_OP_TP_INT, 1);
-        values.put(CLM_VALVE_SESN_TEMP_CREATED_DT, getDateTime());
+        values.put(CLM_VALVE_SESN_CREATED_DT, getDateTime());
 
         long insertedRowUniqueID = db.insert(TABLE_VALVE_SESN_LOG, null, values);
         db.close();
@@ -920,7 +920,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         ModalValveSessionData modalValveSessionData;
         ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
-        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_NAME_SESN, CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
+        Cursor myCursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_SESN_NAME, CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
                 new String[]{clickedVlvUUID}, null, null, null, null);
 
         if (myCursor != null && myCursor.moveToFirst()) {
@@ -951,7 +951,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ModalValveSessionData mvsd;
         //ArrayList<ModalValveSessionData> listModalValveSessionData = new ArrayList<>();
 
-        Cursor cursorTemp = db.query(TABLE_VALVE_SESN_TEMP, new String[]{CLM_VALVE_NAME_SESN, CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, null, null, null, null, null);
+        Cursor cursorTemp = db.query(TABLE_VALVE_SESN_TEMP, new String[]{CLM_VALVE_SESN_NAME, CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, null, null, null, null, null);
 
         if (cursorTemp != null && cursorTemp.moveToFirst()) {
             do {
@@ -960,7 +960,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 /*Cursor cursorMaster = db.query(TABLE_VALVE_SESN_TEMP, new String[]{CLM_VALVE_SESN_DISPOI, CLM_VALVE_SESN_DURATION, CLM_VALVE_SESN_QUANT, CLM_VALVE_SESN_SLOT_NUM, CLM_VALVE_SESN_DAY_NUM_SUN_TP, CLM_VALVE_SESN_DAY_NUM_MON_TP, CLM_VALVE_SESN_DAY_NUM_TUE_TP, CLM_VALVE_SESN_DAY_NUM_WED_TP, CLM_VALVE_SESN_DAY_NUM_THU_TP, CLM_VALVE_SESN_DAY_NUM_FRI_TP, CLM_VALVE_SESN_DAY_NUM_SAT_TP}, CLM_VALVE_UUID + " = ?",
                         new String[]{clickedVlvUUID}, null, null, null, null);
 */
-                Cursor cursorMaster = db.query(TABLE_VALVE_SESN_MASTER, null, CLM_VALVE_UUID + " = ? AND " + CLM_VALVE_NAME_SESN + " = ? AND " + CLM_VALVE_SESN_DISPOI + " = ? AND " + CLM_VALVE_SESN_DURATION + " = ? AND " + CLM_VALVE_SESN_QUANT + " = ? AND " + CLM_VALVE_SESN_SLOT_NUM + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_MON_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_WED_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_THU_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " = ? ",
+                Cursor cursorMaster = db.query(TABLE_VALVE_SESN_MASTER, null, CLM_VALVE_UUID + " = ? AND " + CLM_VALVE_SESN_NAME + " = ? AND " + CLM_VALVE_SESN_DISPOI + " = ? AND " + CLM_VALVE_SESN_DURATION + " = ? AND " + CLM_VALVE_SESN_QUANT + " = ? AND " + CLM_VALVE_SESN_SLOT_NUM + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_SUN_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_MON_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_TUE_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_WED_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_THU_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_FRI_TP + " = ? AND " + CLM_VALVE_SESN_DAY_NUM_SAT_TP + " = ? ",
                         new String[]{clickedVlvUUID, mvsd.getValveNameSession(), String.valueOf(mvsd.getSessionDP()), String.valueOf(mvsd.getSessionDuration()), String.valueOf(mvsd.getSessionQuantity()), String.valueOf(mvsd.getSesnSlotNum()), mvsd.getSunTP(), mvsd.getMonTP(), mvsd.getTueTP(), mvsd.getWedTP(), mvsd.getThuTP(), mvsd.getFriTP(), mvsd.getSatTP()}, null, null, null, null);
 
                 if (cursorMaster.getCount() == 0) {
@@ -983,7 +983,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(CLM_VALVE_UUID, valveUUID);
-        values.put(CLM_VALVE_NAME_SESN, valveName);
+        values.put(CLM_VALVE_SESN_NAME, valveName);
         values.putNull(CLM_VALVE_SESN_DISPOI);
         values.putNull(CLM_VALVE_SESN_DURATION);
         values.putNull(CLM_VALVE_SESN_QUANT);
@@ -1007,7 +1007,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(CLM_VALVE_UUID, valveUUID);
-        values.put(CLM_VALVE_NAME_SESN, valveName);
+        values.put(CLM_VALVE_SESN_NAME, valveName);
         values.put(CLM_VALVE_SESN_DISPOI, mvsd.getSessionDP());
         values.put(CLM_VALVE_SESN_DURATION, mvsd.getSessionDuration());
         values.put(CLM_VALVE_SESN_QUANT, mvsd.getSessionQuantity());
@@ -1020,7 +1020,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(CLM_VALVE_SESN_DAY_NUM_FRI_TP, mvsd.getFriTP());
         values.put(CLM_VALVE_SESN_DAY_NUM_SAT_TP, mvsd.getSatTP());
         values.put(CLM_VALVE_SESN_OP_TP_INT, 1);
-        values.put(CLM_VALVE_SESN_TEMP_CREATED_DT, getDateTime());
+        values.put(CLM_VALVE_SESN_CREATED_DT, getDateTime());
 
         long insertedRowUniqueID = db.insert(TABLE_VALVE_SESN_MASTER, null, values);
         //db.close();
@@ -1033,7 +1033,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(CLM_VALVE_UUID, clickedVlvUUID);
-        values.put(CLM_VALVE_NAME_SESN, valveName);
+        values.put(CLM_VALVE_SESN_NAME, valveName);
         values.put(CLM_VALVE_SESN_DISPOI, mvsd.getSessionDP());
         values.put(CLM_VALVE_SESN_DURATION, mvsd.getSessionDuration());
         values.put(CLM_VALVE_SESN_QUANT, mvsd.getSessionQuantity());
@@ -1046,7 +1046,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(CLM_VALVE_SESN_DAY_NUM_FRI_TP, mvsd.getFriTP());
         values.put(CLM_VALVE_SESN_DAY_NUM_SAT_TP, mvsd.getSatTP());
         values.put(CLM_VALVE_SESN_OP_TP_INT, 1);
-        values.put(CLM_VALVE_SESN_TEMP_CREATED_DT, getDateTime());
+        values.put(CLM_VALVE_SESN_CREATED_DT, getDateTime());
 
         db.insert(TABLE_VALVE_SESN_LOG, null, values);
         //long insertedRowUniqueID = db.insert(TABLE_VALVE_SESN_LOG, null, values);
@@ -1102,7 +1102,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return rowAffected;
     }
 
-    public int deleteStopedValveData(String clickedVlvUUID) {
+    public int deleteValveSessionData(String clickedVlvUUID) {
         db = this.getWritableDatabase();
         int deletedRows = db.delete(TABLE_VALVE_SESN_MASTER, CLM_VALVE_UUID + " = ?",
                 new String[]{clickedVlvUUID});
@@ -1134,9 +1134,137 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void selectFrmVlvSesnMasterInsertIntoLog(String clickedVlvUUID) {
-        String myQuery = " INSERT INTO " + TABLE_VALVE_SESN_LOG + " SELECT * FROM " + TABLE_VALVE_SESN_MASTER + " WHERE " + CLM_VALVE_SESN_DISPOI + " = " + clickedVlvUUID;
         db = this.getWritableDatabase();
-        db.rawQuery(myQuery, null);
+        ContentValues cv = new ContentValues();
+        Cursor cursor;
+        cursor = db.query(TABLE_VALVE_SESN_MASTER, null, CLM_VALVE_UUID + " = ?", new String[]{clickedVlvUUID}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                cv.put(CLM_VALVE_UUID, cursor.getString(0));
+                cv.put(CLM_VALVE_SESN_NAME, cursor.getString(1));
+                cv.put(CLM_VALVE_SESN_DISPOI, cursor.getString(2));
+                cv.put(CLM_VALVE_SESN_DURATION, cursor.getString(3));
+                cv.put(CLM_VALVE_SESN_QUANT, cursor.getString(4));
+                cv.put(CLM_VALVE_SESN_SLOT_NUM, cursor.getString(5));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_SUN_TP, cursor.getString(6));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_MON_TP, cursor.getString(7));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_TUE_TP, cursor.getString(8));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_WED_TP, cursor.getString(9));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_THU_TP, cursor.getString(10));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_FRI_TP, cursor.getString(11));
+                cv.put(CLM_VALVE_SESN_DAY_NUM_SAT_TP, cursor.getString(12));
+                cv.put(CLM_VALVE_SESN_OP_TP_INT, 3);
+                cv.put(CLM_VALVE_SESN_CREATED_DT, cursor.getString(14));
 
+                db.insert(TABLE_VALVE_SESN_LOG, null, cv);
+            } while (cursor.moveToNext());
+        }
+    }
+
+    public int getActiveDvcsOnAddress(String addressUUID) {
+        db = this.getWritableDatabase();
+        Cursor cursor;
+        cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_IS_SHOW_STATUS}, CLM_ADDRESS_UUID + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{addressUUID, "1"}, null, null, null);
+
+        return cursor.getCount();
+    }
+
+    public ArrayList<JSONObject> getListDvcMD() {
+        db = this.getWritableDatabase();
+        ArrayList<JSONObject> listModalDvcMD = new ArrayList<>();
+        Cursor cursor;
+
+        cursor = db.query(TABLE_DVC_MASTER, null, CLM_DVC_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                ModalDvcMD modalDvcMD = new ModalDvcMD(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getString(9), cursor.getInt(10), cursor.getInt(11), cursor.getString(12), cursor.getString(13));
+                listModalDvcMD.add(modalDvcMD.getJSONObjectModal());
+            } while (cursor.moveToNext());
+        }
+        return listModalDvcMD;
+    }
+
+    public ArrayList<JSONObject> getListValveMD() {
+        db = this.getWritableDatabase();
+        ArrayList<JSONObject> listModalValveMD = new ArrayList<>();
+        Cursor cursor;
+
+        cursor = db.query(TABLE_VALVE_MASTER, null, CLM_VALVE_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                ModalValveMaster modalValveMasterMD = new ModalValveMaster(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7), cursor.getString(8));
+                listModalValveMD.add(modalValveMasterMD.getJsonObjModal());
+            } while (cursor.moveToNext());
+        }
+        return listModalValveMD;
+    }
+
+    public ArrayList<JSONObject> getListValveSessionMD() {
+        db = this.getWritableDatabase();
+        ArrayList<JSONObject> listValveSessionMD = new ArrayList<>();
+        Cursor cursor;
+
+        cursor = db.query(TABLE_VALVE_SESN_MASTER, null, CLM_VALVE_SESN_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                ModalValveSessionData modalValveSessionData = new ModalValveSessionData(cursor.getString(0), cursor.getString(1), cursor.getInt(2), cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getString(9), cursor.getString(10), cursor.getString(11), cursor.getString(12), cursor.getInt(13), cursor.getString(14));
+                listValveSessionMD.add(modalValveSessionData.getJSONObjectModal());
+            } while (cursor.moveToNext());
+        }
+        return listValveSessionMD;
+    }
+
+    public void setOPtoZeroAllMDTables() {
+        db = this.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(CLM_DVC_OP_TP_INT, 0);
+        if (db.update(TABLE_DVC_MASTER, cv, null, null) > 0) {
+            cv = new ContentValues();
+            cv.put(CLM_VALVE_OP_TP_INT, 0);
+            if (db.update(TABLE_VALVE_MASTER, cv, null, null) > 0) {
+                cv = new ContentValues();
+                cv.put(CLM_VALVE_SESN_OP_TP_INT, 0);
+                if (db.update(TABLE_VALVE_SESN_MASTER, cv, null, null) > 0) {
+                    Log.e("@@@ OP TYPE ", "MD TABLES OP TY SET TO 0");
+                }
+            }
+        }
+    }
+
+    public int getDvcMasterOpTypeCount() {
+        db = this.getWritableDatabase();
+        Cursor cursor;
+        cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_OP_TP_INT}, CLM_DVC_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+
+        return cursor.getCount();
+    }
+
+    public int getValveMasterOpTypeCount() {
+        db = this.getWritableDatabase();
+        Cursor cursor;
+        cursor = db.query(TABLE_VALVE_MASTER, new String[]{CLM_VALVE_OP_TP_INT}, CLM_VALVE_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+
+        return cursor.getCount();
+    }
+
+    public int getValveSesnMasterOpTypeCount() {
+        db = this.getWritableDatabase();
+        Cursor cursor;
+        cursor = db.query(TABLE_VALVE_SESN_MASTER, new String[]{CLM_VALVE_SESN_OP_TP_INT}, CLM_VALVE_SESN_OP_TP_INT + " > ? ", new String[]{String.valueOf(0)}, null, null, null);
+
+        return cursor.getCount();
+    }
+
+    public int getDvcLogRowsCount() {
+        return 0;
+    }
+
+    public int getValveLogRowsCount() {
+        return 0;
+    }
+
+    public int getValveSesnLogRowsCount() {
+        return 0;
     }
 }
