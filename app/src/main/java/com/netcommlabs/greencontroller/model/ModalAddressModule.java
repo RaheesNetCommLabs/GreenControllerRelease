@@ -8,12 +8,24 @@ import java.io.Serializable;
 
 public class ModalAddressModule implements Serializable {
 
+    public int getIsSelectedStatus() {
+        return isSelectedStatus;
+    }
+
+    private int isSelectedStatus;
+
     public void setAddressUUID(String addressUUID) {
         this.addressUUID = addressUUID;
     }
 
     private String addressUUID;
     private int addressSelectStatus;
+
+    public int getIsShowStatus() {
+        return isShowStatus;
+    }
+
+    private int isShowStatus;
 
     public String getAddressUUID() {
         return addressUUID;
@@ -106,6 +118,31 @@ public class ModalAddressModule implements Serializable {
         this.latitudeLocation = latitudeLocation;
         this.longitudeLocation = longitudeLocation;
         //this.placeObjLatLong = placeObjLatLong;
+        this.placeWellKnownName = placeWellKnownName;
+        this.placeAddress = placeAddress;
+
+    }
+
+
+    public ModalAddressModule(String addressUUID, String flat_num,
+                              String streetName,
+                              String locality_landmark,
+                              String pinCode,
+                              String city,
+                              String state, int isShowStatus, int isSelectedStatus,String addressRadioName, double latitudeLocation, double longitudeLocation, String placeWellKnownName, String placeAddress) {
+
+        this.addressUUID = addressUUID;
+        this.flat_num = flat_num;
+        this.streetName = streetName;
+        this.locality_landmark = locality_landmark;
+        this.pinCode = pinCode;
+        this.city = city;
+        this.state = state;
+        this.isShowStatus = isShowStatus;
+        this.isSelectedStatus=isSelectedStatus;
+        this.addressRadioName = addressRadioName;
+        this.latitudeLocation = latitudeLocation;
+        this.longitudeLocation = longitudeLocation;
         this.placeWellKnownName = placeWellKnownName;
         this.placeAddress = placeAddress;
 

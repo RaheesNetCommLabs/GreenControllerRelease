@@ -4,7 +4,7 @@ package com.netcommlabs.greencontroller.constant;
  * Created by Android on 12/6/2017.
  */
 
-public class Constant {
+public class TagConstant {
 /*
     //Fragment titles
     public static final String DASHBOARD_PEBBLE_HOME="V.1.2";
@@ -19,7 +19,7 @@ public class Constant {
 
 
     //Fragment titles
-    public static final String DASHBOARD_PEBBLE_HOME = "V 1.6";
+    public static final String DASHBOARD_PEBBLE_HOME = "V 1.7";
     public static final String DO_NOT_HAVE_DEVICE = "Don't have Device";
     public static final String DEVICE_MAP = "My Devices";
     //public static final String AVAILABLE_DEVICES="Add New Device";

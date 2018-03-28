@@ -20,6 +20,7 @@ import com.netcommlabs.greencontroller.Fragments.FragDeviceMAP;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
+import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public class BLEAppLevel {
                     //we're disconnected
                     isBLEConnected = false;
                     showMsg("Device disconnected");
-                    mContext.MainActBLEgotDisconnected();
+                    mContext.MainActBLEgotDisconnected(macAddress);
                     disconnectBLECompletely();
                     break;
                 case BleAdapterService.GATT_SERVICES_DISCOVERED:
@@ -178,6 +179,13 @@ public class BLEAppLevel {
                         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy, HH:mm:ss");
                         String formattedDate = df.format(c.getTime());
                         MySharedPreference.getInstance(mContext).setLastConnectedTime(formattedDate);
+
+                        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(mContext);
+                        long entryCount = databaseHandler.entryCountInDvcMaster();
+                        if (entryCount>0) {
+                            DatabaseHandler.getInstance(mContext).updateLastConnected(macAddress,formattedDate);
+                        }
+
                         mContext.MainActBLEgotConnected();
                         //Setting current time to BLE
                         onSetTime();

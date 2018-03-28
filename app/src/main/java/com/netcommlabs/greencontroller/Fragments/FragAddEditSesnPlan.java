@@ -25,7 +25,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
@@ -33,7 +32,6 @@ import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.DataTransferModel;
 import com.netcommlabs.greencontroller.model.ModalValveSessionData;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
-import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
@@ -44,12 +42,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import static java.lang.Boolean.FALSE;
 
 /**
  * Created by Android on 12/6/2017.
@@ -1661,7 +1656,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }
 
     void saveValveDatatoDB() {
-        int numOfRowsAffected = databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 0, 0, 0);
+        int numOfRowsAffected = databaseHandler.updateSesnTimePointsTemp(0, 0, 0);
 
         if (numOfRowsAffected > 0) {
             for (int i = 0; i < listSingleValveData.size(); i++) {
@@ -1671,25 +1666,25 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
                 int dayOfWeekInt = dtm.getDayOfWeek();
                 switch (dayOfWeekInt) {
                     case 1:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 1, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(1, timePoint, timeSlot);
                         break;
                     case 2:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 2, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(2, timePoint, timeSlot);
                         break;
                     case 3:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 3, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(3, timePoint, timeSlot);
                         break;
                     case 4:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 4, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(4, timePoint, timeSlot);
                         break;
                     case 5:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 5, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(5, timePoint, timeSlot);
                         break;
                     case 6:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 6, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(6, timePoint, timeSlot);
                         break;
                     case 7:
-                        databaseHandler.updateSesnTimePointsTemp(clkdVlvUUID, 7, timePoint, timeSlot);
+                        databaseHandler.updateSesnTimePointsTemp(7, timePoint, timeSlot);
                 }
             }
             //Updating DP, Duration and Quantity separately
@@ -1713,7 +1708,7 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
 
     public void doneWrtingAllTP() {
         saveValveDatatoDB();
-        hitAPI(UrlConstants.TAG_LOG_MD_SEND);
+        hitAPI(UrlConstants.TAG_GREEN_MD_SEND);
     }
 
     private int timePointStringToInt(String timePoint) {
@@ -1734,12 +1729,20 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     }
 
     private void hitAPI(int TAG_API) {
-        if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
+        if (TAG_API == UrlConstants.TAG_GREEN_MD_SEND) {
             try {
-                request = new ProjectWebRequest(mContext, getParam(TAG_API), UrlConstants.URL_LOG_MD_SEND, this, UrlConstants.TAG_LOG_MD_SEND);
+                request = new ProjectWebRequest(mContext, getParam(TAG_API), UrlConstants.URL_GREEN_MD_SEND, this, UrlConstants.TAG_GREEN_MD_SEND);
                 request.execute();
             } catch (Exception e) {
-                //clearRef();
+                clearRef();
+                e.printStackTrace();
+            }
+        } else if (TAG_API == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
+            try {
+                request = new ProjectWebRequest(mContext, getParam(TAG_API), UrlConstants.URL_GREEN_LOG_DATA_SEND, this, UrlConstants.TAG_GREEN_LOG_DATA_SEND);
+                request.execute();
+            } catch (Exception e) {
+                clearRef();
                 e.printStackTrace();
             }
         }
@@ -1747,42 +1750,73 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
 
     private JSONObject getParam(int TAG_API) {
         JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", MySharedPreference.getInstance(mContext).getsharedPreferenceData().getUser_id());
 
-        if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
-            try {
-                object = new JSONObject();
-                ArrayList<JSONObject> listDeviceMD = databaseHandler.getListDvcMD();
-                JSONArray jsonArrayDeviceMD = new JSONArray(listDeviceMD);
+            if (TAG_API == UrlConstants.TAG_GREEN_MD_SEND) {
+                try {
+                    ArrayList<JSONObject> listDeviceMD = databaseHandler.getListDvcMD();
+                    JSONArray jsonArrayDeviceMD = new JSONArray(listDeviceMD);
 
-                ArrayList<JSONObject> listValveMD = databaseHandler.getListValveMD();
-                JSONArray jsonArrayValveMD = new JSONArray(listValveMD);
+                    ArrayList<JSONObject> listValveMD = databaseHandler.getListValveMD();
+                    JSONArray jsonArrayValveMD = new JSONArray(listValveMD);
 
-                ArrayList<JSONObject> listValveSessionMD = databaseHandler.getListValveSessionMD();
-                JSONArray jsonArrayValveSessionMD = new JSONArray(listValveSessionMD);
+                    ArrayList<JSONObject> listValveSessionMD = databaseHandler.getListValveSessionMD();
+                    JSONArray jsonArrayValveSessionMD = new JSONArray(listValveSessionMD);
 
-                object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-                object.put("user_id", MySharedPreference.getInstance(mContext).getsharedPreferenceData().getUser_id());
-                object.put("res_type", "MD");
-                object.put("devices", jsonArrayDeviceMD);
-                object.put("devices_valves_master", jsonArrayValveMD);
-                object.put("devices_valves_session", jsonArrayValveSessionMD);
-            } catch (Exception e) {
-                e.printStackTrace();
+                    object.put("res_type", "MD");
+                    object.put("devices", jsonArrayDeviceMD);
+                    object.put("devices_valves_master", jsonArrayValveMD);
+                    object.put("devices_valves_session", jsonArrayValveSessionMD);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (TAG_API == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
+                try {
+                    ArrayList<JSONObject> listDeviceLD = databaseHandler.getListDvcLD();
+                    JSONArray jsonArrayDeviceLD = new JSONArray(listDeviceLD);
+
+                    ArrayList<JSONObject> listValveLD = databaseHandler.getListValveLD();
+                    JSONArray jsonArrayValveLD = new JSONArray(listValveLD);
+
+                    ArrayList<JSONObject> listValveSessionLD = databaseHandler.getListValveSessionLD();
+                    JSONArray jsonArrayValveSessionLD = new JSONArray(listValveSessionLD);
+
+                    object.put("res_type", "LD");
+                    object.put("devices", jsonArrayDeviceLD);
+                    object.put("devices_valves_master", jsonArrayValveLD);
+                    object.put("devices_valves_session", jsonArrayValveSessionLD);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return object;
     }
 
     @Override
     public void onSuccess(JSONObject call, int Tag) {
-        if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+        if (Tag == UrlConstants.TAG_GREEN_MD_SEND) {
+            if (call.optString("status").equals("success")) {
+                Log.e("@@@ SYNC MD STATUS ", "SUCCESS FROM FragAddEditSesnPlan");
+                databaseHandler.setOPtoZeroAllMDTables();
+                hitAPI(UrlConstants.TAG_GREEN_LOG_DATA_SEND);
+            }
+        } else if (Tag == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
             if (call.optString("status").equals("success")) {
                 date = new Date();
                 greenDataSendLastLongDT = date.getTime();
                 MySharedPreference.getInstance(mContext).setLastDataSendLognDT(greenDataSendLastLongDT);
-                Log.e("@@@ SYNC DATA STATUS ", "SUCCESS FROM FragAddEditSesnPlan");
+                Log.e("@@@ DATE TIME ", greenDataSendLastLongDT + "");
+                Log.e("@@@ SYNC LD STATUS ", "SUCCESS FROM FragAddEditSesnPlan");
 
-                databaseHandler.setOPtoZeroAllMDTables();
+                databaseHandler.deleteAllLogsTableData();
             }
         }
 
@@ -1796,6 +1830,12 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
     @Override
     public void doRetryNow(int Tag) {
 
+    }
+
+    void clearRef() {
+        if (request != null) {
+            request = null;
+        }
     }
 
 }

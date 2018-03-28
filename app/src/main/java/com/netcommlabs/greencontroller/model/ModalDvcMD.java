@@ -43,15 +43,14 @@ public class ModalDvcMD {
             jsonObjModal.put("dvc_is_show_status", dvc_is_show_status);
             jsonObjModal.put("dvc_op_type_aed", dvc_op_type_aed);
             jsonObjModal.put("dvc_crted_dt", dvc_crted_dt);
-            jsonObjModal.put("dvc_updated_dt", dvc_updated_dt==null?JSONObject.NULL:dvc_updated_dt);
+            jsonObjModal.put("dvc_updated_dt", dvc_updated_dt == null ? JSONObject.NULL : dvc_updated_dt);
 
             Log.e("@@JSON DVC ", jsonObjModal.toString());
         } catch (JSONException e) {
             e.getMessage();
         }
 
-
-       /* this.address_uuid = address_uuid;
+        this.address_uuid = address_uuid;
         this.dvc_uuid = dvc_uuid;
         this.dvc_name = dvc_name;
         this.dvc_mac = dvc_mac;
@@ -64,7 +63,7 @@ public class ModalDvcMD {
         this.dvc_is_show_status = dvc_is_show_status;
         this.dvc_op_type_aed = dvc_op_type_aed;
         this.dvc_crted_dt = dvc_crted_dt;
-        this.dvc_updated_dt = dvc_updated_dt;*/
+        this.dvc_updated_dt = dvc_updated_dt;
 
     }
 

@@ -46,7 +46,6 @@
                 android:layout_height="@dimen/_55sdp"
                 android:background="@drawable/rect_shadow_all_bg"
                 android:hint="Enter password"
-
                 android:inputType="textPassword"
                 android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="@dimen/_15sdp"

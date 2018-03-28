@@ -27,7 +27,7 @@ import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.DeviceAddressAdapter;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
@@ -62,7 +62,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private BLEAppLevel bleAppLevel;
     private TextView tvAddressTop, tvEditDvcName, tvPauseDvc, tvResumeDbc, tvConnectDvc, tvDisconnectDvc, tvDeleteDvc, tvEditBtn, tvCancelEdit;
     private DatabaseHandler databaseHandler;
-    private String addressUUID, dvcUUID;
+    private String addressUUID="", dvcUUID="";
     private int addressSelectStatus;
     private List<ModalDeviceModule> listModalDeviceModule;
     private List<ModalAddressModule> listModalAddressModule;
@@ -162,7 +162,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         llAddNewAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), TagConstant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
 
@@ -184,7 +184,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         ivMapNewDevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), TagConstant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
             }
         });
         ivPrev.setOnClickListener(new View.OnClickListener() {
@@ -480,7 +480,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
         bundle.putInt(FragDeviceDetails.EXTRA_DVC_VALVE_COUNT, valveNum);
         fragDeviceDetails.setArguments(bundle);
         //Adding Fragment(FragDeviceDetails)
-        MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, Constant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
+        MyFragmentTransactions.replaceFragment(mContext, fragDeviceDetails, TagConstant.DEVICE_DETAILS, mContext.frm_lyt_container_int, true);
     }
 
     @Override

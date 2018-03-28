@@ -1,6 +1,5 @@
 package com.netcommlabs.greencontroller.adapters;
 
-import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.Fragments.FragAddressBook;
 import com.netcommlabs.greencontroller.Fragments.FragAvailableDevices;
@@ -25,12 +23,10 @@ import com.netcommlabs.greencontroller.Fragments.FragStatistics;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.Interfaces.OpendialogCallback;
 import com.netcommlabs.greencontroller.R;
-import com.netcommlabs.greencontroller.activities.LoginAct;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
-import com.netcommlabs.greencontroller.utilities.MySharedPreference;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.utilities.Navigation_Drawer_Data;
 
 import java.util.List;
@@ -78,7 +74,7 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                         case "My Profile":
                             //Replacing Fragment(FragAddEditAddress)
                             FragMyProfile fragMyProfile = new FragMyProfile();
-                            MyFragmentTransactions.replaceFragment(mContext, fragMyProfile, Constant.MY_PROFILE, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, fragMyProfile, TagConstant.MY_PROFILE, mContext.frm_lyt_container_int, false);
                             opendialogCallback.getFragment(fragMyProfile);
                             break;
                         case "My Devices":
@@ -86,66 +82,60 @@ public class NavListAdapter extends RecyclerView.Adapter<NavListAdapter.MyViewHo
                             List<ModalDeviceModule> listAllDevices = databaseHandler.getDeviceDataForIMap("");
                             if (listAllDevices.size() > 0) {
                                 //Adding Fragment(FragDeviceMAP)
-                                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+                                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
                             } else {
                                 //Adding Fragment(FragDontHvDevice)
-                                MyFragmentTransactions.replaceFragment(mContext, new FragDontHvDevice(), Constant.DO_NOT_HAVE_DEVICE, mContext.frm_lyt_container_int, true);
+                                MyFragmentTransactions.replaceFragment(mContext, new FragDontHvDevice(), TagConstant.DO_NOT_HAVE_DEVICE, mContext.frm_lyt_container_int, true);
                             }
                             break;
                         case "Add New Device":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), TagConstant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, false);
                             break;
                         case "Meter Device":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragMeterDevice(), Constant.METER_DEVICE, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragMeterDevice(), TagConstant.METER_DEVICE, mContext.frm_lyt_container_int, false);
                             break;
                         case "Recommendations":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragRecomm(), Constant.RECOMM, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragRecomm(), TagConstant.RECOMM, mContext.frm_lyt_container_int, false);
                             break;
                         case "Statistics":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragStatistics(), Constant.DEVICE_STATS, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragStatistics(), TagConstant.DEVICE_STATS, mContext.frm_lyt_container_int, false);
                             break;
                         case "Address Book":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragAddressBook(), TagConstant.ADDRESS_BOOK, mContext.frm_lyt_container_int, false);
                             break;
                         case "Feedback":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragFeedback(), Constant.FEEDBACK, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragFeedback(), TagConstant.FEEDBACK, mContext.frm_lyt_container_int, false);
                             break;
                         case "FAQ & Help":
                             //Replacing Fragment(FragAddEditAddress)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), Constant.FAQ, mContext.frm_lyt_container_int, false);
+                            MyFragmentTransactions.replaceFragment(mContext, new FragFAQHelp(), TagConstant.FAQ, mContext.frm_lyt_container_int, false);
                             break;
                         case "Log out":
+                            databaseHandler = DatabaseHandler.getInstance(mContext);
+                            mContext.isLogoutTrue = true;
 
                             if (databaseHandler.getDvcMasterOpTypeCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
                             } else if (databaseHandler.getValveMasterOpTypeCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
                             } else if (databaseHandler.getValveSesnMasterOpTypeCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
                             } else if (databaseHandler.getDvcLogRowsCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
                             } else if (databaseHandler.getValveLogRowsCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
                             } else if (databaseHandler.getValveSesnLogRowsCount() > 0) {
-                                mContext.syncUnsyncDataAndClearAll();
+                                mContext.syncUnsyncDataClearAllAndLogout();
+                            } else {
+                                // Here means No Unsync data available
+                                mContext.clearSPDeleteDBandLogout();
                             }
-
-                            MySharedPreference.getInstance(mContext).clearAll();
-                            Toast.makeText(mContext, "Logout successfully", Toast.LENGTH_SHORT).show();
-                            mContext.startActivity(new Intent(mContext, LoginAct.class));
-                            mContext.finish();
-                            break;
-                      /*  case "Verify Otp":
-                            //Replacing Fragment(FragOtp)
-                            MyFragmentTransactions.replaceFragment(mContext, new FragOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, false);
-                            break;
-*/
                     }
 
                     nav_drawer_layout.closeDrawers();

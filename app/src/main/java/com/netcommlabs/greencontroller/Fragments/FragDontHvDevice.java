@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 
 public class FragDontHvDevice extends Fragment {
 
@@ -44,7 +44,7 @@ public class FragDontHvDevice extends Fragment {
             @Override
             public void onClick(View view) {
                 //Adding Fragment(FragAvailableDevices)
-                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), TagConstant.AVAILABLE_DEVICE, mContext.frm_lyt_container_int, true);
 
             }
         });

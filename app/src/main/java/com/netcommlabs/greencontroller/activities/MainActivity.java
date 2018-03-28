@@ -23,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -44,7 +43,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -70,7 +68,7 @@ import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.Interfaces.OpendialogCallback;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.adapters.NavListAdapter;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
@@ -93,11 +91,11 @@ import java.util.Locale;
 
 import static com.netcommlabs.greencontroller.activities.ActvityOtp.KEY_LANDED_FROM;
 import static com.netcommlabs.greencontroller.activities.ActvityOtp.KEY_MOBILE_NUM;
-import static com.netcommlabs.greencontroller.constant.Constant.ADDRESS_BOOK;
-import static com.netcommlabs.greencontroller.constant.Constant.AVAILABLE_DEVICE;
-import static com.netcommlabs.greencontroller.constant.Constant.CONNECTED_QR;
-import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_DETAILS;
-import static com.netcommlabs.greencontroller.constant.Constant.DEVICE_MAP;
+import static com.netcommlabs.greencontroller.constant.TagConstant.ADDRESS_BOOK;
+import static com.netcommlabs.greencontroller.constant.TagConstant.AVAILABLE_DEVICE;
+import static com.netcommlabs.greencontroller.constant.TagConstant.CONNECTED_QR;
+import static com.netcommlabs.greencontroller.constant.TagConstant.DEVICE_DETAILS;
+import static com.netcommlabs.greencontroller.constant.TagConstant.DEVICE_MAP;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, APIResponseListener, OpendialogCallback {
 
@@ -138,9 +136,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     FragMyProfile fragMyProfile;
     private String userImageBase64;
     public static final int TAG_NO_NET_CONNECTION = 1000000000;
+    public static final int TAG_SYNC_LOGOUT = 2000000000;
     private Date date;
     private long greenDataSendLastLongDT;
     private long greenDataSendImmediateLongDT;
+    public boolean isLogoutTrue = false;
 
     @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     @Override
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private void initBase() {
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
         //See SQLite Schema on Chrome browser
-        Stetho.initializeWithDefaults(mContext);
+        //Stetho.initializeWithDefaults(mContext);
         databaseHandler = DatabaseHandler.getInstance(mContext);
         date = new Date();
         //Checking Marshmallow
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         userImageBase64 = MySharedPreference.getInstance(MainActivity.this).getUser_img();
-        if (userImageBase64 != "") {
+        if (!userImageBase64.isEmpty()) {
             byte[] decodedString = Base64.decode(userImageBase64, Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             circularIVNav.setImageBitmap(decodedByte);
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         nav_revi_slider.setAdapter(new NavListAdapter(mContext, listNavDrawerRowDat, nav_drawer_layout, this));
 
         //Adding first Fragment(FragDashboardPebbleHome)
-        MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
+        MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), TagConstant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }
 
     public void setupUIForSoftkeyboardHide(View view) {
@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    private void hitAPI(int TAG_API) {
+    public void hitAPI(int TAG_API) {
 /****************************hit Api for location**********************************/
         if (TAG_API == UrlConstants.SAVE_IMEI_TAG) {
             try {
@@ -328,9 +328,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 clearRef();
                 e.printStackTrace();
             }
-        } else if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
+        } else if (TAG_API == UrlConstants.TAG_GREEN_MD_SEND) {
             try {
-                request = new ProjectWebRequest(this, getParam(TAG_API), UrlConstants.URL_LOG_MD_SEND, this, UrlConstants.TAG_LOG_MD_SEND);
+                request = new ProjectWebRequest(this, getParam(TAG_API), UrlConstants.URL_GREEN_MD_SEND, this, UrlConstants.TAG_GREEN_MD_SEND);
+                request.execute();
+            } catch (Exception e) {
+                clearRef();
+                e.printStackTrace();
+            }
+        } else if (TAG_API == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
+            try {
+                request = new ProjectWebRequest(this, getParam(TAG_API), UrlConstants.URL_GREEN_LOG_DATA_SEND, this, UrlConstants.TAG_GREEN_LOG_DATA_SEND);
                 request.execute();
             } catch (Exception e) {
                 clearRef();
@@ -341,44 +349,64 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private JSONObject getParam(int TAG_API) {
         JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
+            object.put("user_id", preference.getUser_id());
 
-        if (TAG_API == UrlConstants.SAVE_IMEI_TAG) {
-            try {
-                object = new JSONObject();
-                object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-                object.put("user_id", preference.getUser_id());
-                object.put("imei_primary", imeiSIM1);
-                object.put("imei_secondary", imeiSIM2);
-                if (addressUserFriendly == "") {
-                    object.put("location", "");
-                } else {
-                    object.put("location", addressUserFriendly);
+            if (TAG_API == UrlConstants.SAVE_IMEI_TAG) {
+                try {
+                    object.put("imei_primary", imeiSIM1);
+                    object.put("imei_secondary", imeiSIM2);
+                    if (addressUserFriendly == "") {
+                        object.put("location", "");
+                    } else {
+                        object.put("location", addressUserFriendly);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            } else if (TAG_API == UrlConstants.TAG_GREEN_MD_SEND) {
+                try {
+                    ArrayList<JSONObject> listDeviceMD = databaseHandler.getListDvcMD();
+                    JSONArray jsonArrayDeviceMD = new JSONArray(listDeviceMD);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                    ArrayList<JSONObject> listValveMD = databaseHandler.getListValveMD();
+                    JSONArray jsonArrayValveMD = new JSONArray(listValveMD);
+
+                    ArrayList<JSONObject> listValveSessionMD = databaseHandler.getListValveSessionMD();
+                    JSONArray jsonArrayValveSessionMD = new JSONArray(listValveSessionMD);
+
+                    object.put("res_type", "MD");
+                    object.put("devices", jsonArrayDeviceMD);
+                    object.put("devices_valves_master", jsonArrayValveMD);
+                    object.put("devices_valves_session", jsonArrayValveSessionMD);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (TAG_API == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
+                try {
+                    ArrayList<JSONObject> listDeviceLD = databaseHandler.getListDvcLD();
+                    JSONArray jsonArrayDeviceLD = new JSONArray(listDeviceLD);
+
+                    ArrayList<JSONObject> listValveLD = databaseHandler.getListValveLD();
+                    JSONArray jsonArrayValveLD = new JSONArray(listValveLD);
+
+                    ArrayList<JSONObject> listValveSessionLD = databaseHandler.getListValveSessionLD();
+                    JSONArray jsonArrayValveSessionLD = new JSONArray(listValveSessionLD);
+
+                    object.put("res_type", "LD");
+                    object.put("devices", jsonArrayDeviceLD);
+                    object.put("devices_valves_master", jsonArrayValveLD);
+                    object.put("devices_valves_session", jsonArrayValveSessionLD);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } else if (TAG_API == UrlConstants.TAG_LOG_MD_SEND) {
-            try {
-                object = new JSONObject();
-                ArrayList<JSONObject> listDeviceMD = databaseHandler.getListDvcMD();
-                JSONArray jsonArrayDeviceMD = new JSONArray(listDeviceMD);
-
-                ArrayList<JSONObject> listValveMD = databaseHandler.getListValveMD();
-                JSONArray jsonArrayValveMD = new JSONArray(listValveMD);
-
-                ArrayList<JSONObject> listValveSessionMD = databaseHandler.getListValveSessionMD();
-                JSONArray jsonArrayValveSessionMD = new JSONArray(listValveSessionMD);
-
-                object.put(PreferenceModel.TokenKey, PreferenceModel.TokenValues);
-                object.put("user_id", preference.getUser_id());
-                object.put("res_type", "MD");
-                object.put("devices", jsonArrayDeviceMD);
-                object.put("devices_valves_master", jsonArrayValveMD);
-                object.put("devices_valves_session", jsonArrayValveSessionMD);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return object;
     }
@@ -394,16 +422,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 long mins = (millis / (1000 * 60));
                 Log.e("@@@ MIN & HOURS ", mins + " & " + hours);
                 if (hours >= 1) {
-                    hitAPI(UrlConstants.TAG_LOG_MD_SEND);
+                    hitAPI(UrlConstants.TAG_GREEN_MD_SEND);
                 }
             }
-        } else if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+        } else if (Tag == UrlConstants.TAG_GREEN_MD_SEND) {
+            if (call.optString("status").equals("success")) {
+                Log.e("@@@ SYNC MD STATUS ", "SUCCESS FROM MainActivity");
+                databaseHandler.setOPtoZeroAllMDTables();
+                hitAPI(UrlConstants.TAG_GREEN_LOG_DATA_SEND);
+            }
+        } else if (Tag == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
             if (call.optString("status").equals("success")) {
                 greenDataSendLastLongDT = date.getTime();
                 MySharedPreference.getInstance(mContext).setLastDataSendLognDT(greenDataSendLastLongDT);
-                Log.e("@@@ SYNC DATA STATUS ", "SUCCESS FROM MainActivity");
+                Log.e("@@@ SYNC LD STATUS ", "SUCCESS FROM MainActivity");
 
-                databaseHandler.setOPtoZeroAllMDTables();
+                databaseHandler.deleteAllLogsTableData();
+                // If logout clicked it would be true
+                if (isLogoutTrue) {
+                    clearSPDeleteDBandLogout();
+                }
             }
         }
 
@@ -416,8 +454,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         clearRef();
         if (Tag == UrlConstants.SAVE_IMEI_TAG) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
-        }
-        if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+        } else if (Tag == UrlConstants.TAG_GREEN_MD_SEND) {
+            ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
+        } else if (Tag == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
             ErroScreenDialog.showErroScreenDialog(mContext, tag, erroMsg, this);
         }
     }
@@ -427,7 +466,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         clearRef();
         if (Tag == UrlConstants.SAVE_IMEI_TAG) {
             hitAPI(Tag);
-        } else if (Tag == UrlConstants.TAG_LOG_MD_SEND) {
+        } else if (Tag == UrlConstants.TAG_GREEN_MD_SEND) {
+            hitAPI(Tag);
+        } else if (Tag == UrlConstants.TAG_GREEN_LOG_DATA_SEND) {
             hitAPI(Tag);
         }
     }
@@ -519,11 +560,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
 
-    public void MainActBLEgotDisconnected() {
+    public void MainActBLEgotDisconnected(String macAddress) {
         currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
         //currentFragment.
         if (currentFragment instanceof FragDeviceDetails) {
-            tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
+            tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(macAddress));
         }
         if (currentFragment instanceof FragDeviceMAP) {
             ((FragDeviceMAP) currentFragment).llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
@@ -724,13 +765,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }*/
                 break;
             case DEVICE_DETAILS:
-                bleAppLevel = BLEAppLevel.getInstanceOnly();
+               /* bleAppLevel = BLEAppLevel.getInstanceOnly();
                 tvToolbar_title.setText(MySharedPreference.getInstance(mContext).getDvcNameFromDvcDetails());
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     tvDesc_txt.setText("This device is Connected");
                 } else {
                     tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
-                }
+                }*/
                 break;
             case CONNECTED_QR:
                 if (currentFragment instanceof FragConnectedQR) {
@@ -753,7 +794,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void dvcLongPressEvents() {
         onBackPressed();
         //Adding Fragment(FragDeviceMAP)
-        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
 
     }
 
@@ -783,8 +824,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             bleAppLevel.disconnectBLECompletely();
         }
         //BLEAppLevel.getInstanceOnly().disconnectBLECompletely();
-        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
-        //MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), Constant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
+        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, true);
+        //MyFragmentTransactions.replaceFragment(mContext, new FragDashboardPebbleHome(), TagConstant.DASHBOARD_PEBBLE_HOME, frm_lyt_container_int, true);
     }
 
     void clearRef() {
@@ -808,11 +849,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }*/
     }
 
-    public void syncUnsyncDataAndClearAll() {
+    public void syncUnsyncDataClearAllAndLogout() {
         if (NetworkUtils.isConnected(mContext)) {
-            hitAPI(UrlConstants.TAG_LOG_MD_SEND);
+            hitAPI(UrlConstants.TAG_GREEN_MD_SEND);
         } else {
-
+            ErroScreenDialog.showErroScreenDialog(mContext, "Found unsynced data locally, kindly connect to internet and trigger sync. Else data will be lost", TAG_SYNC_LOGOUT);
         }
+    }
+
+    public void clearSPDeleteDBandLogout() {
+        MySharedPreference.getInstance(mContext).clearAll();
+        databaseHandler.closeDB();
+        mContext.deleteDatabase(DatabaseHandler.DATABASE_NAME);
+        Toast.makeText(mContext, "Logout successfully", Toast.LENGTH_SHORT).show();
+        mContext.startActivity(new Intent(mContext, LoginAct.class));
+        Log.e("### LOGOUT ", "EVERYTHING DELETED");
+        finish();
     }
 }

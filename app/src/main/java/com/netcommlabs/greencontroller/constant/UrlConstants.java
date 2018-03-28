@@ -21,7 +21,8 @@ public class UrlConstants {
     public static final String VERIFY_OTP_FOR_FORGOT_PASS= BASE_URL + "verify_otp";
     public static final String ADD_ADDRESS= BASE_URL + "add_address";
     public static final String SAVE_IMEI= BASE_URL + "save_imei";
-    public static final String URL_LOG_MD_SEND= BASE_URL + "collect_data";
+    public static final String URL_GREEN_MD_SEND = BASE_URL + "collect_data";
+    public static final String URL_GREEN_LOG_DATA_SEND = BASE_URL + "collect_log_data";
 
 
     public static final int LOGIN_TAG = 1001;
@@ -37,5 +38,6 @@ public class UrlConstants {
     public static final int VERIFY_OTP_FOR_FORGOT_PASS_TAG= 1011;
     public static final int ADD_ADDRESS_TAG= 1012;
     public static final int SAVE_IMEI_TAG= 1013;
-    public static final int TAG_LOG_MD_SEND= 1014;
+    public static final int TAG_GREEN_MD_SEND = 1014;
+    public static final int TAG_GREEN_LOG_DATA_SEND = 1015;
 }

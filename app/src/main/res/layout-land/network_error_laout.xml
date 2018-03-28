@@ -18,6 +18,7 @@
             android:background="@drawable/error_icon_two" />
 
         <TextView
+            android:id="@+id/tvErrorTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -27,11 +28,12 @@
 
         <TextView
             android:id="@+id/error_msg"
+            android:padding="@dimen/_5sdp"
             android:layout_width="@dimen/_300sdp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_19sdp"
             android:gravity="center"
-            android:text="gfdgdfgddfgdfgdfsgfgsdfgsdfgdfjhgsdf"
+            android:text="gfdgdfgddfgdfgdfsgfgsdfdfgdf ggfdg dfg gfdgdfgfdgdf g gdfg gdgd gdgd g  gdfgdfg dg  gdg dgg  gdfg  gsdfgdfjhgsdf"
             android:textColor="@color/text_color_white"
             android:textSize="@dimen/_12sdp" />
 
@@ -51,7 +53,7 @@
                 android:gravity="center"
                 android:text="Exit"
                 android:textAllCaps="true"
-                android:textSize="@dimen/_15sdp" />
+                android:textSize="@dimen/_13sdp" />
 
 
             <TextView
@@ -62,7 +64,7 @@
                 android:gravity="center"
                 android:text="RETRY"
                 android:textAllCaps="true"
-                android:textSize="@dimen/_15sdp" />
+                android:textSize="@dimen/_13sdp" />
         </LinearLayout>
     </LinearLayout>
 

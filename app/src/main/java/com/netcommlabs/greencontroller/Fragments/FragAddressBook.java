@@ -1,7 +1,6 @@
 package com.netcommlabs.greencontroller.Fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,13 +16,11 @@ import android.widget.Toast;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.adapters.AdapterAddressBook;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.List;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Android on 12/7/2017.
@@ -92,7 +89,7 @@ public class FragAddressBook extends Fragment {
         llAddNewAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), TagConstant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
     }

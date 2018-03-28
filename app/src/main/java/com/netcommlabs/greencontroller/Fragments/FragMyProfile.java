@@ -42,9 +42,7 @@ import com.netcommlabs.greencontroller.activities.MainActivity;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
 import com.netcommlabs.greencontroller.services.ProjectWebRequest;
-import com.netcommlabs.greencontroller.utilities.FileUtils;
 import com.netcommlabs.greencontroller.utilities.MySharedPreference;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
@@ -103,7 +101,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
     private int CAMERA_IMG_REQUEST = 1002;
     private Bitmap takenUserImgBtmp;
     PreferenceModel preference;
-    private String strEncodedImage;
+    private String base64ConvertedFromBitmap;
     private String userImageBase64;
 
     @Override
@@ -279,7 +277,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
 
             case R.id.tv_submit:
                 //phone_layout.setVisibility(View.GONE);
-                //   MyFragmentTransactions.replaceFragment(mContext, new ActvityOtp(), Constant.VERIFY_OTP, mContext.frm_lyt_container_int, true);
+                //   MyFragmentTransactions.replaceFragment(mContext, new ActvityOtp(), TagConstant.VERIFY_OTP, mContext.frm_lyt_container_int, true);
                 //    otp_layoutId.setVisibility(View.VISIBLE);
 
                 et_phoneNo.setCursorVisible(true);
@@ -375,6 +373,51 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
 
     }
 
+
+    //**************************************** Image Capturing Process ****************************************************************
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        String picturePath = "";
+        if (requestCode == GALLERY_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = mContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            takenUserImgBtmp = BitmapFactory.decodeFile(picturePath);
+        } else if (requestCode == CAMERA_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
+            takenUserImgBtmp = (Bitmap) data.getExtras().get("data");
+        }
+
+        if (takenUserImgBtmp != null) {
+            Bitmap scaleDownedBitmap = scaleDownBitmap(takenUserImgBtmp, 200, true);
+            image_user.setImageBitmap(scaleDownedBitmap);
+            convertBitmapToBse64(scaleDownedBitmap);
+        }
+    }
+
+    public static Bitmap scaleDownBitmap(Bitmap realImage, float maxImageSize, boolean filter) {
+        float ratio = Math.min(
+                (float) maxImageSize / realImage.getWidth(),
+                (float) maxImageSize / realImage.getHeight());
+        int width = Math.round((float) ratio * realImage.getWidth());
+        int height = Math.round((float) ratio * realImage.getHeight());
+
+        Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
+                height, filter);
+        return newBitmap;
+    }
+
+    private void convertBitmapToBse64(Bitmap takenUserImgBtmp) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        takenUserImgBtmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        base64ConvertedFromBitmap = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+    }
+
     private void hitApiForUpdateProfiler() {
         try {
             request = new ProjectWebRequest(mContext, getParamUpdateProfile(), UrlConstants.UPDATE_PROFILE, this, UrlConstants.UPDATE_PROFILE_TAG);
@@ -393,7 +436,7 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             object.put("user_id", preference.getUser_id());
             object.put("name", et_name.getText().toString());
             if (takenUserImgBtmp != null) {
-                object.put("image", strEncodedImage);
+                object.put("image", base64ConvertedFromBitmap);
             } else {
                 object.put("image", MySharedPreference.getInstance(mContext).getUser_img());
             }
@@ -555,89 +598,6 @@ public class FragMyProfile extends Fragment implements View.OnClickListener, API
             }
         });
         dialog.show();
-    }
-
-
-    //**************************************** Image Capturing Process ****************************************************************
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String picturePath = "";
-        if (requestCode == GALLERY_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = mContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            takenUserImgBtmp = BitmapFactory.decodeFile(picturePath);
-
-            //setUserImgUsingPath(picturePath);
-            //  image_user.setImageBitmap(takenUserImgBtmp);
-            // convertBitmapToBse64(takenUserImgBtmp);
-        } else if (requestCode == CAMERA_IMG_REQUEST && resultCode == RESULT_OK && null != data) {
-            takenUserImgBtmp = (Bitmap) data.getExtras().get("data");
-            if (takenUserImgBtmp != null) {
-                saveImage(takenUserImgBtmp);
-                picturePath = new File(Environment.getExternalStorageDirectory()
-                        + File.separator + "/test.jpg").getAbsolutePath();
-            }
-            //setUserImgUsingPath(picturePath);
-        }
-
-        if (takenUserImgBtmp != null) {
-            setUserImgUsingPath(picturePath);
-        }
-
-    }
-
-    private void setUserImgUsingPath(String picturePath) {
-        compressedBitmap = FileUtils.getBitmapWithCompressedFromPicker(mContext, picturePath);
-        convertBitmapToBse64(compressedBitmap);
-        image_user.setImageBitmap(compressedBitmap);
-
-    }
-
-    private String convertBitmapToBse64(Bitmap takenUserImgBtmp) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        takenUserImgBtmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        strEncodedImage = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
-        return strEncodedImage;
-    }
-
-
-    private void saveImage(Bitmap takenUserImgBtmp) {
-        File file = new File(Environment.getExternalStorageDirectory()
-                + File.separator + "/test.jpg");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            file.delete();
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
-            if (fos != null) {
-                takenUserImgBtmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-                fos.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 

@@ -57,7 +57,7 @@ public class FragScanQRCode extends Fragment {
             @Override
             public void onClick(View view) {
                 //Adding Fragment(FragAvailableDevices)
-                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), Constant.AVAILABLE_DEVICES, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, new FragAvailableDevices(), TagConstant.AVAILABLE_DEVICES, mContext.frm_lyt_container_int, true);
 
             }
         });*//*

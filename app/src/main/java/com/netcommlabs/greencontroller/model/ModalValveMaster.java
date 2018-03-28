@@ -26,6 +26,8 @@ public class ModalValveMaster {
     private String dvcUUID;
     private String valveOpTpFlushONOFF;
     private int valveOpTPInt;
+    private String valveCrtDT;
+    private String valveUpdateDT;
 
     // Empty constructor
     public ModalValveMaster() {
@@ -67,6 +69,16 @@ public class ModalValveMaster {
             jsonObjModal.put("valve_update_dt", valveUpdateDT == null ? JSONObject.NULL : valveUpdateDT);
 
             //Log.e("@@JSON VALVE MASTER ", jsonObjModal.toString());
+
+            this.dvcUUID = dvcUUID;
+            this.valveUUID = valveUUID;
+            this.valveName = valveName;
+            this.valveSelectStatus = valveSelectStatus;
+            this.valveOpTpSPP = valveOpTpSPP;
+            this.valveOpTpFlushONOFF = valveOpTpFlushONOFF;
+            this.valveOpTPInt = valveOpTPInt;
+            this.valveCrtDT = valveCrtDT;
+            this.valveUpdateDT = valveUpdateDT;
 
         } catch (JSONException e) {
             e.getMessage();
@@ -150,4 +162,11 @@ public class ModalValveMaster {
         this.listValveData = listValveData;
     }
 
+    public String getValveCrtDT() {
+        return valveCrtDT;
+    }
+
+    public String getValveUpdateDT() {
+        return valveUpdateDT;
+    }
 }

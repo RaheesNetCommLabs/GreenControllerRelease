@@ -24,6 +24,9 @@ public class ModalValveSessionData {
     private String friTP;
     private String satTP;
     private JSONObject jsonObjModal;
+    private String valveUUID;
+    private int valveSesnOpTyInt;
+    private String valveSesnCrtDT;
 
     public ModalValveSessionData(String valveNameSession, int sessionDP, int sessionDuration, int sessionQuantity, int sesnSlotNum, String sunTP, String monTP, String tueTP, String wedTP, String thuTP, String friTP, String satTP) {
         this.valveNameSession = valveNameSession;
@@ -49,17 +52,33 @@ public class ModalValveSessionData {
             jsonObjModal.put("valve_sesn_duration", sessionDuration);
             jsonObjModal.put("valve_sesn_quant", sessionQuantity);
             jsonObjModal.put("valve_sesn_slot_num", sesnSlotNum);
-            jsonObjModal.put("valve_sun_tp", sunTP == null ? JSONObject.NULL : sunTP);
-            jsonObjModal.put("valve_mon_tp", monTP == null ? JSONObject.NULL : monTP);
-            jsonObjModal.put("valve_tue_tp", tueTP == null ? JSONObject.NULL : tueTP);
-            jsonObjModal.put("valve_wed_tp", wedTP == null ? JSONObject.NULL : wedTP);
-            jsonObjModal.put("valve_thu_tp", thuTP == null ? JSONObject.NULL : thuTP);
-            jsonObjModal.put("valve_fri_tp", friTP == null ? JSONObject.NULL : friTP);
-            jsonObjModal.put("valve_sat_tp", satTP == null ? JSONObject.NULL : satTP);
+            jsonObjModal.put("valve_sun_tp", sunTP);
+            jsonObjModal.put("valve_mon_tp", monTP);
+            jsonObjModal.put("valve_tue_tp", tueTP);
+            jsonObjModal.put("valve_wed_tp", wedTP);
+            jsonObjModal.put("valve_thu_tp", thuTP);
+            jsonObjModal.put("valve_fri_tp", friTP);
+            jsonObjModal.put("valve_sat_tp", satTP);
             jsonObjModal.put("valve_sesn_op_ty_int", valveSesnOpTyInt);
             jsonObjModal.put("valve_sesn_crt_dt", valveSesnCrtDT);
 
             //Log.e("@@JSON VALVE SESSION ", jsonObjModal.toString());
+
+            this.valveUUID = valveUUID;
+            this.valveNameSession = valveNameSession;
+            this.sessionDP = sessionDP;
+            this.sessionDuration = sessionDuration;
+            this.sessionQuantity = sessionQuantity;
+            this.sesnSlotNum = sesnSlotNum;
+            this.sunTP = sunTP;
+            this.monTP = monTP;
+            this.tueTP = tueTP;
+            this.wedTP = wedTP;
+            this.thuTP = thuTP;
+            this.friTP = friTP;
+            this.satTP = satTP;
+            this.valveSesnOpTyInt = valveSesnOpTyInt;
+            this.valveSesnCrtDT = valveSesnCrtDT;
 
         } catch (JSONException e) {
             e.getMessage();
@@ -116,6 +135,18 @@ public class ModalValveSessionData {
 
     public String getSatTP() {
         return satTP;
+    }
+
+    public String getValveUUID() {
+        return valveUUID;
+    }
+
+    public int getValveSesnOpTyInt() {
+        return valveSesnOpTyInt;
+    }
+
+    public String getValveSesnCrtDT() {
+        return valveSesnCrtDT;
     }
 
 }

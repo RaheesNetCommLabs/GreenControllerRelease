@@ -21,7 +21,7 @@ import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
@@ -111,9 +111,9 @@ public class FragAddressDetail extends Fragment implements APIResponseListener {
                 //First child---then parent
                 //fragAddEditAddress.setTargetFragment(FragConnectedQR.this, 101);
                 //Adding Fragment(FragAddEditAddress)
-                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, TagConstant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
 
-                //MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                //MyFragmentTransactions.replaceFragment(mContext, new FragAddEditAddress(), TagConstant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
             }
         });
 

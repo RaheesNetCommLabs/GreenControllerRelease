@@ -1,6 +1,5 @@
 package com.netcommlabs.greencontroller.Fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import com.netcommlabs.greencontroller.Dialogs.ErroScreenDialog;
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.constant.UrlConstants;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.PreferenceModel;
@@ -180,7 +179,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                     //First child---then parent
                     fragAddressBook.setTargetFragment(FragConnectedQR.this, REQUEST_CODE_FOR_ADDRESS_BOOK);
                     //Adding Fragment(FragAddressBook)
-                    MyFragmentTransactions.replaceFragment(mContext, fragAddressBook, Constant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddressBook, TagConstant.ADDRESS_BOOK, mContext.frm_lyt_container_int, true);
 
                 } else {
                     FragAddEditAddress fragAddEditAddress = new FragAddEditAddress();
@@ -192,7 +191,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                     //First child---then parent
                     fragAddEditAddress.setTargetFragment(FragConnectedQR.this, REQUEST_ADDADDRESS_QRCONNECT);
                     //Adding Fragment(FragAddEditAddress)
-                    MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, Constant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddEditAddress, TagConstant.ADD_ADDRESS, mContext.frm_lyt_container_int, true);
                 }
             }
         });
@@ -260,15 +259,15 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                 }
 
                 if (!selectedExistingAddressID.isEmpty()) {
-                    //long insertedAddressUniqueID = databaseHandler.insertAddressModule(selectedExistingAddressID, modalAddressModule);
-                    //if (insertedAddressUniqueID != 0) {
-                    databaseHandler.insertDeviceModule(selectedExistingAddressID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
-                    //Replacing current Fragment by (FragDeviceMAP)
-                    MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
-                    dvcNameEdited = "";
-                    qrCodeEdited = "";
-                    Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
-                    //}
+                    long insertedRowID = databaseHandler.insertDeviceModule(selectedExistingAddressID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+                    if (insertedRowID != -1) {
+                        databaseHandler.insertDeviceModuleLog();
+                        //Replacing current Fragment by (FragDeviceMAP)
+                        MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                        dvcNameEdited = "";
+                        qrCodeEdited = "";
+                        Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     hitApiForSaveAddress();
                 }
@@ -362,13 +361,15 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
         if (Tag == UrlConstants.ADD_ADDRESS_TAG) {
             long insertedAddressUniqueID = databaseHandler.insertAddressModule(call.optString("address_id"), modalAddressModule);
             if (insertedAddressUniqueID != 0) {
-                databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
-
-                //Replacing current Fragment by (FragDeviceMAP)
-                MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), Constant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
-                dvcNameEdited = "";
-                qrCodeEdited = "";
-                Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                long insertedRowID = databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
+                if (insertedRowID != -1) {
+                    databaseHandler.insertDeviceModuleLog();
+                    //Replacing current Fragment by (FragDeviceMAP)
+                    MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
+                    dvcNameEdited = "";
+                    qrCodeEdited = "";
+                    Toast.makeText(mContext, "Device and Address now registered with app", Toast.LENGTH_LONG).show();
+                }
             }
 
         }

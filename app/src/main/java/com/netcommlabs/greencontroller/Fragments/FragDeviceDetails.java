@@ -153,6 +153,7 @@ public class FragDeviceDetails extends Fragment {
 
         myRequestedFrag = FragDeviceDetails.this;
         tvDeviceName.setText(dvcName);
+        databaseHandler = DatabaseHandler.getInstance(mContext);
 
         MySharedPreference.getInstance(mContext).setDvcNameFromDvcDetails(dvcName);
 
@@ -160,9 +161,9 @@ public class FragDeviceDetails extends Fragment {
         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
             tvDesc_txt.setText("This device is Connected");
         } else {
-            tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
+            tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(dvcMacAdd));
+            //tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
         }
-        databaseHandler = DatabaseHandler.getInstance(mContext);
         //List<ModalValveMaster> listValveMaster = databaseHandler.getAllValvesNdData();
         listValveMaster = databaseHandler.getValveMaster(dvcUUID);
         if (listValveMaster.size() == 0) {
@@ -172,14 +173,13 @@ public class FragDeviceDetails extends Fragment {
                 if (valveConctName.equals("Valve 1")) {
                     //On birth first valve would be selected
                     databaseHandler.insertValveMaster(dvcUUID, new ModalValveMaster(valveConctName, 1, "STOP", "FLUSH OFF", 1));
-                    //databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "TRUE", "STOP", "FALSE"));
+
                 } else {
-                    //databaseHandler.setValveDataNdPropertiesBirth(new ModalValveMaster(dvcMacAdd, valveConctName, listValveSessionData, "FALSE", "STOP", "FALSE"));
                     databaseHandler.insertValveMaster(dvcUUID, new ModalValveMaster(valveConctName, 0, "STOP", "FLUSH OFF", 1));
                 }
             }
+            databaseHandler.insertValveMasterLog(dvcUUID);
             initValveListAdapter();
-            //listMdlValveNameStateNdSelect = databaseHandler.getValveNameAndLastTwoProp(dvcMacAdd);
         } else {
             //list(Table) Valve Master contains data
             initValveListAdapter();
@@ -350,12 +350,10 @@ public class FragDeviceDetails extends Fragment {
             tvQuantity.setText(quantity + " ML");
 
             if (mvsd.getSesnSlotNum() == 1) {
-                //String sungTP=mvsd.getSunTP();
                 if (!mvsd.getSunTP().isEmpty()) {
                     tvSunFirst.setVisibility(View.VISIBLE);
                     tvSunFirst.setText(mvsd.getSunTP());
                 }
-                //String monTP=mvsd.getMonTP();
                 if (!mvsd.getMonTP().isEmpty()) {
                     tvMonFirst.setVisibility(View.VISIBLE);
                     tvMonFirst.setText(mvsd.getMonTP());

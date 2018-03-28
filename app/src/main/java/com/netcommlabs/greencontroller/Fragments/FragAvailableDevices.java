@@ -27,7 +27,7 @@ import com.netcommlabs.greencontroller.adapters.AdptrAvailableDVCs;
 import com.netcommlabs.greencontroller.services.BleAdapterService;
 import com.netcommlabs.greencontroller.Dialogs.AppAlertDialog;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
-import com.netcommlabs.greencontroller.constant.Constant;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,7 +205,7 @@ public class FragAvailableDevices extends Fragment implements BLEInterface {
         bundle.putString(FragConnectedQR.EXTRA_ID, dvcMacAddress);
         bundle.putString(FragConnectedQR.EXTRA_NAME, deviceName);
         fragConnectedQR.setArguments(bundle);
-        MyFragmentTransactions.replaceFragment(mContext, fragConnectedQR, Constant.CONNECTED_QR, mContext.frm_lyt_container_int, true);
+        MyFragmentTransactions.replaceFragment(mContext, fragConnectedQR, TagConstant.CONNECTED_QR, mContext.frm_lyt_container_int, true);
     }
 
     public void dvcIsStrangeStopEfforts() {

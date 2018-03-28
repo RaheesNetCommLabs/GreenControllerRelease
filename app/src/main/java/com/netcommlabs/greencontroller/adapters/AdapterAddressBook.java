@@ -17,10 +17,10 @@ import com.netcommlabs.greencontroller.Fragments.FragConnectedQR;
 import com.netcommlabs.greencontroller.Fragments.MyFragmentTransactions;
 import com.netcommlabs.greencontroller.R;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.TagConstant;
 import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
-import com.netcommlabs.greencontroller.constant.Constant;
 
 import java.util.List;
 
@@ -113,7 +113,7 @@ public class AdapterAddressBook extends RecyclerView.Adapter<AdapterAddressBook.
                     Bundle bundle = new Bundle();
                     bundle.putString(FragAddressDetail.ADDRESS_UUID_KEY, listModalAddressModule.get(position).getAddressUUID());
                     fragAddressDetail.setArguments(bundle);
-                    MyFragmentTransactions.replaceFragment(mContext, fragAddressDetail, Constant.ADDRESS_DETAIL, mContext.frm_lyt_container_int, true);
+                    MyFragmentTransactions.replaceFragment(mContext, fragAddressDetail, TagConstant.ADDRESS_DETAIL, mContext.frm_lyt_container_int, true);
                 }
             }
         });

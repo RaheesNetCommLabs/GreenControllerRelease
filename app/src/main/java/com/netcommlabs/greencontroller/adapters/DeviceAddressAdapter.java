@@ -58,7 +58,11 @@ public class DeviceAddressAdapter extends RecyclerView.Adapter<DeviceAddressAdap
         modalAddressModule = listAdrsIDRdoNameSlctStatus.get(position);
         String addressName = modalAddressModule.getAddressRadioName();
         int addressSelectStatus = modalAddressModule.getAddressSelectStatus();
-
+        /*if (addressSelectStatus == 0) {
+            if (fragDeviceMAP.selectAddressNameListAt == 0) {
+                holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg_select);
+            }
+        }*/
         holder.tvAddress.setText(addressName);
         if (addressSelectStatus == 1) {
             holder.llRowBgAdrsDvcMap.setBackgroundResource(R.drawable.device_bg_select);

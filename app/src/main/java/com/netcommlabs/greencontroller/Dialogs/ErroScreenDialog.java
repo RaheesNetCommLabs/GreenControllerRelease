@@ -9,10 +9,15 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netcommlabs.greencontroller.Interfaces.APIResponseListener;
 import com.netcommlabs.greencontroller.R;
+import com.netcommlabs.greencontroller.activities.LoginAct;
 import com.netcommlabs.greencontroller.activities.MainActivity;
+import com.netcommlabs.greencontroller.constant.UrlConstants;
+import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 import com.netcommlabs.greencontroller.utilities.NetworkUtils;
 
 /**
@@ -50,16 +55,25 @@ public class ErroScreenDialog {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.network_error_laout);
 
+        TextView error_title = (TextView) dialog.findViewById(R.id.tvErrorTitle);
         TextView error_msg = (TextView) dialog.findViewById(R.id.error_msg);
         TextView tv_retry = (TextView) dialog.findViewById(R.id.tv_retry);
         TextView tv_exit = (TextView) dialog.findViewById(R.id.tv_exit);
+
+        if (Tag == MainActivity.TAG_SYNC_LOGOUT) {
+            tv_retry.setText("SYNC NOW");
+            tv_exit.setText("LOGOUT ANYWAY");
+            error_title.setText("Warning");
+        }
         error_msg.setText(errorMsg);
         tv_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
                 if (Tag == MainActivity.TAG_NO_NET_CONNECTION) {
-                    ((Activity) mContext).finish();
+                    ((MainActivity) mContext).finish();
+                } else if (Tag == MainActivity.TAG_SYNC_LOGOUT) {
+                    ((MainActivity) mContext).clearSPDeleteDBandLogout();
                 }
             }
         });
@@ -69,6 +83,14 @@ public class ErroScreenDialog {
                 if (Tag == MainActivity.TAG_NO_NET_CONNECTION) {
                     dialog.dismiss();
                     ((MainActivity) mContext).checkNetConnectionAndTakeStep();
+                } else if (Tag == MainActivity.TAG_SYNC_LOGOUT) {
+                    if (NetworkUtils.isConnected(mContext)) {
+                        dialog.dismiss();
+                        ((MainActivity) mContext).hitAPI(UrlConstants.TAG_GREEN_MD_SEND);
+                    } else {
+                        Toast.makeText(mContext, "Kindly check your net connection!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 } else {
                     if (NetworkUtils.isConnected(mContext)) {
                         dialog.dismiss();
