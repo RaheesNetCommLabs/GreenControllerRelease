@@ -13,7 +13,7 @@ import com.netcommlabs.greencontroller.utilities.MySharedPreference;
  * Created by Netcomm on 3/7/2018.
  */
 
-public class ActivitySplash extends Activity {
+public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,14 +28,14 @@ public class ActivitySplash extends Activity {
                 @Override
                 public void run() {
 
-                    PreferenceModel model = MySharedPreference.getInstance(ActivitySplash.this).getsharedPreferenceData();
+                    PreferenceModel model = MySharedPreference.getInstance(SplashActivity.this).getsharedPreferenceData();
                     if (model.getUser_id() != null && model.getUser_id().length() > 0) {
-                        Intent intent = new Intent(ActivitySplash.this, MainActivity.class);
+                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         //finish();
                     } else {
-                        startActivity(new Intent(ActivitySplash.this, LoginAct.class));
+                        startActivity(new Intent(SplashActivity.this, LoginAct.class));
                     }
                     finish();
                 }

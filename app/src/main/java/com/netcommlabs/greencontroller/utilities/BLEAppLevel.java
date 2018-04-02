@@ -173,18 +173,13 @@ public class BLEAppLevel {
                         showMsg("Device has expected services");
                         isBLEConnected = true;
                         //Recent connected device MAC save in SP
-                        MySharedPreference.getInstance(mContext).setConnectedDvcMacAdd(macAddress);
-                        //Calculating data, time and save in SP
+                        MySharedPreference msp = MySharedPreference.getInstance(mContext);
+                        msp.setConnectedDvcMacAdd(macAddress);
+                        //Calculating date, time and save in SP
                         Calendar c = Calendar.getInstance();
                         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy, HH:mm:ss");
                         String formattedDate = df.format(c.getTime());
-                        MySharedPreference.getInstance(mContext).setLastConnectedTime(formattedDate);
-
-                        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(mContext);
-                        long entryCount = databaseHandler.entryCountInDvcMaster();
-                        if (entryCount>0) {
-                            DatabaseHandler.getInstance(mContext).updateLastConnected(macAddress,formattedDate);
-                        }
+                        msp.setLastConnectedTime(formattedDate);
 
                         mContext.MainActBLEgotConnected();
                         //Setting current time to BLE

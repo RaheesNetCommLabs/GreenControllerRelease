@@ -32,6 +32,7 @@ import com.netcommlabs.greencontroller.model.ModalAddressModule;
 import com.netcommlabs.greencontroller.model.ModalDeviceModule;
 import com.netcommlabs.greencontroller.sqlite_db.DatabaseHandler;
 import com.netcommlabs.greencontroller.utilities.BLEAppLevel;
+import com.netcommlabs.greencontroller.utilities.MySharedPreference;
 
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     private BLEAppLevel bleAppLevel;
     private TextView tvAddressTop, tvEditDvcName, tvPauseDvc, tvResumeDbc, tvConnectDvc, tvDisconnectDvc, tvDeleteDvc, tvEditBtn, tvCancelEdit;
     private DatabaseHandler databaseHandler;
-    private String addressUUID="", dvcUUID="";
+    private String addressUUID = "", dvcUUID = "";
     private int addressSelectStatus;
     private List<ModalDeviceModule> listModalDeviceModule;
     private List<ModalAddressModule> listModalAddressModule;
@@ -147,7 +148,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                     addressUUID = listModalAddressModule.get(i).getAddressUUID();
                     selectAddressNameListAt = i;
                     break;
-                }else {
+                } else {
                     addressUUID = listModalAddressModule.get(0).getAddressUUID();
                     selectAddressNameListAt = 0;
                 }
@@ -236,7 +237,9 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                                 }
                             }
                         }
-                        databaseHandler.updateDvcNameOnly(dvcUUID, etEditDvcName.getText().toString());
+                        if (databaseHandler.updateDvcNameOnly(dvcUUID, etEditDvcName.getText().toString()) > 0) {
+                            databaseHandler.insertDeviceModuleLog(dvcUUID);
+                        }
                         llIMWholeDesign.setVisibility(View.VISIBLE);
                         llDialogEditDvcName.setVisibility(View.GONE);
 
@@ -287,10 +290,8 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
             @Override
             public void onClick(View v) {
                 bleAppLevel = BLEAppLevel.getInstanceOnly();
-
                 if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
                     bleAppLevel.disconnectBLECompletely();
-                    databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected");
                 } else {
                     Toast.makeText(mContext, "BLE Lost connection", Toast.LENGTH_SHORT).show();
                 }
@@ -562,7 +563,7 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
                 tvDisconnectDvc.setTextColor(Color.GRAY);
                 tvDeleteDvc.setTextColor(Color.GRAY);
 
-                if(bleAppLevel!=null){
+                if (bleAppLevel != null) {
                     bleAppLevel.disconnectBLECompletely();
                 }
             }
@@ -618,19 +619,32 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
 
     public void dvcLongPressBLEDone(String cmdTypeName) {
         if (cmdTypeName.equals("PAUSE")) {
-            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PAUSE");
-            databaseHandler.updateDvcOpTyStringAll(dvcUUID, "PAUSE");
+            if (databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PAUSE") > 0) {
+                databaseHandler.insertValveMasterLog(dvcUUID);
+            }
+            if (databaseHandler.updateDvcOpTyStringAll(dvcUUID, "PAUSE") > 0) {
+                databaseHandler.insertDeviceModuleLog(dvcUUID);
+            }
             Toast.makeText(mContext, "Device paused successfully", Toast.LENGTH_SHORT).show();
         } else if (cmdTypeName.equals("PLAY")) {
-            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PLAY");
-            databaseHandler.updateDvcOpTyStringAll(dvcUUID, "RESUME");
+            if (databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "PLAY") > 0) {
+                databaseHandler.insertValveMasterLog(dvcUUID);
+            }
+            if (databaseHandler.updateDvcOpTyStringAll(dvcUUID, "RESUME") > 0) {
+                databaseHandler.insertDeviceModuleLog(dvcUUID);
+            }
             Toast.makeText(mContext, "Device resumed successfully", Toast.LENGTH_SHORT).show();
         } else if (cmdTypeName.equals("STOP")) {
-            databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "STOP");
+            if (databaseHandler.updateValveOpTpSPPStatus(dvcUUID, "", "STOP") > 0) ;
+            {
+                databaseHandler.insertValveMasterLog(dvcUUID);
+            }
             int rowAffected = databaseHandler.deleteUpdateDevice(dvcUUID);
             if (rowAffected > 0) {
                 mContext.dvcDeleteUpdateSuccess();
-                databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected");
+                if (databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected") > 0) {
+                    databaseHandler.insertDeviceModuleLog(dvcUUID);
+                }
             }
         }
 
@@ -639,7 +653,19 @@ public class FragDeviceMAP extends Fragment implements View.OnClickListener, Vie
     }
 
     public void BLEConnectedACK() {
-        databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Connected");
+        long entryCount = databaseHandler.entryCountInDvcMaster();
+        if (entryCount > 0) {
+            if (databaseHandler.updateLastConnected(dvcUUID, MySharedPreference.getInstance(mContext).getLastConnectedTime()) > 0) {
+                databaseHandler.insertDeviceModuleLog(dvcUUID);
+            }
+        }
         llBubbleLeftTopBG.setBackgroundResource(R.drawable.pebble_back_connected);
+    }
+
+    public void disconnectCallBack() {
+        if (databaseHandler.updateDvcOpTyStringAll(dvcUUID, "Disconnected") > 0) {
+            databaseHandler.insertDeviceModuleLog(dvcUUID);
+        }
+        llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
     }
 }

@@ -149,10 +149,10 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                     JSONArray jsonArrayAddress = object.getJSONArray("addresses");
                     for (int i = 0; i < jsonArrayAddress.length(); i++) {
                         objectWithData = jsonArrayAddress.getJSONObject(i);
-                        if (i==0) {
-                             modalAddressModule = new ModalAddressModule(objectWithData.optString("id"), objectWithData.optString("flat_house_building"), objectWithData.optString("tower_street"), objectWithData.optString("area_land_loca"), objectWithData.optString("pin_code"), objectWithData.optString("city"), objectWithData.optString("state"), objectWithData.optInt("status"), 1, objectWithData.optString("address_name"), objectWithData.optDouble("place_lat"), objectWithData.optDouble("place_longi"), objectWithData.optString("place_well_known_name"), objectWithData.optString("place_Address"));
-                        }else {
-                             modalAddressModule = new ModalAddressModule(objectWithData.optString("id"), objectWithData.optString("flat_house_building"), objectWithData.optString("tower_street"), objectWithData.optString("area_land_loca"), objectWithData.optString("pin_code"), objectWithData.optString("city"), objectWithData.optString("state"), objectWithData.optInt("status"), 0, objectWithData.optString("address_name"), objectWithData.optDouble("place_lat"), objectWithData.optDouble("place_longi"), objectWithData.optString("place_well_known_name"), objectWithData.optString("place_Address"));
+                        if (i == 0) {
+                            modalAddressModule = new ModalAddressModule(objectWithData.optString("id"), objectWithData.optString("flat_house_building"), objectWithData.optString("tower_street"), objectWithData.optString("area_land_loca"), objectWithData.optString("pin_code"), objectWithData.optString("city"), objectWithData.optString("state"), objectWithData.optInt("status"), 1, objectWithData.optString("address_name"), objectWithData.optDouble("place_lat"), objectWithData.optDouble("place_longi"), objectWithData.optString("place_well_known_name"), objectWithData.optString("place_Address"));
+                        } else {
+                            modalAddressModule = new ModalAddressModule(objectWithData.optString("id"), objectWithData.optString("flat_house_building"), objectWithData.optString("tower_street"), objectWithData.optString("area_land_loca"), objectWithData.optString("pin_code"), objectWithData.optString("city"), objectWithData.optString("state"), objectWithData.optInt("status"), 0, objectWithData.optString("address_name"), objectWithData.optDouble("place_lat"), objectWithData.optDouble("place_longi"), objectWithData.optString("place_well_known_name"), objectWithData.optString("place_Address"));
                         }
                         databaseHandler.insertAddressModuleFromServer(modalAddressModule);
                     }
@@ -165,9 +165,14 @@ public class LoginAct extends AppCompatActivity implements View.OnClickListener,
                     }
 
                     JSONArray jsonArrayValve = object.getJSONArray("devices_valves_master");
+                    ModalValveMaster modalValveMaster;
                     for (int i = 0; i < jsonArrayValve.length(); i++) {
                         objectWithData = jsonArrayValve.getJSONObject(i);
-                        ModalValveMaster modalValveMaster = new ModalValveMaster(objectWithData.optString("dvc_uuid"), objectWithData.optString("valve_uuid"), objectWithData.optString("valve_name"), objectWithData.optInt("valve_select_status"), objectWithData.optString("valve_op_ty_spp"), objectWithData.optString("valve_op_ty_flush_on_off"), objectWithData.optInt("valve_op_ty_int"), objectWithData.optString("valve_crt_dt"), objectWithData.optString("valve_update_dt"));
+                        if (i == 0) {
+                            modalValveMaster = new ModalValveMaster(objectWithData.optString("dvc_uuid"), objectWithData.optString("valve_uuid"), objectWithData.optString("valve_name"), 1, objectWithData.optString("valve_op_ty_spp"), objectWithData.optString("valve_op_ty_flush_on_off"), objectWithData.optInt("valve_op_ty_int"), objectWithData.optString("valve_crt_dt"), objectWithData.optString("valve_update_dt"));
+                        } else {
+                            modalValveMaster = new ModalValveMaster(objectWithData.optString("dvc_uuid"), objectWithData.optString("valve_uuid"), objectWithData.optString("valve_name"), 0, objectWithData.optString("valve_op_ty_spp"), objectWithData.optString("valve_op_ty_flush_on_off"), objectWithData.optInt("valve_op_ty_int"), objectWithData.optString("valve_crt_dt"), objectWithData.optString("valve_update_dt"));
+                        }
                         databaseHandler.insertValveMasterFromServer(modalValveMaster);
                     }
 

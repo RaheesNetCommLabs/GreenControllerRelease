@@ -1690,7 +1690,9 @@ public class FragAddEditSesnPlan extends Fragment implements View.OnClickListene
             //Updating DP, Duration and Quantity separately
             databaseHandler.updateValveDPDurationQuantTemp(etDisPntsInt, etDurationInt, etWaterQuantInt, clkdVlvUUID);
 
-            databaseHandler.updateValveOpTpSPPStatus("", clkdVlvUUID, "PLAY");
+            if (databaseHandler.updateValveOpTpSPPStatus("", clkdVlvUUID, "PLAY") > 0) {
+                databaseHandler.insertValveMasterLog(clkdVlvUUID);
+            }
 
             //Operation between Session Temp, Master and Log tables
             databaseHandler.dbOperationBWSesnTempMasterNdLog(clkdVlvUUID, clkdVlvName);

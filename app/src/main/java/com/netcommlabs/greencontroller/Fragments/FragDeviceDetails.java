@@ -161,7 +161,7 @@ public class FragDeviceDetails extends Fragment {
         if (bleAppLevel != null && bleAppLevel.getBLEConnectedOrNot()) {
             tvDesc_txt.setText("This device is Connected");
         } else {
-            tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(dvcMacAdd));
+            tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(dvcUUID));
             //tvDesc_txt.setText("Last Connected  " + MySharedPreference.getInstance(mContext).getLastConnectedTime());
         }
         //List<ModalValveMaster> listValveMaster = databaseHandler.getAllValvesNdData();
@@ -201,7 +201,7 @@ public class FragDeviceDetails extends Fragment {
                 bundle.putString(FragAddEditSesnPlan.EXTRA_OPERATION_TYPE, "Add");
                 fragAddEditSesnPlan.setArguments(bundle);
                 fragAddEditSesnPlan.setTargetFragment(FragDeviceDetails.this, 101);
-                titleDynamicAddEdit = "Add ".concat("Plane (").concat(clickedValveName).concat(")");
+                titleDynamicAddEdit = "Add ".concat("Plan (").concat(clickedValveName).concat(")");
                 //Adding Fragment(FragAvailableDevices)
                 MyFragmentTransactions.replaceFragment(mContext, fragAddEditSesnPlan, titleDynamicAddEdit, mContext.frm_lyt_container_int, true);
             }
@@ -223,7 +223,7 @@ public class FragDeviceDetails extends Fragment {
                 fragAddEditSesnPlan.setArguments(bundle);
                 fragAddEditSesnPlan.setTargetFragment(FragDeviceDetails.this, 101);
                 //Adding Fragment(FragAddEditSesnPlan)
-                titleDynamicAddEdit = "Edit ".concat("Plane (").concat(clickedValveName).concat(")");
+                titleDynamicAddEdit = "Edit ".concat("Plan (").concat(clickedValveName).concat(")");
 
                 MyFragmentTransactions.replaceFragment(mContext, fragAddEditSesnPlan, titleDynamicAddEdit, mContext.frm_lyt_container_int, true);
             }
@@ -612,4 +612,7 @@ public class FragDeviceDetails extends Fragment {
         }
     }
 
+    public void disconnectCallBack() {
+        tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(dvcUUID));
+    }
 }

@@ -132,6 +132,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private ModalAddressModule modalAddressModule;
     private ModalDeviceModule modalDeviceModule;
     private Context mContext;
+    public String insertedDvcUUID = "";
 
     public static DatabaseHandler getInstance(Context context) {
         if (databaseHandler == null) {
@@ -261,7 +262,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(CLM_ADDRESS_UUID, addressUUID);
-        values.put(CLM_DVC_UUID, generateUUID());
+        insertedDvcUUID = generateUUID();
+        values.put(CLM_DVC_UUID, insertedDvcUUID);
         values.put(CLM_DVC_NAME, dvcNameEdited);
         values.put(CLM_DVC_MAC, dvc_mac_address);
         values.put(CLM_DVC_QR_CODE, qrCodeEdited);
@@ -281,13 +283,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return insertedRowID;
     }
 
-    public void insertDeviceModuleLog() {
+    public void insertDeviceModuleLog(String insertedDvcUUID) {
         db = this.getWritableDatabase();
         Cursor cursor;
         ContentValues values = new ContentValues();
 
-        cursor = db.query(TABLE_DVC_MASTER, null, null, null, null, null, null);
-        if (cursor != null && cursor.moveToLast()) {
+        cursor = db.query(TABLE_DVC_MASTER, null, CLM_DVC_UUID + "= ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{insertedDvcUUID, String.valueOf(1)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
             values.put(CLM_ADDRESS_UUID, cursor.getString(0));
             values.put(CLM_DVC_UUID, cursor.getString(1));
             values.put(CLM_DVC_NAME, cursor.getString(2));
@@ -641,6 +643,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public int updateValveFlushStatus(String valveUUID, String flushStatus) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(CLM_VALVE_OP_TP_INT, 2);
         values.put(CLM_VALVE_OP_TP_FLASH_ON_OF_STRING, flushStatus);
 
         int rowAffected = db.update(TABLE_VALVE_MASTER, values, CLM_VALVE_UUID + " = ? ",
@@ -779,15 +782,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(TABLE_VALVE_SESN_LOG, null, values);
     }
 
-    public void updateDvcNameOnly(String dvcUUID, String editedName) {
+    public int updateDvcNameOnly(String dvcUUID, String editedName) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(CLM_DVC_NAME, editedName);
+        values.put(CLM_DVC_OP_TP_INT, 2);
 
         int rowAffected = db.update(TABLE_DVC_MASTER, values, CLM_DVC_UUID + " = ? ",
                 new String[]{dvcUUID});
 
-        //db.close();
+        return rowAffected;
     }
 
     public int getDvcTotalValvesPlayPauseCount(String dvcUUID, String checkOpTySPP) {
@@ -840,7 +844,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void updateDvcOpTyStringAll(String dvcUUID, String opTyString) {
+    public int updateDvcOpTyStringAll(String dvcUUID, String opTyString) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -854,10 +858,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(CLM_DVC_UPDATED_DT, getDateTime());
         }
 
-        db.update(TABLE_DVC_MASTER, values, CLM_DVC_UUID + " = ? ",
+        int rowsEffected = db.update(TABLE_DVC_MASTER, values, CLM_DVC_UUID + " = ? ",
                 new String[]{dvcUUID});
 
-        //db.close();
+        return rowsEffected;
     }
 
     public void selectFrmVlvSesnMasterInsertIntoLog(String clickedVlvUUID) {
@@ -1210,14 +1214,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void closeDB() {
-        db.close();
+        if (db != null) {
+            db.close();
+        }
     }
 
-    public String getDvcLastConnected(String macAddress) {
+    public String getDvcLastConnected(String dvcUUID) {
         db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_LAST_CONNECTED}, CLM_DVC_MAC + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{macAddress, String.valueOf(1)}, null, null, null);
-        cursor.moveToFirst();
-        return cursor.getString(0);
+        Cursor cursor = db.query(TABLE_DVC_MASTER, new String[]{CLM_DVC_LAST_CONNECTED}, CLM_DVC_UUID + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{dvcUUID, String.valueOf(1)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            return cursor.getString(0);
+        }
+        return "";
     }
 
     public long entryCountInDvcMaster() {
@@ -1225,10 +1233,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return DatabaseUtils.queryNumEntries(db, TABLE_DVC_MASTER);
     }
 
-    public void updateLastConnected(String macAddress, String formattedDate) {
+    public int updateLastConnected(String dvcUUID, String formattedDate) {
         db = getWritableDatabase();
         ContentValues cv = new ContentValues();
+        cv.put(CLM_DVC_OP_TP_CON_DIS_STRING, "Connected");
         cv.put(CLM_DVC_LAST_CONNECTED, formattedDate);
-        db.update(TABLE_DVC_MASTER, cv, CLM_DVC_MAC + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{macAddress, String.valueOf(1)});
+        cv.put(CLM_DVC_OP_TP_INT, 2);
+        cv.put(CLM_DVC_UPDATED_DT, getDateTime());
+
+        return db.update(TABLE_DVC_MASTER, cv, CLM_DVC_UUID + " = ? AND " + CLM_DVC_IS_SHOW_STATUS + " = ? ", new String[]{dvcUUID, String.valueOf(1)});
     }
 }

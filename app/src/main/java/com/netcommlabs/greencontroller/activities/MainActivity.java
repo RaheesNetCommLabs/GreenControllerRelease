@@ -43,6 +43,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -190,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private void initBase() {
         setupUIForSoftkeyboardHide(findViewById(R.id.llMainContainerOfApp));
         //See SQLite Schema on Chrome browser
-        //Stetho.initializeWithDefaults(mContext);
+        Stetho.initializeWithDefaults(mContext);
         databaseHandler = DatabaseHandler.getInstance(mContext);
         date = new Date();
         //Checking Marshmallow
@@ -562,12 +563,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void MainActBLEgotDisconnected(String macAddress) {
         currentFragment = getSupportFragmentManager().findFragmentById(frm_lyt_container_int);
-        //currentFragment.
         if (currentFragment instanceof FragDeviceDetails) {
-            tvDesc_txt.setText("Last Connected  " + databaseHandler.getDvcLastConnected(macAddress));
+            ((FragDeviceDetails) currentFragment).disconnectCallBack();
         }
         if (currentFragment instanceof FragDeviceMAP) {
-            ((FragDeviceMAP) currentFragment).llBubbleLeftTopBG.setBackgroundResource(R.drawable.round_back_shadow_small);
+            ((FragDeviceMAP) currentFragment).disconnectCallBack();
         }
     }
 

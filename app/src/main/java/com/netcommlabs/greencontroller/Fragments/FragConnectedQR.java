@@ -261,7 +261,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
                 if (!selectedExistingAddressID.isEmpty()) {
                     long insertedRowID = databaseHandler.insertDeviceModule(selectedExistingAddressID, dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
                     if (insertedRowID != -1) {
-                        databaseHandler.insertDeviceModuleLog();
+                        databaseHandler.insertDeviceModuleLog(databaseHandler.insertedDvcUUID);
                         //Replacing current Fragment by (FragDeviceMAP)
                         MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
                         dvcNameEdited = "";
@@ -363,7 +363,7 @@ public class FragConnectedQR extends Fragment implements APIResponseListener {
             if (insertedAddressUniqueID != 0) {
                 long insertedRowID = databaseHandler.insertDeviceModule(databaseHandler.getAddressUUID(), dvcNameEdited, dvc_mac_address, qrCodeEdited, valveNum);
                 if (insertedRowID != -1) {
-                    databaseHandler.insertDeviceModuleLog();
+                    databaseHandler.insertDeviceModuleLog(databaseHandler.insertedDvcUUID);
                     //Replacing current Fragment by (FragDeviceMAP)
                     MyFragmentTransactions.replaceFragment(mContext, new FragDeviceMAP(), TagConstant.DEVICE_MAP, mContext.frm_lyt_container_int, false);
                     dvcNameEdited = "";

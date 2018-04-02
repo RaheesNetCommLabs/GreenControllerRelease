@@ -64,6 +64,8 @@ public class ErroScreenDialog {
             tv_retry.setText("SYNC NOW");
             tv_exit.setText("LOGOUT ANYWAY");
             error_title.setText("Warning");
+
+            dialog.setCancelable(true);
         }
         error_msg.setText(errorMsg);
         tv_exit.setOnClickListener(new View.OnClickListener() {

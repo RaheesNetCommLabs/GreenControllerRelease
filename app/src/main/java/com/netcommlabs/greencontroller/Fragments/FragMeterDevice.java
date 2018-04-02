@@ -33,5 +33,4 @@ public class FragMeterDevice extends Fragment {
             return view;
         }
 
-
 }

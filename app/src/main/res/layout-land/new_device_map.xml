@@ -6,7 +6,14 @@
     android:orientation="horizontal"
     tools:context="com.netcommlabs.greencontroller.Fragments.FragDeviceMAP">
 
-    <ScrollView
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="FEEDBACK"
+        android:textSize="@dimen/_20sdp"/>
+
+    <!--<ScrollView
         android:layout_width="@dimen/_122sdp"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/_4sdp">
@@ -80,13 +87,13 @@
                 android:layout_height="@dimen/_50sdp"
                 android:layout_weight="1">
 
-                <!--<View
+                &lt;!&ndash;<View
                     android:id="@+id/vDottedLine"
                     android:background="@drawadoted_line_horizontalline"
                     android:layout_width="@dimen/_100sdp"
                     android:layout_height="2dp"
                     android:layout_gravity="center"
-                    android:layerType="software"></View>-->
+                    android:layerType="software"></View>&ndash;&gt;
             </LinearLayout>
 
 
@@ -358,13 +365,13 @@
                     android:background="@drawable/bottom_left"
                     android:layerType="software"></View>
 
-                <!--  <View
+                &lt;!&ndash;  <View
                     android:layout_width="@dimen/_5sdp"
                     android:layout_height="@dimen/_50sdp"
                     android:layout_gravity="center"
                     android:layout_marginBottom="@dimen/_10sdp"
                     android:background="@drawable/bottom_left"
-                    android:layerType="software"></View>-->
+                    android:layerType="software"></View>&ndash;&gt;
             </LinearLayout>
 
             <LinearLayout
@@ -381,12 +388,12 @@
                     android:background="@drawable/bottom_right"
                     android:layerType="software"></View>
 
-                <!-- <View
+                &lt;!&ndash; <View
                     android:layout_width="@dimen/_25sdp"
                     android:layout_height="2dp"
                     android:layout_gravity="center"
                     android:background="@drawable/doted_line_horizontal"
-                    android:layerType="software"></View>-->
+                    android:layerType="software"></View>&ndash;&gt;
 
                 <RelativeLayout
                     android:id="@+id/rlBubbleRightBottom"
@@ -460,6 +467,6 @@
                 android:src="@drawable/next" />
         </LinearLayout>
 
-    </LinearLayout>
+    </LinearLayout>-->
 
 </LinearLayout>
