@@ -129,7 +129,7 @@ public class ModalAddressModule implements Serializable {
                               String locality_landmark,
                               String pinCode,
                               String city,
-                              String state, int isShowStatus, int isSelectedStatus,String addressRadioName, double latitudeLocation, double longitudeLocation, String placeWellKnownName, String placeAddress) {
+                              String state, int isShowStatus, int isSelectedStatus, String addressRadioName, double latitudeLocation, double longitudeLocation, String placeWellKnownName, String placeAddress) {
 
         this.addressUUID = addressUUID;
         this.flat_num = flat_num;
@@ -139,7 +139,7 @@ public class ModalAddressModule implements Serializable {
         this.city = city;
         this.state = state;
         this.isShowStatus = isShowStatus;
-        this.isSelectedStatus=isSelectedStatus;
+        this.isSelectedStatus = isSelectedStatus;
         this.addressRadioName = addressRadioName;
         this.latitudeLocation = latitudeLocation;
         this.longitudeLocation = longitudeLocation;

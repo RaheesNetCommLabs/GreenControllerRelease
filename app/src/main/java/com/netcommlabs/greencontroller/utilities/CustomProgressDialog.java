@@ -44,7 +44,7 @@ public class CustomProgressDialog {
         lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.getWindow().setAttributes(lp);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        Glide.with(mContext).load(R.mipmap.ic_launcher_round).thumbnail(Glide.with(mContext).load(R.mipmap.ic_launcher_round)).crossFade().into(img_load);
+        Glide.with(mContext).load(R.mipmap.app_icon).thumbnail(Glide.with(mContext).load(R.mipmap.app_icon)).crossFade().into(img_load);
         dialog.show();
 
     }
